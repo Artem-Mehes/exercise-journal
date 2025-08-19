@@ -1,0 +1,22 @@
+{
+  "projectName": "exercise-journal",
+  "mode": "file-router",
+  "typescript": true,
+  "tailwind": true,
+  "packageManager": "npm",
+  "git": true,
+  "version": 1,
+  "framework": "react-cra",
+  "chosenAddOns": [
+    "biome",
+    "start",
+    "convex",
+    "form",
+    "netlify",
+    "shadcn",
+    "store",
+    "tanstack-query",
+    "tRPC",
+    "table"
+  ]
+}
