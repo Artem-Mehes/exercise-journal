@@ -17,19 +17,7 @@ export default function Header() {
 				</div>
 
 				<div className="px-2 font-bold">
-					<Link to="/demo/convex">Convex</Link>
-				</div>
-
-				<div className="px-2 font-bold">
 					<Link to="/demo/store">Store</Link>
-				</div>
-
-				<div className="px-2 font-bold">
-					<Link to="/demo/tanstack-query">TanStack Query</Link>
-				</div>
-
-				<div className="px-2 font-bold">
-					<Link to="/demo/trpc-todo">tRPC Todo</Link>
 				</div>
 			</nav>
 		</header>

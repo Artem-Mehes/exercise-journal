@@ -12,22 +12,9 @@ import ConvexProvider from "../integrations/convex/provider";
 
 import StoreDevtools from "../lib/demo-store-devtools";
 
-import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
-
 import appCss from "../styles.css?url";
 
-import type { QueryClient } from "@tanstack/react-query";
-
-import type { TRPCRouter } from "@/integrations/trpc/router";
-import type { TRPCOptionsProxy } from "@trpc/tanstack-react-query";
-
-interface MyRouterContext {
-	queryClient: QueryClient;
-
-	trpc: TRPCOptionsProxy<TRPCRouter>;
-}
-
-export const Route = createRootRouteWithContext<MyRouterContext>()({
+export const Route = createRootRouteWithContext()({
 	head: () => ({
 		meta: [
 			{
@@ -72,7 +59,6 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 								render: <TanStackRouterDevtoolsPanel />,
 							},
 							StoreDevtools,
-							TanStackQueryDevtools,
 						]}
 					/>
 				</ConvexProvider>
