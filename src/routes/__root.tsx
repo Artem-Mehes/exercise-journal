@@ -41,13 +41,13 @@ export const Route = createRootRouteWithContext()({
 
 function RootDocument({ children }: { children: React.ReactNode }) {
 	return (
-		<html lang="en">
+		<html lang="en" className="dark h-full">
 			<head>
 				<HeadContent />
 			</head>
-			<body>
+			<body className="h-full flex items-center justify-center">
 				<ConvexProvider>
-					<Header />
+					{/* <Header /> */}
 					{children}
 					<TanstackDevtools
 						config={{
