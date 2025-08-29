@@ -19,6 +19,7 @@ code {
 }
 
 :root {
+	font-size: 20px;
 	--radius: 0.625rem;
 	--background: oklch(1 0 0);
 	--foreground: oklch(0.129 0.042 264.695);
@@ -131,6 +132,15 @@ code {
 		@apply border-border outline-ring/50;
 	}
 	body {
-		@apply bg-background h-full flex items-center justify-center;
+		@apply bg-background h-full flex justify-center text-foreground;
+	}
+}
+
+@layer base {
+	* {
+		@apply border-border outline-ring/50;
+	}
+	body {
+		@apply bg-background text-foreground;
 	}
 }

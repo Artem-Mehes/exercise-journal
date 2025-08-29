@@ -1,8 +1,12 @@
-import { defineSchema, defineTable } from 'convex/server'
-import { v } from 'convex/values'
+import { defineSchema, defineTable } from "convex/server";
+import { v } from "convex/values";
 
 export default defineSchema({
-  exercises: defineTable({
-    name: v.string(),
-  }),
-})
+	exercises: defineTable({
+		name: v.string(),
+	}),
+	workouts: defineTable({
+		name: v.string(),
+		exercises: v.array(v.id("exercises")),
+	}),
+});

@@ -6,12 +6,13 @@ import {
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 
-import Header from "../components/Header";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 
 import ConvexProvider from "../integrations/convex/provider";
 
 import StoreDevtools from "../lib/demo-store-devtools";
 
+import { AppSidebar } from "@/components/sidebar";
 import appCss from "../styles.css?url";
 
 export const Route = createRootRouteWithContext()({
@@ -25,7 +26,7 @@ export const Route = createRootRouteWithContext()({
 				content: "width=device-width, initial-scale=1",
 			},
 			{
-				title: "TanStack Start Starter",
+				title: "Exercise Journal",
 			},
 		],
 		links: [
@@ -47,8 +48,15 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 			</head>
 			<body>
 				<ConvexProvider>
-					{/* <Header /> */}
-					{children}
+					<SidebarProvider>
+						<AppSidebar />
+
+						<main className="flex-1 flex w-full flex-col gap-6 p-5 h-full">
+							<SidebarTrigger  />
+							{children}
+						</main>
+					</SidebarProvider>
+
 					<TanstackDevtools
 						config={{
 							position: "bottom-left",
