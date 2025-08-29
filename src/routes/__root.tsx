@@ -45,7 +45,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 			<head>
 				<HeadContent />
 			</head>
-			<body className="h-full flex items-center justify-center">
+			<body>
 				<ConvexProvider>
 					{/* <Header /> */}
 					{children}
