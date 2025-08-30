@@ -1,4 +1,5 @@
 import { useStore } from "@tanstack/react-form";
+import type { ComponentProps } from "react";
 
 import { useFieldContext, useFormContext } from "@/hooks/form-context";
 
@@ -42,10 +43,11 @@ function ErrorMessages({
 export function TextField({
 	label,
 	placeholder,
+	...props
 }: {
 	label: string;
 	placeholder?: string;
-}) {
+} & ComponentProps<typeof Input>) {
 	const field = useFieldContext<string>();
 	const errors = useStore(field.store, (state) => state.meta.errors);
 
@@ -55,6 +57,7 @@ export function TextField({
 				{label}
 			</Label>
 			<Input
+				{...props}
 				value={field.state.value}
 				placeholder={placeholder}
 				onBlur={field.handleBlur}

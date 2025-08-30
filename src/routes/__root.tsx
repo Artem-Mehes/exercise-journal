@@ -61,7 +61,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 					<SidebarProvider>
 						<AppSidebar />
 
-						<main className="flex-1 flex w-full flex-col gap-6 p-5 h-full">
+						<main className="flex-1 flex w-full flex-col gap-3 p-3 h-full">
 							<SidebarTrigger />
 							{children}
 						</main>

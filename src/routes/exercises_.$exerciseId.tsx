@@ -62,11 +62,11 @@ function RouteComponent() {
 						className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end"
 					>
 						<form.AppField name="count">
-							{(field) => <field.TextField label="Count" />}
+							{(field) => <field.TextField label="Count" type="number" />}
 						</form.AppField>
 
 						<form.AppField name="weight">
-							{(field) => <field.TextField label="Weight" />}
+							{(field) => <field.TextField label="Weight" type="number" />}
 						</form.AppField>
 
 						<form.AppField name="unit">
