@@ -14,7 +14,7 @@ import type {
   FunctionReference,
 } from "convex/server";
 import type * as exercises from "../exercises.js";
-import type * as muscle_groups from "../muscle-groups.js";
+import type * as muscleGroups from "../muscleGroups.js";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -26,7 +26,7 @@ import type * as muscle_groups from "../muscle-groups.js";
  */
 declare const fullApi: ApiFromModules<{
   exercises: typeof exercises;
-  "muscle-groups": typeof muscle_groups;
+  muscleGroups: typeof muscleGroups;
 }>;
 export declare const api: FilterApi<
   typeof fullApi,
