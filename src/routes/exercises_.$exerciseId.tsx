@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAppForm } from "@/hooks/form";
+import { formatWeight, lbsToKg } from "@/lib/utils";
 import { createFileRoute } from "@tanstack/react-router";
 import { api } from "convex/_generated/api";
 import type { Id } from "convex/_generated/dataModel";
@@ -28,10 +29,15 @@ function RouteComponent() {
 			unit: "kg",
 		},
 		onSubmit: async ({ value }) => {
+			const weightInKg =
+				value.unit === "lbs"
+					? lbsToKg(Number(value.weight))
+					: Number(value.weight);
+
 			await addSet({
 				exerciseId: exerciseId as Id<"exercises">,
 				count: Number(value.count),
-				weight: Number(value.weight),
+				weight: weightInKg,
 			});
 			form.reset();
 		},
@@ -95,31 +101,39 @@ function RouteComponent() {
 						</p>
 					) : (
 						<div className="space-y-2">
-							{exercise?.sets?.map((set, index) => (
-								<div
-									key={index}
-									className="flex justify-between items-center p-3 bg-muted/50 rounded-lg"
-								>
-									<div className="flex gap-4">
-										<span className="font-medium">{set.count} reps</span>
-										<span className="text-muted-foreground">×</span>
-										<span className="font-medium">{set.weight} kg</span>
+							{exercise?.sets?.map((set, index) => {
+								const { kg, lbs } = formatWeight(set.weight);
+								return (
+									<div
+										key={index}
+										className="flex justify-between items-center p-3 bg-muted/50 rounded-lg"
+									>
+										<div className="flex gap-4">
+											<span className="font-medium">{set.count} reps</span>
+											<span className="text-muted-foreground">×</span>
+											<div className="flex flex-col">
+												<span className="font-medium">{kg} kg</span>
+												<span className="text-sm text-muted-foreground">
+													{lbs} lbs
+												</span>
+											</div>
+										</div>
+										<div className="flex items-center gap-2">
+											<span className="text-sm text-muted-foreground">
+												Set {exercise?.sets?.length - index}
+											</span>
+											<Button
+												variant="ghost"
+												size="sm"
+												onClick={() => handleDeleteSet(set._id)}
+												className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+											>
+												<Trash2 className="h-4 w-4" />
+											</Button>
+										</div>
 									</div>
-									<div className="flex items-center gap-2">
-										<span className="text-sm text-muted-foreground">
-											Set {exercise?.sets?.length - index}
-										</span>
-										<Button
-											variant="ghost"
-											size="sm"
-											onClick={() => handleDeleteSet(set._id)}
-											className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
-										>
-											<Trash2 className="h-4 w-4" />
-										</Button>
-									</div>
-								</div>
-							))}
+								);
+							})}
 						</div>
 					)}
 				</CardContent>
