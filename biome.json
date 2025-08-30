@@ -7,7 +7,9 @@
 	},
 	"files": {
 		"ignoreUnknown": false,
-		"ignore": ["src/routeTree.gen.ts"],
+		"ignore": [
+			"src/routeTree.gen.ts"
+		],
 		"include": [
 			"src/*",
 			".vscode/*",
@@ -26,7 +28,10 @@
 	"linter": {
 		"enabled": true,
 		"rules": {
-			"recommended": true
+			"recommended": true,
+			"suspicious": {
+				"noArrayIndexKey": "off"
+			}
 		}
 	},
 	"javascript": {

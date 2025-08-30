@@ -15,6 +15,11 @@ import StoreDevtools from "../lib/demo-store-devtools";
 import { AppSidebar } from "@/components/sidebar";
 import appCss from "../styles.css?url";
 
+// TODO
+// Forms validation
+// Loading state
+// Toasts
+
 export const Route = createRootRouteWithContext()({
 	head: () => ({
 		meta: [
@@ -61,7 +66,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 							{children}
 						</main>
 					</SidebarProvider>
-{/* 
+					{/* 
 					<TanstackDevtools
 						config={{
 							position: "bottom-left",

@@ -4,17 +4,11 @@ import { v } from "convex/values";
 export default defineSchema({
 	exercises: defineTable({
 		name: v.string(),
-		sets: v.optional(
-			v.array(
-				v.object({
-					count: v.number(),
-					weight: v.number(),
-				}),
-			),
-		),
+		sets: v.optional(v.array(v.id("sets"))),
 	}),
-	// workouts: defineTable({
-	// 	name: v.string(),
-	// 	exercises: v.array(v.id("exercises")),
-	// }),
+	sets: defineTable({
+		exerciseId: v.id("exercises"),
+		count: v.number(),
+		weight: v.number(),
+	}).index("exerciseId", ["exerciseId"]),
 });
