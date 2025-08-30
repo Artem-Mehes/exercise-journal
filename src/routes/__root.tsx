@@ -45,6 +45,11 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 		<html lang="en" className="dark h-full">
 			<head>
 				<HeadContent />
+				<link rel="manifest" href="/manifest.json" />
+				<link rel="apple-touch-icon" href="/icon-192.png" />
+
+				<meta name="apple-mobile-web-app-capable" content="yes" />
+				<meta name="apple-mobile-web-app-title" content="Exercise Journal" />
 			</head>
 			<body>
 				<ConvexProvider>
@@ -52,7 +57,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 						<AppSidebar />
 
 						<main className="flex-1 flex w-full flex-col gap-6 p-5 h-full">
-							<SidebarTrigger  />
+							<SidebarTrigger />
 							{children}
 						</main>
 					</SidebarProvider>
