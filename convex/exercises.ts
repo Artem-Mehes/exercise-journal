@@ -3,7 +3,27 @@ import { mutation, query } from "./_generated/server";
 
 export const get = query({
 	handler: async (ctx) => {
-		return await ctx.db.query("exercises").collect();
+		const exercises = await ctx.db.query("exercises").collect();
+
+		// Fetch muscle group info for each exercise
+		const exercisesWithMuscleGroups = await Promise.all(
+			exercises.map(async (exercise) => {
+				if (!exercise.muscleGroupId) {
+					return {
+						...exercise,
+						muscleGroup: null,
+					};
+				}
+
+				const muscleGroup = await ctx.db.get(exercise.muscleGroupId);
+				return {
+					...exercise,
+					muscleGroup,
+				};
+			}),
+		);
+
+		return exercisesWithMuscleGroups;
 	},
 });
 
@@ -28,16 +48,37 @@ export const getById = query({
 		// Return last 10 sets, most recent first
 		const lastSets = validSets.slice(-10).reverse();
 
+		// Fetch muscle group info
+		const muscleGroup = exercise.muscleGroupId
+			? await ctx.db.get(exercise.muscleGroupId)
+			: null;
+
 		return {
 			...exercise,
+			muscleGroup,
 			sets: lastSets,
 		};
+	},
+});
+
+export const getByMuscleGroup = query({
+	args: {
+		muscleGroupId: v.id("muscleGroups"),
+	},
+	handler: async (ctx, args) => {
+		return await ctx.db
+			.query("exercises")
+			.withIndex("muscleGroupId", (q) =>
+				q.eq("muscleGroupId", args.muscleGroupId),
+			)
+			.collect();
 	},
 });
 
 export const create = mutation({
 	args: {
 		name: v.string(),
+		muscleGroupId: v.optional(v.id("muscleGroups")),
 	},
 	handler: async (ctx, args) => {
 		return await ctx.db.insert("exercises", args);
