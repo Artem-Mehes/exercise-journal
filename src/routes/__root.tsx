@@ -61,7 +61,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 							{children}
 						</main>
 					</SidebarProvider>
-
+{/* 
 					<TanstackDevtools
 						config={{
 							position: "bottom-left",
@@ -73,7 +73,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 							},
 							StoreDevtools,
 						]}
-					/>
+					/> */}
 				</ConvexProvider>
 				<Scripts />
 			</body>
