@@ -24,16 +24,16 @@ const items = [
 		url: "/exercises",
 		icon: List,
 	},
-	{
-		title: "Create Workout",
-		url: "/create-workout",
-		icon: PlusCircle,
-	},
-	{
-		title: "Workouts",
-		url: "/workouts",
-		icon: Dumbbell,
-	},
+	// {
+	// 	title: "Create Workout",
+	// 	url: "/create-workout",
+	// 	icon: PlusCircle,
+	// },
+	// {
+	// 	title: "Workouts",
+	// 	url: "/workouts",
+	// 	icon: Dumbbell,
+	// },
 ];
 
 export function AppSidebar() {

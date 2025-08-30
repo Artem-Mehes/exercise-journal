@@ -8,9 +8,9 @@ import type { Doc, Id } from "convex/_generated/dataModel";
 import { useMutation, useQuery } from "convex/react";
 import { useState } from "react";
 
-export const Route = createFileRoute("/create-workout")({
-	component: RouteComponent,
-});
+// export const Route = createFileRoute("/create-workout")({
+// 	component: RouteComponent,
+// });
 
 function ExerciseSelector({
 	selectedExercises,

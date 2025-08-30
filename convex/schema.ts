@@ -13,8 +13,8 @@ export default defineSchema({
 			),
 		),
 	}),
-	workouts: defineTable({
-		name: v.string(),
-		exercises: v.array(v.id("exercises")),
-	}),
+	// workouts: defineTable({
+	// 	name: v.string(),
+	// 	exercises: v.array(v.id("exercises")),
+	// }),
 });
