@@ -15,6 +15,7 @@ import { Route as WorkoutsRouteImport } from './routes/workouts'
 import { Route as ExercisesRouteImport } from './routes/exercises'
 import { Route as CreateWorkoutRouteImport } from './routes/create-workout'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ExercisesExerciseIdRouteImport } from './routes/exercises_.$exerciseId'
 import { Route as DemoStoreRouteImport } from './routes/demo.store'
 import { Route as DemoStartServerFuncsRouteImport } from './routes/demo.start.server-funcs'
 import { Route as DemoStartApiRequestRouteImport } from './routes/demo.start.api-request'
@@ -41,6 +42,11 @@ const CreateWorkoutRoute = CreateWorkoutRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExercisesExerciseIdRoute = ExercisesExerciseIdRouteImport.update({
+  id: '/exercises_/$exerciseId',
+  path: '/exercises/$exerciseId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DemoStoreRoute = DemoStoreRouteImport.update({
@@ -75,6 +81,7 @@ export interface FileRoutesByFullPath {
   '/exercises': typeof ExercisesRoute
   '/workouts': typeof WorkoutsRoute
   '/demo/store': typeof DemoStoreRoute
+  '/exercises/$exerciseId': typeof ExercisesExerciseIdRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
 }
@@ -84,6 +91,7 @@ export interface FileRoutesByTo {
   '/exercises': typeof ExercisesRoute
   '/workouts': typeof WorkoutsRoute
   '/demo/store': typeof DemoStoreRoute
+  '/exercises/$exerciseId': typeof ExercisesExerciseIdRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
 }
@@ -94,6 +102,7 @@ export interface FileRoutesById {
   '/exercises': typeof ExercisesRoute
   '/workouts': typeof WorkoutsRoute
   '/demo/store': typeof DemoStoreRoute
+  '/exercises_/$exerciseId': typeof ExercisesExerciseIdRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
 }
@@ -105,6 +114,7 @@ export interface FileRouteTypes {
     | '/exercises'
     | '/workouts'
     | '/demo/store'
+    | '/exercises/$exerciseId'
     | '/demo/start/api-request'
     | '/demo/start/server-funcs'
   fileRoutesByTo: FileRoutesByTo
@@ -114,6 +124,7 @@ export interface FileRouteTypes {
     | '/exercises'
     | '/workouts'
     | '/demo/store'
+    | '/exercises/$exerciseId'
     | '/demo/start/api-request'
     | '/demo/start/server-funcs'
   id:
@@ -123,6 +134,7 @@ export interface FileRouteTypes {
     | '/exercises'
     | '/workouts'
     | '/demo/store'
+    | '/exercises_/$exerciseId'
     | '/demo/start/api-request'
     | '/demo/start/server-funcs'
   fileRoutesById: FileRoutesById
@@ -133,6 +145,7 @@ export interface RootRouteChildren {
   ExercisesRoute: typeof ExercisesRoute
   WorkoutsRoute: typeof WorkoutsRoute
   DemoStoreRoute: typeof DemoStoreRoute
+  ExercisesExerciseIdRoute: typeof ExercisesExerciseIdRoute
   DemoStartApiRequestRoute: typeof DemoStartApiRequestRoute
   DemoStartServerFuncsRoute: typeof DemoStartServerFuncsRoute
 }
@@ -192,6 +205,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/exercises_/$exerciseId': {
+      id: '/exercises_/$exerciseId'
+      path: '/exercises/$exerciseId'
+      fullPath: '/exercises/$exerciseId'
+      preLoaderRoute: typeof ExercisesExerciseIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/demo/store': {
       id: '/demo/store'
       path: '/demo/store'
@@ -240,6 +260,7 @@ const rootRouteChildren: RootRouteChildren = {
   ExercisesRoute: ExercisesRoute,
   WorkoutsRoute: WorkoutsRoute,
   DemoStoreRoute: DemoStoreRoute,
+  ExercisesExerciseIdRoute: ExercisesExerciseIdRoute,
   DemoStartApiRequestRoute: DemoStartApiRequestRoute,
   DemoStartServerFuncsRoute: DemoStartServerFuncsRoute,
 }

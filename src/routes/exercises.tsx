@@ -1,5 +1,5 @@
 import { Skeleton } from "@/components/ui/skeleton";
-import { createFileRoute } from "@tanstack/react-router";
+import { Link, createFileRoute } from "@tanstack/react-router";
 import { api } from "convex/_generated/api";
 import { useQuery } from "convex/react";
 
@@ -28,7 +28,14 @@ function RouteComponent() {
 
 			<ul>
 				{exercises?.map((exercise) => (
-					<li key={exercise._id}>{exercise.name}</li>
+					<li key={exercise._id}>
+						<Link
+							to="/exercises/$exerciseId"
+							params={{ exerciseId: exercise._id }}
+						>
+							{exercise.name}
+						</Link>
+					</li>
 				))}
 			</ul>
 		</>
