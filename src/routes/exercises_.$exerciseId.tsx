@@ -19,6 +19,7 @@ function RouteComponent() {
 		exerciseId: exerciseId as Id<"exercises">,
 	});
 
+	const currentWorkout = useQuery(api.workouts.getCurrentWorkout);
 	const addSet = useMutation(api.exercises.addSet);
 	const deleteSet = useMutation(api.exercises.deleteSet);
 
@@ -52,42 +53,44 @@ function RouteComponent() {
 		<>
 			<h1 className="text-2xl font-bold">{exercise?.name}</h1>
 
-			<Card>
-				<form
-					onSubmit={(e) => {
-						e.preventDefault();
-						e.stopPropagation();
-						form.handleSubmit();
-					}}
-					className="space-y-4"
-				>
-					<CardHeader className="flex justify-between items-center">
-						<CardTitle>Add Set</CardTitle>
+			{currentWorkout && (
+				<Card>
+					<form
+						onSubmit={(e) => {
+							e.preventDefault();
+							e.stopPropagation();
+							form.handleSubmit();
+						}}
+						className="space-y-4"
+					>
+						<CardHeader className="flex justify-between items-center">
+							<CardTitle>Add Set</CardTitle>
 
-						<form.AppField name="unit">
-							{(field) => <field.RadioGroupField options={["kg", "lbs"]} />}
-						</form.AppField>
-					</CardHeader>
-
-					<CardContent className="space-y-4">
-						<div className="grid grid-cols-2 gap-4">
-							<form.AppField name="count">
-								{(field) => <field.TextField label="Count" type="number" />}
+							<form.AppField name="unit">
+								{(field) => <field.RadioGroupField options={["kg", "lbs"]} />}
 							</form.AppField>
+						</CardHeader>
 
-							<form.AppField name="weight">
-								{(field) => <field.TextField label="Weight" type="number" />}
-							</form.AppField>
-						</div>
+						<CardContent className="space-y-4">
+							<div className="grid grid-cols-2 gap-4">
+								<form.AppField name="count">
+									{(field) => <field.TextField label="Count" type="number" />}
+								</form.AppField>
 
-						<div className="md:col-span-3">
-							<Button type="submit" className="w-full">
-								Add Set
-							</Button>
-						</div>
-					</CardContent>
-				</form>
-			</Card>
+								<form.AppField name="weight">
+									{(field) => <field.TextField label="Weight" type="number" />}
+								</form.AppField>
+							</div>
+
+							<div className="md:col-span-3">
+								<Button type="submit" className="w-full">
+									Add Set
+								</Button>
+							</div>
+						</CardContent>
+					</form>
+				</Card>
+			)}
 
 			<Card className="py-4">
 				<CardHeader className="px-4">

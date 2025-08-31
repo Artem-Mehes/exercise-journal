@@ -161,7 +161,7 @@ function RouteComponent() {
 										<Link
 											to="/exercises/$exerciseId"
 											params={{ exerciseId: exercise._id }}
-											className="text-xs block p-2 rounded-lg border border-gray-200 bg-accent-foreground hover:bg-blue-50 hover:border-blue-300 transition-colors duration-200 text-gray-800 hover:text-blue-700 font-medium"
+											className="text-sm block px-2 py-1 rounded-sm border border-gray-200 bg-zinc-300 hover:bg-blue-50 hover:border-blue-300 transition-colors duration-200 text-gray-800 hover:text-blue-700 font-medium"
 										>
 											{exercise.name}
 										</Link>

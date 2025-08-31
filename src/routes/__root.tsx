@@ -54,7 +54,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 				<link rel="manifest" href="/manifest.json" />
 				<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 
-				<meta name="apple-mobile-web-app-capable" content="yes" />
+				<meta name="mobile-web-app-capable" content="yes" />
 				<meta name="apple-mobile-web-app-title" content="Exercise Journal" />
 			</head>
 			<body>
@@ -62,14 +62,16 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 					<SidebarProvider>
 						<AppSidebar />
 
-						<main className="flex-1 flex w-full flex-col gap-3 p-3 h-full">
-							<header className="flex items-center justify-between">
+						<main className="flex-1 flex w-full flex-col h-full ">
+							<header className="sticky top-0 z-10 bg-background border-b flex items-center justify-between p-2 min-h-14">
 								<SidebarTrigger />
 
 								<WorkoutInfo />
 							</header>
 
-							{children}
+							<div className="flex-1 overflow-auto p-3 space-y-4">
+								{children}
+							</div>
 						</main>
 					</SidebarProvider>
 					{/* 
