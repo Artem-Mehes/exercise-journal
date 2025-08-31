@@ -17,7 +17,7 @@ import { api } from "convex/_generated/api";
 import type { Id } from "convex/_generated/dataModel";
 import { useMutation, useQuery } from "convex/react";
 import { Pencil, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export const Route = createFileRoute("/exercises_/$exerciseId")({
 	component: RouteComponent,
@@ -48,8 +48,13 @@ function RouteComponent() {
 	const updateNotes = useMutation(api.exercises.updateNotes);
 
 	const [isNotesOpened, setIsNotesOpened] = useState(false);
-	const [isEditingNotes, setIsEditingNotes] = useState(false);
-	const [notesValue, setNotesValue] = useState("");
+	const [notesValue, setNotesValue] = useState(exercise?.notes || "");
+
+	useEffect(() => {
+		if (exercise?.notes) {
+			setNotesValue(exercise.notes);
+		}
+	}, [exercise?.notes]);
 
 	const handleDeleteSet = async (setId: Id<"sets">) => {
 		try {
@@ -59,13 +64,7 @@ function RouteComponent() {
 		}
 	};
 
-	const handleEditNotes = () => {
-		setNotesValue(exercise?.notes || "");
-		setIsEditingNotes(true);
-	};
-
 	const handleCancelNotes = () => {
-		setIsEditingNotes(false);
 		setNotesValue("");
 	};
 
@@ -75,7 +74,6 @@ function RouteComponent() {
 				exerciseId: exerciseId as Id<"exercises">,
 				notes: notesValue,
 			});
-			setIsEditingNotes(false);
 		} catch (error) {
 			console.error("Failed to save notes:", error);
 		}
@@ -126,43 +124,17 @@ function RouteComponent() {
 			{isNotesOpened && (
 				<Card className="bg-yellow-500/10 border-yellow-500/40">
 					<CardContent>
-						{isEditingNotes ? (
-							<div className="space-y-3">
-								<Textarea
-									value={notesValue}
-									onChange={(e) => setNotesValue(e.target.value)}
-									placeholder="Add your notes about this exercise..."
-									className="min-h-24"
-									autoFocus
-								/>
-								<div className="flex gap-2 justify-end">
-									<Button
-										variant="outline"
-										size="sm"
-										onClick={handleCancelNotes}
-									>
-										Cancel
-									</Button>
-									<Button size="sm" onClick={handleSaveNotes}>
-										Save Notes
-									</Button>
-								</div>
-							</div>
-						) : (
-							<div className="space-y-3">
-								<p className="text-sm whitespace-pre-wrap">
-									{exercise?.notes || "No notes added yet"}
-								</p>
-								<Button
-									variant="outline"
-									size="sm"
-									onClick={handleEditNotes}
-									className="self-start"
-								>
-									{exercise?.notes ? "Edit Notes" : "Add Notes"}
-								</Button>
-							</div>
-						)}
+						<div className="space-y-3">
+							<Textarea
+								value={notesValue}
+								onChange={(e) => setNotesValue(e.target.value)}
+								className="min-h-24 border-none bg-transparent focus-visible:ring-0 resize-none"
+								autoFocus
+							/>
+							<Button size="sm" onClick={handleSaveNotes}>
+								Save
+							</Button>
+						</div>
 					</CardContent>
 				</Card>
 			)}
