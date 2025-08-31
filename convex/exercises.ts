@@ -168,10 +168,29 @@ export const getLastCompletedWorkoutSets = query({
 export const create = mutation({
 	args: {
 		name: v.string(),
-		muscleGroupId: v.optional(v.id("muscleGroups")),
+		muscleGroupId: v.id("muscleGroups"),
 	},
 	handler: async (ctx, args) => {
 		return await ctx.db.insert("exercises", args);
+	},
+});
+
+export const updateNotes = mutation({
+	args: {
+		exerciseId: v.id("exercises"),
+		notes: v.string(),
+	},
+	handler: async (ctx, args) => {
+		const exercise = await ctx.db.get(args.exerciseId);
+		if (!exercise) {
+			throw new Error("Exercise not found");
+		}
+
+		await ctx.db.patch(args.exerciseId, {
+			notes: args.notes.trim() || undefined, // Store undefined if empty string
+		});
+
+		return args.exerciseId;
 	},
 });
 

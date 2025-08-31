@@ -8,6 +8,7 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
+import { Textarea } from "@/components/ui/textarea";
 import { useAppForm } from "@/hooks/form";
 import { formatWeight, lbsToKg } from "@/lib/utils";
 import { Link, createFileRoute } from "@tanstack/react-router";
@@ -15,7 +16,8 @@ import clsx from "clsx";
 import { api } from "convex/_generated/api";
 import type { Id } from "convex/_generated/dataModel";
 import { useMutation, useQuery } from "convex/react";
-import { Trash2 } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
+import { useState } from "react";
 
 export const Route = createFileRoute("/exercises_/$exerciseId")({
 	component: RouteComponent,
@@ -43,12 +45,39 @@ function RouteComponent() {
 	);
 	const addSet = useMutation(api.exercises.addSet);
 	const deleteSet = useMutation(api.exercises.deleteSet);
+	const updateNotes = useMutation(api.exercises.updateNotes);
+
+	const [isNotesOpened, setIsNotesOpened] = useState(false);
+	const [isEditingNotes, setIsEditingNotes] = useState(false);
+	const [notesValue, setNotesValue] = useState("");
 
 	const handleDeleteSet = async (setId: Id<"sets">) => {
 		try {
 			await deleteSet({ setId });
 		} catch (error) {
 			console.error("Failed to delete set:", error);
+		}
+	};
+
+	const handleEditNotes = () => {
+		setNotesValue(exercise?.notes || "");
+		setIsEditingNotes(true);
+	};
+
+	const handleCancelNotes = () => {
+		setIsEditingNotes(false);
+		setNotesValue("");
+	};
+
+	const handleSaveNotes = async () => {
+		try {
+			await updateNotes({
+				exerciseId: exerciseId as Id<"exercises">,
+				notes: notesValue,
+			});
+			setIsEditingNotes(false);
+		} catch (error) {
+			console.error("Failed to save notes:", error);
 		}
 	};
 
@@ -81,7 +110,62 @@ function RouteComponent() {
 
 	return (
 		<>
-			<h1 className="text-2xl font-bold">{exercise?.name}</h1>
+			<div className="flex justify-between items-center">
+				<h1 className="text-2xl font-bold">{exercise?.name}</h1>
+
+				<Button
+					variant="outline"
+					size="sm"
+					onClick={() => setIsNotesOpened(!isNotesOpened)}
+				>
+					<Pencil className="w-4 h-4" />
+					Notes
+				</Button>
+			</div>
+
+			{isNotesOpened && (
+				<Card className="bg-yellow-500/10 border-yellow-500/40">
+					<CardContent>
+						{isEditingNotes ? (
+							<div className="space-y-3">
+								<Textarea
+									value={notesValue}
+									onChange={(e) => setNotesValue(e.target.value)}
+									placeholder="Add your notes about this exercise..."
+									className="min-h-24"
+									autoFocus
+								/>
+								<div className="flex gap-2 justify-end">
+									<Button
+										variant="outline"
+										size="sm"
+										onClick={handleCancelNotes}
+									>
+										Cancel
+									</Button>
+									<Button size="sm" onClick={handleSaveNotes}>
+										Save Notes
+									</Button>
+								</div>
+							</div>
+						) : (
+							<div className="space-y-3">
+								<p className="text-sm whitespace-pre-wrap">
+									{exercise?.notes || "No notes added yet"}
+								</p>
+								<Button
+									variant="outline"
+									size="sm"
+									onClick={handleEditNotes}
+									className="self-start"
+								>
+									{exercise?.notes ? "Edit Notes" : "Add Notes"}
+								</Button>
+							</div>
+						)}
+					</CardContent>
+				</Card>
+			)}
 
 			{currentWorkout && (
 				<Card>
@@ -242,7 +326,7 @@ function RouteComponent() {
 				</Card>
 			)}
 
-			<Card className="bg-accent border-accent-foreground/60">
+			<Card className="bg-accent border-accent-foreground/40">
 				<CardHeader>
 					<CardTitle>Last Session</CardTitle>
 				</CardHeader>
