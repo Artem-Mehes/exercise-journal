@@ -39,7 +39,6 @@ function RouteComponent() {
 				count: Number(value.count),
 				weight: weightInKg,
 			});
-			form.reset();
 		},
 	});
 
@@ -51,50 +50,50 @@ function RouteComponent() {
 
 	return (
 		<>
-			<h1>{exercise?.name}</h1>
+			<h1 className="text-2xl font-bold">{exercise?.name}</h1>
 
 			<Card>
-				<CardHeader>
-					<CardTitle>Add Set</CardTitle>
-				</CardHeader>
-
-				<CardContent>
-					<form
-						onSubmit={(e) => {
-							e.preventDefault();
-							e.stopPropagation();
-							form.handleSubmit();
-						}}
-						className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end"
-					>
-						<form.AppField name="count">
-							{(field) => <field.TextField label="Count" type="number" />}
-						</form.AppField>
-
-						<form.AppField name="weight">
-							{(field) => <field.TextField label="Weight" type="number" />}
-						</form.AppField>
+				<form
+					onSubmit={(e) => {
+						e.preventDefault();
+						e.stopPropagation();
+						form.handleSubmit();
+					}}
+					className="space-y-4"
+				>
+					<CardHeader className="flex justify-between items-center">
+						<CardTitle>Add Set</CardTitle>
 
 						<form.AppField name="unit">
-							{(field) => (
-								<field.RadioGroupField label="Unit" options={["kg", "lbs"]} />
-							)}
+							{(field) => <field.RadioGroupField options={["kg", "lbs"]} />}
 						</form.AppField>
+					</CardHeader>
+
+					<CardContent className="space-y-4">
+						<div className="grid grid-cols-2 gap-4">
+							<form.AppField name="count">
+								{(field) => <field.TextField label="Count" type="number" />}
+							</form.AppField>
+
+							<form.AppField name="weight">
+								{(field) => <field.TextField label="Weight" type="number" />}
+							</form.AppField>
+						</div>
 
 						<div className="md:col-span-3">
 							<Button type="submit" className="w-full">
 								Add Set
 							</Button>
 						</div>
-					</form>
-				</CardContent>
+					</CardContent>
+				</form>
 			</Card>
 
-			<Card>
-				<CardHeader>
+			<Card className="py-4">
+				<CardHeader className="px-4">
 					<CardTitle>Last 10 sets</CardTitle>
 				</CardHeader>
-				<CardContent>
+				<CardContent className="px-4">
 					{exercise?.sets?.length === 0 ? (
 						<p className="text-muted-foreground text-center py-4">
 							No sets recorded yet

@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Dumbbell, List, Plus, PlusCircle } from "lucide-react";
+import { List } from "lucide-react";
 
 import {
 	Sidebar,
@@ -15,25 +15,10 @@ import {
 
 const items = [
 	{
-		title: "Create Exercise",
-		url: "/",
-		icon: Plus,
-	},
-	{
 		title: "Exercises",
-		url: "/exercises",
+		url: "/",
 		icon: List,
 	},
-	// {
-	// 	title: "Create Workout",
-	// 	url: "/create-workout",
-	// 	icon: PlusCircle,
-	// },
-	// {
-	// 	title: "Workouts",
-	// 	url: "/workouts",
-	// 	icon: Dumbbell,
-	// },
 ];
 
 export function AppSidebar() {

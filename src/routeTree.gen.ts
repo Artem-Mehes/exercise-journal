@@ -11,7 +11,6 @@
 import { createServerRootRoute } from '@tanstack/react-start/server'
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as ExercisesRouteImport } from './routes/exercises'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ExercisesExerciseIdRouteImport } from './routes/exercises_.$exerciseId'
 import { Route as DemoStoreRouteImport } from './routes/demo.store'
@@ -22,11 +21,6 @@ import { ServerRoute as ApiDemoNamesServerRouteImport } from './routes/api.demo-
 
 const rootServerRouteImport = createServerRootRoute()
 
-const ExercisesRoute = ExercisesRouteImport.update({
-  id: '/exercises',
-  path: '/exercises',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -65,7 +59,6 @@ const ApiDemoNamesServerRoute = ApiDemoNamesServerRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/exercises': typeof ExercisesRoute
   '/demo/store': typeof DemoStoreRoute
   '/exercises/$exerciseId': typeof ExercisesExerciseIdRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
@@ -73,7 +66,6 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/exercises': typeof ExercisesRoute
   '/demo/store': typeof DemoStoreRoute
   '/exercises/$exerciseId': typeof ExercisesExerciseIdRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
@@ -82,7 +74,6 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/exercises': typeof ExercisesRoute
   '/demo/store': typeof DemoStoreRoute
   '/exercises_/$exerciseId': typeof ExercisesExerciseIdRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
@@ -92,7 +83,6 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/exercises'
     | '/demo/store'
     | '/exercises/$exerciseId'
     | '/demo/start/api-request'
@@ -100,7 +90,6 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/exercises'
     | '/demo/store'
     | '/exercises/$exerciseId'
     | '/demo/start/api-request'
@@ -108,7 +97,6 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
-    | '/exercises'
     | '/demo/store'
     | '/exercises_/$exerciseId'
     | '/demo/start/api-request'
@@ -117,7 +105,6 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  ExercisesRoute: typeof ExercisesRoute
   DemoStoreRoute: typeof DemoStoreRoute
   ExercisesExerciseIdRoute: typeof ExercisesExerciseIdRoute
   DemoStartApiRequestRoute: typeof DemoStartApiRequestRoute
@@ -151,13 +138,6 @@ export interface RootServerRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/exercises': {
-      id: '/exercises'
-      path: '/exercises'
-      fullPath: '/exercises'
-      preLoaderRoute: typeof ExercisesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/': {
       id: '/'
       path: '/'
@@ -216,7 +196,6 @@ declare module '@tanstack/react-start/server' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  ExercisesRoute: ExercisesRoute,
   DemoStoreRoute: DemoStoreRoute,
   ExercisesExerciseIdRoute: ExercisesExerciseIdRoute,
   DemoStartApiRequestRoute: DemoStartApiRequestRoute,

@@ -71,19 +71,21 @@ export function TextField({
 export function RadioGroupField({
 	label,
 	options,
-}: { label: string; options: string[] }) {
+}: { label?: string; options: string[] }) {
 	const field = useFieldContext<string>();
 	const errors = useStore(field.store, (state) => state.meta.errors);
 
 	return (
 		<div>
-			<Label htmlFor={label} className="mb-2 font-bold">
-				{label}
-			</Label>
+			{label && (
+				<Label htmlFor={label} className="mb-2 font-bold">
+					{label}
+				</Label>
+			)}
+
 			<RadioGroup
-				className="space-y-1"
 				onValueChange={(value) => field.handleChange(value)}
-				defaultValue={field.state.value}
+				value={field.state.value}
 			>
 				{options.map((option) => (
 					<div key={option} className="flex items-center space-x-2">

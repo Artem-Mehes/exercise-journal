@@ -46,7 +46,7 @@ export const getById = query({
 		const validSets = sets.filter((set) => set !== null);
 
 		// Return last 10 sets, most recent first
-		const lastSets = validSets.slice(-10).reverse();
+		const lastSets = validSets.slice(-10);
 
 		// Fetch muscle group info
 		const muscleGroup = exercise.muscleGroupId
