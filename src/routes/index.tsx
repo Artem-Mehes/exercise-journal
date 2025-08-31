@@ -6,7 +6,7 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 import { api } from "convex/_generated/api";
 import type { Id } from "convex/_generated/dataModel";
 import { useMutation, useQuery } from "convex/react";
-import { Check, Plus, X } from "lucide-react";
+import { Check, Plus, PlusCircle, X } from "lucide-react";
 import { useState } from "react";
 
 export const Route = createFileRoute("/")({
@@ -14,13 +14,20 @@ export const Route = createFileRoute("/")({
 });
 
 function RouteComponent() {
-	const exercises = useQuery(api.exercises.get);
+	const muscleGroups = useQuery(api.muscleGroups.getAllWithExercises);
 	const createExercise = useMutation(api.exercises.create);
-	const [showInputFor, setShowInputFor] = useState<string | null>(null);
+	const [showInputFor, setShowInputFor] = useState<Id<"muscleGroups"> | null>(
+		null,
+	);
 	const [newExerciseName, setNewExerciseName] = useState("");
 	const [isCreating, setIsCreating] = useState(false);
+	const [newMuscleGroupName, setNewMuscleGroupName] = useState("");
+	const [showInputForMuscleGroup, setShowInputForMuscleGroup] =
+		useState<boolean>();
 
-	if (exercises === undefined) {
+	const createMuscleGroup = useMutation(api.muscleGroups.create);
+
+	if (muscleGroups === undefined) {
 		return (
 			<div className="space-y-4">
 				<Skeleton className="h-8 w-48" />
@@ -33,33 +40,8 @@ function RouteComponent() {
 		);
 	}
 
-	const groupedExercises = exercises.reduce(
-		(acc, exercise) => {
-			// Skip exercises without muscle groups since they're now required
-			if (!exercise.muscleGroup?.name) return acc;
-
-			const groupName = exercise.muscleGroup.name;
-			if (!acc[groupName]) {
-				acc[groupName] = {
-					exercises: [],
-					muscleGroupId: exercise.muscleGroupId,
-				};
-			}
-			acc[groupName].exercises.push(exercise);
-			return acc;
-		},
-		{} as Record<
-			string,
-			{ exercises: typeof exercises; muscleGroupId: Id<"muscleGroups"> }
-		>,
-	);
-
-	const sortedGroups = Object.keys(groupedExercises).sort((a, b) =>
-		a.localeCompare(b),
-	);
-
-	const handleShowInput = (groupName: string) => {
-		setShowInputFor(groupName);
+	const handleShowInput = (muscleGroupId: Id<"muscleGroups">) => {
+		setShowInputFor(muscleGroupId);
 		setNewExerciseName("");
 	};
 
@@ -68,17 +50,14 @@ function RouteComponent() {
 		setNewExerciseName("");
 	};
 
-	const handleCreateExercise = async (groupName: string) => {
+	const handleCreateExercise = async (muscleGroupId: Id<"muscleGroups">) => {
 		if (!newExerciseName.trim()) return;
-
-		const group = groupedExercises[groupName];
-		if (!group.muscleGroupId) return;
 
 		setIsCreating(true);
 		try {
 			await createExercise({
 				name: newExerciseName.trim(),
-				muscleGroupId: group.muscleGroupId,
+				muscleGroupId: muscleGroupId,
 			});
 
 			// Reset state after successful creation
@@ -92,9 +71,12 @@ function RouteComponent() {
 		}
 	};
 
-	const handleKeyPress = (e: React.KeyboardEvent, groupName: string) => {
+	const handleKeyPress = (
+		e: React.KeyboardEvent,
+		muscleGroupId: Id<"muscleGroups">,
+	) => {
 		if (e.key === "Enter") {
-			handleCreateExercise(groupName);
+			handleCreateExercise(muscleGroupId);
 		} else if (e.key === "Escape") {
 			handleCancelInput();
 		}
@@ -102,37 +84,74 @@ function RouteComponent() {
 
 	return (
 		<div className="space-y-6">
-			<h1 className="text-2xl font-bold">Exercises</h1>
+			<div className="flex items-center justify-between gap-4">
+				<h1 className="text-2xl font-bold">Exercises</h1>
+
+				{showInputForMuscleGroup ? (
+					<div className="flex items-center gap-2">
+						<Input
+							value={newMuscleGroupName}
+							onChange={(e) => setNewMuscleGroupName(e.target.value)}
+							autoFocus
+							placeholder="Name"
+						/>
+
+						<Button
+							variant="outline"
+							onClick={() => setShowInputForMuscleGroup(false)}
+						>
+							<X />
+						</Button>
+						<Button
+							onClick={async () => {
+								await createMuscleGroup({ name: newMuscleGroupName });
+								setShowInputForMuscleGroup(false);
+								setNewMuscleGroupName("");
+							}}
+						>
+							<Check />
+						</Button>
+					</div>
+				) : (
+					<Button
+						variant="ghost"
+						onClick={() => setShowInputForMuscleGroup(true)}
+					>
+						<PlusCircle />
+						Add muscle group
+					</Button>
+				)}
+			</div>
 
 			<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-				{sortedGroups.map((groupName) => (
-					<Card key={groupName}>
+				{muscleGroups.map((muscleGroup) => (
+					<Card key={muscleGroup._id} className="py-0 pt-2 pb-4">
 						<CardHeader className="flex items-center justify-between min-h-10">
-							<CardTitle className="text-lg">{groupName}</CardTitle>
-							{showInputFor !== groupName && (
+							<CardTitle className="text-lg">{muscleGroup.name}</CardTitle>
+							{showInputFor !== muscleGroup._id && (
 								<Button
 									size="icon"
 									variant="ghost"
-									onClick={() => handleShowInput(groupName)}
+									onClick={() => handleShowInput(muscleGroup._id)}
 								>
 									<Plus />
 								</Button>
 							)}
 						</CardHeader>
 						<CardContent>
-							{showInputFor === groupName && (
+							{showInputFor === muscleGroup._id && (
 								<div className="flex gap-2 items-center mb-4">
 									<Input
 										placeholder="Enter exercise name..."
 										value={newExerciseName}
 										onChange={(e) => setNewExerciseName(e.target.value)}
-										onKeyDown={(e) => handleKeyPress(e, groupName)}
+										onKeyDown={(e) => handleKeyPress(e, muscleGroup._id)}
 										autoFocus
 										className="h-7 text-sm"
 									/>
 									<Button
 										className="size-7"
-										onClick={() => handleCreateExercise(groupName)}
+										onClick={() => handleCreateExercise(muscleGroup._id)}
 										disabled={isCreating || !newExerciseName.trim()}
 									>
 										<Check />
@@ -148,7 +167,7 @@ function RouteComponent() {
 								</div>
 							)}
 							<ul className="space-y-2">
-								{groupedExercises[groupName].exercises.map((exercise) => (
+								{muscleGroup.exercises.map((exercise) => (
 									<li key={exercise._id}>
 										<Link
 											to="/exercises/$exerciseId"

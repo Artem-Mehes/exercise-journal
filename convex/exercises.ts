@@ -171,7 +171,19 @@ export const create = mutation({
 		muscleGroupId: v.id("muscleGroups"),
 	},
 	handler: async (ctx, args) => {
-		return await ctx.db.insert("exercises", args);
+		// Create the exercise
+		const exerciseId = await ctx.db.insert("exercises", args);
+
+		// Add the exercise to the muscle group's exercises array
+		const muscleGroup = await ctx.db.get(args.muscleGroupId);
+		if (muscleGroup) {
+			const currentExercises = muscleGroup.exercises || [];
+			await ctx.db.patch(args.muscleGroupId, {
+				exercises: [...currentExercises, exerciseId],
+			});
+		}
+
+		return exerciseId;
 	},
 });
 
@@ -311,5 +323,42 @@ export const deleteSet = mutation({
 		await ctx.db.delete(args.setId);
 
 		return set.exerciseId;
+	},
+});
+
+export const deleteExercise = mutation({
+	args: {
+		exerciseId: v.id("exercises"),
+	},
+	handler: async (ctx, args) => {
+		const exercise = await ctx.db.get(args.exerciseId);
+		if (!exercise) {
+			throw new Error("Exercise not found");
+		}
+
+		// Remove the exercise from the muscle group's exercises array
+		const muscleGroup = await ctx.db.get(exercise.muscleGroupId);
+		if (muscleGroup) {
+			const updatedExercises = (muscleGroup.exercises || []).filter(
+				(id) => id !== args.exerciseId,
+			);
+			await ctx.db.patch(exercise.muscleGroupId, {
+				exercises: updatedExercises,
+			});
+		}
+
+		// Delete all sets associated with this exercise
+		if (exercise.sets) {
+			for (const workoutSets of exercise.sets) {
+				for (const setId of workoutSets) {
+					await ctx.db.delete(setId);
+				}
+			}
+		}
+
+		// Delete the exercise
+		await ctx.db.delete(args.exerciseId);
+
+		return args.exerciseId;
 	},
 });

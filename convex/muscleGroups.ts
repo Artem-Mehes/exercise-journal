@@ -21,7 +21,10 @@ export const create = mutation({
 		name: v.string(),
 	},
 	handler: async (ctx, args) => {
-		return await ctx.db.insert("muscleGroups", args);
+		return await ctx.db.insert("muscleGroups", {
+			...args,
+			exercises: [],
+		});
 	},
 });
 
@@ -41,15 +44,14 @@ export const remove = mutation({
 		muscleGroupId: v.id("muscleGroups"),
 	},
 	handler: async (ctx, args) => {
-		// Check if any exercises are using this muscle group
-		const exercises = await ctx.db
-			.query("exercises")
-			.withIndex("muscleGroupId", (q) =>
-				q.eq("muscleGroupId", args.muscleGroupId),
-			)
-			.collect();
+		const muscleGroup = await ctx.db.get(args.muscleGroupId);
+		if (!muscleGroup) {
+			throw new Error("Muscle group not found");
+		}
 
-		if (exercises.length > 0) {
+		// Check if any exercises are associated with this muscle group
+		const exerciseIds = muscleGroup.exercises || [];
+		if (exerciseIds.length > 0) {
 			throw new Error(
 				"Cannot delete muscle group that has associated exercises",
 			);
@@ -80,5 +82,35 @@ export const getWithExercises = query({
 			...muscleGroup,
 			exercises,
 		};
+	},
+});
+
+export const getAllWithExercises = query({
+	handler: async (ctx) => {
+		const muscleGroups = await ctx.db.query("muscleGroups").collect();
+
+		// Fetch exercise details for each muscle group
+		const muscleGroupsWithExercises = await Promise.all(
+			muscleGroups.map(async (muscleGroup) => {
+				const exerciseIds = muscleGroup.exercises || [];
+				const exercises = await Promise.all(
+					exerciseIds.map(async (exerciseId) => {
+						return await ctx.db.get(exerciseId);
+					}),
+				);
+
+				// Filter out any null exercises (in case of deleted exercises)
+				const validExercises = exercises.filter(
+					(exercise) => exercise !== null,
+				);
+
+				return {
+					...muscleGroup,
+					exercises: validExercises,
+				};
+			}),
+		);
+
+		return muscleGroupsWithExercises;
 	},
 });

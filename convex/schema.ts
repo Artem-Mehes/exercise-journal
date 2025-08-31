@@ -4,6 +4,7 @@ import { v } from "convex/values";
 export default defineSchema({
 	muscleGroups: defineTable({
 		name: v.string(),
+		exercises: v.optional(v.array(v.id("exercises"))),
 	}),
 	exercises: defineTable({
 		name: v.string(),
