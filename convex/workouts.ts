@@ -69,10 +69,16 @@ export const endCurrentWorkout = mutation({
 			throw new Error("No active workout found");
 		}
 
-		// Set endTime instead of deleting
-		await ctx.db.patch(activeWorkout._id, {
-			endTime: Date.now(),
-		});
+		// Check if workout has any exercises
+		if (!activeWorkout.exercises || activeWorkout.exercises.length === 0) {
+			// No exercises were performed, just delete the workout
+			await ctx.db.delete(activeWorkout._id);
+		} else {
+			// Exercises were performed, save the workout with endTime
+			await ctx.db.patch(activeWorkout._id, {
+				endTime: Date.now(),
+			});
+		}
 
 		return activeWorkout._id;
 	},

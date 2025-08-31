@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/table";
 import { useAppForm } from "@/hooks/form";
 import { formatWeight, lbsToKg } from "@/lib/utils";
-import { createFileRoute } from "@tanstack/react-router";
+import { Link, createFileRoute } from "@tanstack/react-router";
 import clsx from "clsx";
 import { api } from "convex/_generated/api";
 import type { Id } from "convex/_generated/dataModel";
@@ -35,6 +35,12 @@ function RouteComponent() {
 	const lastWorkoutSets = useQuery(api.exercises.getLastCompletedWorkoutSets, {
 		exerciseId: exerciseId as Id<"exercises">,
 	});
+	const relatedExercises = useQuery(
+		api.exercises.getByMuscleGroup,
+		exercise?.muscleGroupId
+			? { muscleGroupId: exercise.muscleGroupId }
+			: "skip",
+	);
 	const addSet = useMutation(api.exercises.addSet);
 	const deleteSet = useMutation(api.exercises.deleteSet);
 
@@ -308,6 +314,35 @@ function RouteComponent() {
 					)}
 				</CardContent>
 			</Card>
+
+			{/* Related Exercises */}
+			{exercise?.muscleGroup &&
+				relatedExercises &&
+				relatedExercises.length > 1 && (
+					<Card>
+						<CardHeader>
+							<CardTitle>Other {exercise.muscleGroup.name} Exercises</CardTitle>
+						</CardHeader>
+						<CardContent>
+							<div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+								{relatedExercises
+									.filter(
+										(relatedExercise) => relatedExercise._id !== exercise._id,
+									)
+									.map((relatedExercise) => (
+										<Link
+											key={relatedExercise._id}
+											to="/exercises/$exerciseId"
+											params={{ exerciseId: relatedExercise._id }}
+											className="p-3 rounded-lg border transition-colors text-center text-sm font-medium bg-accent"
+										>
+											{relatedExercise.name}
+										</Link>
+									))}
+							</div>
+						</CardContent>
+					</Card>
+				)}
 		</>
 	);
 }

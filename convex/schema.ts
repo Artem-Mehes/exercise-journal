@@ -7,7 +7,7 @@ export default defineSchema({
 	}),
 	exercises: defineTable({
 		name: v.string(),
-		muscleGroupId: v.optional(v.id("muscleGroups")),
+		muscleGroupId: v.id("muscleGroups"),
 		sets: v.optional(v.array(v.array(v.id("sets")))), // Array of arrays - each inner array is a workout session
 	}).index("muscleGroupId", ["muscleGroupId"]),
 	sets: defineTable({

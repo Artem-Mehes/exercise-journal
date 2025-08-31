@@ -35,7 +35,10 @@ function RouteComponent() {
 
 	const groupedExercises = exercises.reduce(
 		(acc, exercise) => {
-			const groupName = exercise.muscleGroup?.name || "Unassigned";
+			// Skip exercises without muscle groups since they're now required
+			if (!exercise.muscleGroup?.name) return acc;
+
+			const groupName = exercise.muscleGroup.name;
 			if (!acc[groupName]) {
 				acc[groupName] = {
 					exercises: [],
@@ -47,15 +50,13 @@ function RouteComponent() {
 		},
 		{} as Record<
 			string,
-			{ exercises: typeof exercises; muscleGroupId?: Id<"muscleGroups"> }
+			{ exercises: typeof exercises; muscleGroupId: Id<"muscleGroups"> }
 		>,
 	);
 
-	const sortedGroups = Object.keys(groupedExercises).sort((a, b) => {
-		if (a === "Unassigned") return 1;
-		if (b === "Unassigned") return -1;
-		return a.localeCompare(b);
-	});
+	const sortedGroups = Object.keys(groupedExercises).sort((a, b) =>
+		a.localeCompare(b),
+	);
 
 	const handleShowInput = (groupName: string) => {
 		setShowInputFor(groupName);
@@ -71,17 +72,10 @@ function RouteComponent() {
 		if (!newExerciseName.trim()) return;
 
 		const group = groupedExercises[groupName];
-		if (!group.muscleGroupId && groupName !== "Unassigned") return;
+		if (!group.muscleGroupId) return;
 
 		setIsCreating(true);
 		try {
-			if (groupName === "Unassigned") {
-				// For unassigned exercises, we need to create without muscle group
-				// But the current schema requires muscleGroupId, so we'll skip this for now
-				alert("Please assign exercises to a muscle group");
-				return;
-			}
-
 			await createExercise({
 				name: newExerciseName.trim(),
 				muscleGroupId: group.muscleGroupId,
@@ -113,7 +107,7 @@ function RouteComponent() {
 			<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
 				{sortedGroups.map((groupName) => (
 					<Card key={groupName}>
-						<CardHeader className="flex items-center justify-between">
+						<CardHeader className="flex items-center justify-between min-h-10">
 							<CardTitle className="text-lg">{groupName}</CardTitle>
 							{showInputFor !== groupName && (
 								<Button
@@ -127,32 +121,30 @@ function RouteComponent() {
 						</CardHeader>
 						<CardContent>
 							{showInputFor === groupName && (
-								<div className="mb-4 space-y-2">
-									<div className="flex gap-2 items-center">
-										<Input
-											placeholder="Enter exercise name..."
-											value={newExerciseName}
-											onChange={(e) => setNewExerciseName(e.target.value)}
-											onKeyDown={(e) => handleKeyPress(e, groupName)}
-											className="flex-1"
-											autoFocus
-										/>
-										<Button
-											size="sm"
-											onClick={() => handleCreateExercise(groupName)}
-											disabled={isCreating || !newExerciseName.trim()}
-										>
-											<Check />
-										</Button>
-										<Button
-											size="sm"
-											variant="outline"
-											onClick={handleCancelInput}
-											disabled={isCreating}
-										>
-											<X />
-										</Button>
-									</div>
+								<div className="flex gap-2 items-center mb-4">
+									<Input
+										placeholder="Enter exercise name..."
+										value={newExerciseName}
+										onChange={(e) => setNewExerciseName(e.target.value)}
+										onKeyDown={(e) => handleKeyPress(e, groupName)}
+										autoFocus
+										className="h-7 text-sm"
+									/>
+									<Button
+										className="size-7"
+										onClick={() => handleCreateExercise(groupName)}
+										disabled={isCreating || !newExerciseName.trim()}
+									>
+										<Check />
+									</Button>
+									<Button
+										className="size-7"
+										variant="outline"
+										onClick={handleCancelInput}
+										disabled={isCreating}
+									>
+										<X />
+									</Button>
 								</div>
 							)}
 							<ul className="space-y-2">
