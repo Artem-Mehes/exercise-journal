@@ -46,10 +46,17 @@ function RouteComponent() {
 		}
 	};
 
+	// Determine if we should prepopulate with last workout's first set
+	const shouldPrepopulate =
+		currentWorkout &&
+		(!currentWorkoutSets || currentWorkoutSets.length === 0) &&
+		lastWorkoutSets &&
+		lastWorkoutSets.length > 0;
+
 	const form = useAppForm({
 		defaultValues: {
-			count: "",
-			weight: "",
+			count: shouldPrepopulate ? lastWorkoutSets[0].count.toString() : "",
+			weight: shouldPrepopulate ? lastWorkoutSets[0].weight.toString() : "",
 			unit: "kg",
 		},
 		onSubmit: async ({ value }) => {

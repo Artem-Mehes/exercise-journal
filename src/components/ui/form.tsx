@@ -43,6 +43,7 @@ function ErrorMessages({
 export function TextField({
 	label,
 	placeholder,
+	type,
 	...props
 }: {
 	label: string;
@@ -58,6 +59,7 @@ export function TextField({
 			</Label>
 			<Input
 				{...props}
+				type={type}
 				value={field.state.value}
 				placeholder={placeholder}
 				onBlur={field.handleBlur}
