@@ -28,13 +28,20 @@ export function WorkoutInfo() {
 
 	const isLoading = currentWorkout === undefined;
 
-	const isWorkoutActive = !!currentWorkout;
+	const isWorkoutActive = currentWorkout && !currentWorkout.endTime;
 
 	return (
 		<div className="flex items-center gap-4">
 			{isWorkoutActive ? (
 				<>
-					<div className="text-muted-foreground">{formattedTime}</div>
+					<div className="flex items-center gap-2">
+						<span className="text-xs">
+							Exercises: {currentWorkout.exercises?.length || 0}
+						</span>
+
+						<div className="text-muted-foreground">{formattedTime}</div>
+					</div>
+
 					<Button variant="destructive" onClick={handleEndWorkout}>
 						End workout
 					</Button>

@@ -20,6 +20,7 @@ import appCss from "../styles.css?url";
 // Forms validation
 // Loading state
 // Toasts
+// Delete oldest workouts when in db more than 10
 
 export const Route = createRootRouteWithContext()({
 	head: () => ({

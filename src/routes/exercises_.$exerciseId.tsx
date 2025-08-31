@@ -1,8 +1,17 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+	Table,
+	TableBody,
+	TableCell,
+	TableHead,
+	TableHeader,
+	TableRow,
+} from "@/components/ui/table";
 import { useAppForm } from "@/hooks/form";
 import { formatWeight, lbsToKg } from "@/lib/utils";
 import { createFileRoute } from "@tanstack/react-router";
+import clsx from "clsx";
 import { api } from "convex/_generated/api";
 import type { Id } from "convex/_generated/dataModel";
 import { useMutation, useQuery } from "convex/react";
@@ -20,8 +29,22 @@ function RouteComponent() {
 	});
 
 	const currentWorkout = useQuery(api.workouts.getCurrentWorkout);
+	const currentWorkoutSets = useQuery(api.exercises.getCurrentWorkoutSets, {
+		exerciseId: exerciseId as Id<"exercises">,
+	});
+	const lastWorkoutSets = useQuery(api.exercises.getLastCompletedWorkoutSets, {
+		exerciseId: exerciseId as Id<"exercises">,
+	});
 	const addSet = useMutation(api.exercises.addSet);
 	const deleteSet = useMutation(api.exercises.deleteSet);
+
+	const handleDeleteSet = async (setId: Id<"sets">) => {
+		try {
+			await deleteSet({ setId });
+		} catch (error) {
+			console.error("Failed to delete set:", error);
+		}
+	};
 
 	const form = useAppForm({
 		defaultValues: {
@@ -42,12 +65,6 @@ function RouteComponent() {
 			});
 		},
 	});
-
-	const handleDeleteSet = async (setId: Id<"sets">) => {
-		await deleteSet({
-			setId,
-		});
-	};
 
 	return (
 		<>
@@ -92,51 +109,195 @@ function RouteComponent() {
 				</Card>
 			)}
 
-			<Card className="py-4">
-				<CardHeader className="px-4">
-					<CardTitle>Last set</CardTitle>
+			{currentWorkout && (
+				<Card className=" border-green-800 bg-green-950/50">
+					<CardHeader>
+						<CardTitle className="text-green-300">Current Session</CardTitle>
+					</CardHeader>
+					<CardContent>
+						{!currentWorkoutSets || currentWorkoutSets.length === 0 ? (
+							<p className="text-muted-foreground text-center py-4">
+								No sets in current session
+							</p>
+						) : (
+							<Table>
+								<TableHeader>
+									<TableRow>
+										<TableHead className="w-16">Set</TableHead>
+										<TableHead className="w-20">Reps</TableHead>
+										<TableHead className="w-24">kg</TableHead>
+										<TableHead className="w-24">lbs</TableHead>
+										<TableHead className="w-20">Volume</TableHead>
+										<TableHead className="w-16" />
+									</TableRow>
+								</TableHeader>
+								<TableBody>
+									{currentWorkoutSets.map((set, index) => {
+										const { kg, lbs } = formatWeight(set.weight);
+										const volume = (set.count * set.weight).toFixed(0);
+
+										let volumeColorClass = "";
+										if (lastWorkoutSets?.[index]) {
+											const lastSetVolume =
+												lastWorkoutSets[index].count *
+												lastWorkoutSets[index].weight;
+											const currentVolume = set.count * set.weight;
+											if (currentVolume > lastSetVolume) {
+												volumeColorClass = "text-green-600";
+											} else if (currentVolume < lastSetVolume) {
+												volumeColorClass = "text-red-600";
+											}
+										}
+
+										return (
+											<TableRow key={set._id}>
+												<TableCell className="font-medium">
+													{index + 1}
+												</TableCell>
+												<TableCell>{set.count}</TableCell>
+												<TableCell>{kg}</TableCell>
+												<TableCell className="text-muted-foreground">
+													{lbs}
+												</TableCell>
+												<TableCell className={volumeColorClass}>
+													{volume}
+												</TableCell>
+												<TableCell>
+													<Button
+														variant="ghost"
+														size="sm"
+														onClick={() => handleDeleteSet(set._id)}
+														className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+													>
+														<Trash2 className="h-4 w-4" />
+													</Button>
+												</TableCell>
+											</TableRow>
+										);
+									})}
+									{currentWorkoutSets.length > 0 &&
+										(() => {
+											// Calculate total volumes for comparison
+											const currentTotalVolume = currentWorkoutSets.reduce(
+												(sum, set) => sum + set.count * set.weight,
+												0,
+											);
+											const lastTotalVolume =
+												lastWorkoutSets?.reduce(
+													(sum, set) => sum + set.count * set.weight,
+													0,
+												) || 0;
+
+											// Determine color class for total volume
+											let totalVolumeColorClass = "";
+											if (lastWorkoutSets && lastWorkoutSets.length > 0) {
+												if (currentTotalVolume > lastTotalVolume) {
+													totalVolumeColorClass = "text-green-600";
+												} else if (currentTotalVolume < lastTotalVolume) {
+													totalVolumeColorClass = "text-red-600";
+												}
+											}
+
+											return (
+												<TableRow className="border-t-2">
+													<TableCell className="font-bold">Total</TableCell>
+													<TableCell className="font-bold">
+														{currentWorkoutSets.reduce(
+															(sum, set) => sum + set.count,
+															0,
+														)}
+													</TableCell>
+													<TableCell className="font-bold">
+														{currentWorkoutSets
+															.reduce((sum, set) => sum + set.weight, 0)
+															.toFixed(1)}
+													</TableCell>
+													<TableCell />
+													<TableCell
+														className={clsx("font-bold", totalVolumeColorClass)}
+													>
+														{currentTotalVolume.toFixed(0)}
+													</TableCell>
+													<TableCell />
+												</TableRow>
+											);
+										})()}
+								</TableBody>
+							</Table>
+						)}
+					</CardContent>
+				</Card>
+			)}
+
+			<Card className="bg-accent border-accent-foreground/60">
+				<CardHeader>
+					<CardTitle>Last Session</CardTitle>
 				</CardHeader>
-				<CardContent className="px-4">
-					{exercise?.sets?.length === 0 ? (
+				<CardContent>
+					{!lastWorkoutSets || lastWorkoutSets.length === 0 ? (
 						<p className="text-muted-foreground text-center py-4">
-							No sets recorded yet
+							No sets from last session
 						</p>
 					) : (
-						<div className="space-y-2">
-							{exercise?.sets?.map((set, index) => {
-								const { kg, lbs } = formatWeight(set.weight);
-								return (
-									<div
-										key={index}
-										className="flex justify-between items-center p-3 bg-muted/50 rounded-lg"
-									>
-										<div className="flex gap-4">
-											<span className="font-medium">{set.count} reps</span>
-											<span className="text-muted-foreground">×</span>
-											<div className="flex flex-col">
-												<span className="font-medium">{kg} kg</span>
-												<span className="text-sm text-muted-foreground">
-													{lbs} lbs
-												</span>
-											</div>
-										</div>
-										<div className="flex items-center gap-2">
-											<span className="text-sm text-muted-foreground">
-												Set {exercise?.sets?.length - index}
-											</span>
-											<Button
-												variant="ghost"
-												size="sm"
-												onClick={() => handleDeleteSet(set._id)}
-												className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
-											>
-												<Trash2 className="h-4 w-4" />
-											</Button>
-										</div>
-									</div>
-								);
-							})}
-						</div>
+						<Table>
+							<TableHeader>
+								<TableRow>
+									<TableHead className="w-16">Set</TableHead>
+									<TableHead className="w-20">Reps</TableHead>
+									<TableHead className="w-24">kg</TableHead>
+									<TableHead className="w-24">lbs</TableHead>
+									<TableHead className="w-20">Volume</TableHead>
+									<TableHead className="w-16" />
+								</TableRow>
+							</TableHeader>
+							<TableBody>
+								{lastWorkoutSets.map((set, index) => {
+									const { kg, lbs } = formatWeight(set.weight);
+									const volume = (set.count * set.weight).toFixed(0);
+									return (
+										<TableRow key={set._id}>
+											<TableCell className="font-medium">{index + 1}</TableCell>
+											<TableCell>{set.count}</TableCell>
+											<TableCell>{kg}</TableCell>
+											<TableCell className="text-muted-foreground">
+												{lbs}
+											</TableCell>
+											<TableCell>{volume}</TableCell>
+											<TableCell>
+												<Button
+													variant="ghost"
+													size="sm"
+													onClick={() => handleDeleteSet(set._id)}
+													className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+												>
+													<Trash2 className="h-4 w-4" />
+												</Button>
+											</TableCell>
+										</TableRow>
+									);
+								})}
+								{lastWorkoutSets.length > 0 && (
+									<TableRow className="border-t-2">
+										<TableCell className="font-bold">Total</TableCell>
+										<TableCell className="font-bold">
+											{lastWorkoutSets.reduce((sum, set) => sum + set.count, 0)}
+										</TableCell>
+										<TableCell className="font-bold">
+											{lastWorkoutSets
+												.reduce((sum, set) => sum + set.weight, 0)
+												.toFixed(1)}
+										</TableCell>
+										<TableCell />
+										<TableCell className="font-bold">
+											{lastWorkoutSets
+												.reduce((sum, set) => sum + set.count * set.weight, 0)
+												.toFixed(0)}
+										</TableCell>
+										<TableCell />
+									</TableRow>
+								)}
+							</TableBody>
+						</Table>
 					)}
 				</CardContent>
 			</Card>

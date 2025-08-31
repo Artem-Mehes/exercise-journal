@@ -3,8 +3,11 @@ import { mutation, query } from "./_generated/server";
 
 export const startWorkout = mutation({
 	handler: async (ctx) => {
-		// Check if there's already an active workout (since we only allow one)
-		const activeWorkout = await ctx.db.query("workouts").first();
+		// Check if there's already an active workout (one without endTime)
+		const activeWorkout = await ctx.db
+			.query("workouts")
+			.filter((q) => q.eq(q.field("endTime"), undefined))
+			.first();
 
 		if (activeWorkout) {
 			throw new Error("A workout is already in progress");
@@ -29,8 +32,14 @@ export const endWorkout = mutation({
 			throw new Error("Workout not found");
 		}
 
-		// Delete the workout instead of setting endTime
-		await ctx.db.delete(args.workoutId);
+		if (workout.endTime) {
+			throw new Error("Workout is already ended");
+		}
+
+		// Set endTime instead of deleting
+		await ctx.db.patch(args.workoutId, {
+			endTime: Date.now(),
+		});
 
 		return args.workoutId;
 	},
@@ -38,8 +47,11 @@ export const endWorkout = mutation({
 
 export const getCurrentWorkout = query({
 	handler: async (ctx) => {
-		// Since we only allow one workout at a time, just get the first (and only) one
-		const activeWorkout = await ctx.db.query("workouts").first();
+		// Find the active workout (one without endTime)
+		const activeWorkout = await ctx.db
+			.query("workouts")
+			.filter((q) => q.eq(q.field("endTime"), undefined))
+			.first();
 
 		return activeWorkout;
 	},
@@ -47,15 +59,20 @@ export const getCurrentWorkout = query({
 
 export const endCurrentWorkout = mutation({
 	handler: async (ctx) => {
-		// Find the active workout (since we only allow one, just get the first)
-		const activeWorkout = await ctx.db.query("workouts").first();
+		// Find the active workout (one without endTime)
+		const activeWorkout = await ctx.db
+			.query("workouts")
+			.filter((q) => q.eq(q.field("endTime"), undefined))
+			.first();
 
 		if (!activeWorkout) {
 			throw new Error("No active workout found");
 		}
 
-		// Delete the workout
-		await ctx.db.delete(activeWorkout._id);
+		// Set endTime instead of deleting
+		await ctx.db.patch(activeWorkout._id, {
+			endTime: Date.now(),
+		});
 
 		return activeWorkout._id;
 	},
