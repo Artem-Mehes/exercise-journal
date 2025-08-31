@@ -91,7 +91,7 @@ function RouteComponent() {
 
 			<Card className="py-4">
 				<CardHeader className="px-4">
-					<CardTitle>Last 10 sets</CardTitle>
+					<CardTitle>Last set</CardTitle>
 				</CardHeader>
 				<CardContent className="px-4">
 					{exercise?.sets?.length === 0 ? (

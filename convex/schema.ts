@@ -15,4 +15,7 @@ export default defineSchema({
 		count: v.number(),
 		weight: v.number(),
 	}).index("exerciseId", ["exerciseId"]),
+	workouts: defineTable({
+		startTime: v.number(), // timestamp in milliseconds
+	}).index("startTime", ["startTime"]),
 });

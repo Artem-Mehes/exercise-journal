@@ -13,6 +13,7 @@ import ConvexProvider from "../integrations/convex/provider";
 import StoreDevtools from "../lib/demo-store-devtools";
 
 import { AppSidebar } from "@/components/sidebar";
+import { WorkoutInfo } from "@/components/workout-info";
 import appCss from "../styles.css?url";
 
 // TODO
@@ -62,7 +63,12 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 						<AppSidebar />
 
 						<main className="flex-1 flex w-full flex-col gap-3 p-3 h-full">
-							<SidebarTrigger />
+							<header className="flex items-center justify-between">
+								<SidebarTrigger />
+
+								<WorkoutInfo />
+							</header>
+
 							{children}
 						</main>
 					</SidebarProvider>
