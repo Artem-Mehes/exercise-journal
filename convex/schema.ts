@@ -20,6 +20,16 @@ export default defineSchema({
 	workouts: defineTable({
 		startTime: v.number(), // timestamp in milliseconds
 		endTime: v.optional(v.number()), // timestamp when workout ended, null for active workout
-		exercises: v.optional(v.array(v.id("exercises"))), // Array of exercise IDs worked on in this session
+		exercises: v.array(
+			v.object({
+				id: v.id("exercises"),
+				sets: v.array(v.id("sets")),
+				name: v.string(),
+			}),
+		), // Array of exercise IDs worked on in this session
 	}).index("startTime", ["startTime"]),
+	templates: defineTable({
+		name: v.string(),
+		exercises: v.optional(v.array(v.id("exercises"))),
+	}),
 });

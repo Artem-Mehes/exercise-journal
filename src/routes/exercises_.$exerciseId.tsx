@@ -64,10 +64,6 @@ function RouteComponent() {
 		}
 	};
 
-	const handleCancelNotes = () => {
-		setNotesValue("");
-	};
-
 	const handleSaveNotes = async () => {
 		try {
 			await updateNotes({

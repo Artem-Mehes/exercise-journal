@@ -12,6 +12,7 @@ import ConvexProvider from "../integrations/convex/provider";
 
 import StoreDevtools from "../lib/demo-store-devtools";
 
+import { AppFooter } from "@/components/footer";
 import { AppSidebar } from "@/components/sidebar";
 import { WorkoutInfo } from "@/components/workout-info";
 import appCss from "../styles.css?url";
@@ -63,17 +64,21 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 					<SidebarProvider>
 						<AppSidebar />
 
-						<main className="flex-1 flex w-full flex-col h-full ">
-							<header className="sticky top-0 z-10 bg-background border-b flex items-center justify-between p-2 min-h-14">
+						<div className="flex flex-col  flex-1">
+							<header className="bg-background border-b flex items-center justify-between p-2 min-h-14">
 								<SidebarTrigger />
 
 								<WorkoutInfo />
 							</header>
 
-							<div className="flex-1 overflow-auto p-3 space-y-4">
-								{children}
-							</div>
-						</main>
+							<main className="flex-1 flex w-full flex-col h-full overflow-auto">
+								<div className="flex-1 overflow-auto p-3 space-y-4">
+									{children}
+								</div>
+							</main>
+
+							<AppFooter />
+						</div>
 					</SidebarProvider>
 					{/* 
 					<TanstackDevtools

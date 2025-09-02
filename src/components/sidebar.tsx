@@ -1,47 +1,66 @@
-import { Link } from "@tanstack/react-router";
-import { List } from "lucide-react";
-
 import {
 	Sidebar,
 	SidebarContent,
 	SidebarGroup,
 	SidebarGroupContent,
 	SidebarGroupLabel,
-	SidebarMenu,
-	SidebarMenuButton,
-	SidebarMenuItem,
-	useSidebar,
+	SidebarMenuSub,
+	SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
+import clsx from "clsx";
+import { api } from "convex/_generated/api";
+import { useQuery } from "convex/react";
+import { CheckCircle } from "lucide-react";
 
-const items = [
-	{
-		title: "Exercises",
-		url: "/",
-		icon: List,
-	},
-];
+const defaultSetsCount = 4;
 
 export function AppSidebar() {
-	const { toggleSidebar } = useSidebar();
+	const currentWorkout = useQuery(api.workouts.getCurrentWorkout);
 
 	return (
 		<Sidebar>
 			<SidebarContent>
 				<SidebarGroup>
-					<SidebarGroupLabel>Exercise Journal</SidebarGroupLabel>
+					<SidebarGroupLabel>Workout info</SidebarGroupLabel>
 					<SidebarGroupContent>
-						<SidebarMenu>
-							{items.map((item) => (
-								<SidebarMenuItem key={item.title}>
-									<SidebarMenuButton asChild>
-										<Link to={item.url} onClick={toggleSidebar}>
-											<item.icon />
-											<span>{item.title}</span>
-										</Link>
-									</SidebarMenuButton>
-								</SidebarMenuItem>
-							))}
-						</SidebarMenu>
+						<SidebarMenuSub className="gap-4">
+							{currentWorkout &&
+								currentWorkout.exercises.length > 0 &&
+								currentWorkout.exercises.map((exercise) => {
+									const isFinished = exercise.sets?.length === defaultSetsCount;
+
+									return (
+										<SidebarMenuSubItem
+											key={exercise.id}
+											className="flex justify-between"
+										>
+											{isFinished && (
+												<CheckCircle className="size-4 text-green-600 absolute -left-8 top-1/2 -translate-y-1/2" />
+											)}
+
+											<div
+												className={clsx(
+													"flex flex-col",
+													isFinished && "text-green-600",
+												)}
+											>
+												<span>{exercise.name}</span>
+
+												<span
+													className={clsx(
+														"text-xs",
+														isFinished
+															? "text-primary"
+															: "text-muted-foreground",
+													)}
+												>
+													{exercise.sets?.length} / {defaultSetsCount}
+												</span>
+											</div>
+										</SidebarMenuSubItem>
+									);
+								})}
+						</SidebarMenuSub>
 					</SidebarGroupContent>
 				</SidebarGroup>
 			</SidebarContent>

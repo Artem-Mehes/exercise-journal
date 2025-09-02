@@ -1,4 +1,5 @@
 import { v } from "convex/values";
+import type { Doc } from "./_generated/dataModel";
 import { mutation, query } from "./_generated/server";
 
 export const startWorkout = mutation({
@@ -16,6 +17,7 @@ export const startWorkout = mutation({
 		// Create new workout
 		const workoutId = await ctx.db.insert("workouts", {
 			startTime: Date.now(),
+			exercises: [],
 		});
 
 		return workoutId;
@@ -52,6 +54,10 @@ export const getCurrentWorkout = query({
 			.query("workouts")
 			.filter((q) => q.eq(q.field("endTime"), undefined))
 			.first();
+
+		if (!activeWorkout) {
+			return null;
+		}
 
 		return activeWorkout;
 	},

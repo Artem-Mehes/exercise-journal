@@ -239,12 +239,9 @@ export const addSet = mutation({
 		const currentSets = exercise.sets || [];
 		let updatedSets: typeof currentSets;
 
-		let isNewExerciseInWorkout = false;
-
 		if (currentSets.length === 0) {
 			// First workout session ever for this exercise
 			updatedSets = [[setId]];
-			isNewExerciseInWorkout = true;
 		} else {
 			// Check if we need to start a new workout session by comparing workout start time
 			// with the creation time of the last set in the last workout session
@@ -260,7 +257,6 @@ export const addSet = mutation({
 					// Current workout started after the last set was created
 					// This means we should start a new workout session
 					updatedSets = [...currentSets, [setId]];
-					isNewExerciseInWorkout = true;
 				} else {
 					// Add to the current workout session
 					const updatedLastSession = [...lastWorkoutSetIds, setId];
@@ -277,15 +273,30 @@ export const addSet = mutation({
 			sets: updatedSets,
 		});
 
-		// Track this exercise in the current workout if it's the first set of this exercise in this workout
-		if (isNewExerciseInWorkout) {
-			const workoutExercises = currentWorkout.exercises || [];
-			if (!workoutExercises.includes(args.exerciseId)) {
-				await ctx.db.patch(currentWorkout._id, {
-					exercises: [...workoutExercises, args.exerciseId],
-				});
-			}
+		const workoutExercises = currentWorkout.exercises || [];
+
+		const exerciseAlreadyInWorkout = workoutExercises.some(
+			(exercise) => exercise.id === args.exerciseId,
+		);
+
+		let updatedWorkoutExercises: typeof workoutExercises;
+
+		if (exerciseAlreadyInWorkout) {
+			updatedWorkoutExercises = workoutExercises.map((exercise) =>
+				exercise.id === args.exerciseId
+					? { ...exercise, sets: [...exercise.sets, setId] }
+					: exercise,
+			);
+		} else {
+			updatedWorkoutExercises = [
+				...workoutExercises,
+				{ id: args.exerciseId, sets: [setId], name: exercise.name },
+			];
 		}
+
+		await ctx.db.patch(currentWorkout._id, {
+			exercises: updatedWorkoutExercises,
+		});
 
 		return setId;
 	},
