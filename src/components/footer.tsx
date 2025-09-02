@@ -16,7 +16,7 @@ const items = [
 
 export function AppFooter() {
 	return (
-		<footer className="bg-accent border-t flex p-1 w-full">
+		<footer className="bg-accent border-t flex p-1 pb-4 w-full">
 			<div className="m-auto flex gap-10">
 				{items.map((item) => (
 					<Link
