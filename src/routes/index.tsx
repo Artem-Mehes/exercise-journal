@@ -1,3 +1,4 @@
+import { ExercisesList } from "@/components/exercises-list";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -7,7 +8,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { BicepsFlexed, Dumbbell, PlusSquare } from "lucide-react";
-import { ExercisesList } from "./exercises-list";
 
 export const Route = createFileRoute("/")({
 	component: RouteComponent,
