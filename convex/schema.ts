@@ -9,24 +9,21 @@ export default defineSchema({
 	exercises: defineTable({
 		name: v.string(),
 		muscleGroupId: v.id("muscleGroups"),
-		sets: v.optional(v.array(v.array(v.id("sets")))), // Array of arrays - each inner array is a workout session
 		notes: v.optional(v.string()),
+		setsGoal: v.optional(v.number()),
 	}).index("muscleGroupId", ["muscleGroupId"]),
 	sets: defineTable({
 		exerciseId: v.id("exercises"),
+		workoutId: v.id("workouts"), // Made required
 		count: v.number(),
 		weight: v.number(),
-	}).index("exerciseId", ["exerciseId"]),
+	})
+		.index("exerciseId", ["exerciseId"])
+		.index("workoutId", ["workoutId"])
+		.index("workoutId_exerciseId", ["workoutId", "exerciseId"]),
 	workouts: defineTable({
-		startTime: v.number(), // timestamp in milliseconds
-		endTime: v.optional(v.number()), // timestamp when workout ended, null for active workout
-		exercises: v.array(
-			v.object({
-				id: v.id("exercises"),
-				sets: v.array(v.id("sets")),
-				name: v.string(),
-			}),
-		), // Array of exercise IDs worked on in this session
+		startTime: v.number(),
+		endTime: v.optional(v.number()),
 	}).index("startTime", ["startTime"]),
 	templates: defineTable({
 		name: v.string(),

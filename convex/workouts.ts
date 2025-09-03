@@ -17,7 +17,6 @@ export const startWorkout = mutation({
 		// Create new workout
 		const workoutId = await ctx.db.insert("workouts", {
 			startTime: Date.now(),
-			exercises: [],
 		});
 
 		return workoutId;
@@ -75,17 +74,78 @@ export const endCurrentWorkout = mutation({
 			throw new Error("No active workout found");
 		}
 
-		// Check if workout has any exercises
-		if (!activeWorkout.exercises || activeWorkout.exercises.length === 0) {
-			// No exercises were performed, just delete the workout
-			await ctx.db.delete(activeWorkout._id);
-		} else {
-			// Exercises were performed, save the workout with endTime
-			await ctx.db.patch(activeWorkout._id, {
-				endTime: Date.now(),
+		await ctx.db.patch(activeWorkout._id, {
+			endTime: Date.now(),
+		});
+
+		return activeWorkout._id;
+	},
+});
+
+export const getCurrentWorkoutExercises = query({
+	handler: async (ctx) => {
+		const activeWorkout = await ctx.db
+			.query("workouts")
+			.filter((q) => q.eq(q.field("endTime"), undefined))
+			.first();
+
+		if (!activeWorkout) {
+			return {};
+		}
+
+		const currentWorkoutSets = await ctx.db
+			.query("sets")
+			.withIndex("workoutId", (q) => q.eq("workoutId", activeWorkout._id))
+			.collect();
+
+		// Group sets by exercise first
+		const exerciseGroups: Record<
+			string,
+			{
+				exercise: Doc<"exercises">;
+				muscleGroup: Doc<"muscleGroups">;
+				sets: Doc<"sets">[];
+			}
+		> = {};
+
+		for (const set of currentWorkoutSets) {
+			const exercise = await ctx.db.get(set.exerciseId);
+			if (!exercise) continue;
+
+			const muscleGroup = await ctx.db.get(exercise.muscleGroupId);
+			if (!muscleGroup) continue;
+
+			const key = exercise._id;
+			if (!exerciseGroups[key]) {
+				exerciseGroups[key] = {
+					exercise,
+					muscleGroup,
+					sets: [],
+				};
+			}
+			exerciseGroups[key].sets.push(set);
+		}
+
+		// Group by muscle group and format the response
+		const result: Record<
+			string,
+			Array<{ exerciseName: string; sets: number; setsGoal: number }>
+		> = {};
+
+		for (const group of Object.values(exerciseGroups)) {
+			const muscleGroupName = group.muscleGroup.name;
+
+			if (!result[muscleGroupName]) {
+				result[muscleGroupName] = [];
+			}
+
+			result[muscleGroupName].push({
+				exerciseName: group.exercise.name,
+				sets: group.sets.length,
+				setsGoal: group.exercise.setsGoal || 0,
 			});
 		}
 
-		return activeWorkout._id;
+		return result;
 	},
 });

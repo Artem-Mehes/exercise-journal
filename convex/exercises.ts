@@ -6,7 +6,6 @@ export const get = query({
 	handler: async (ctx) => {
 		const exercises = await ctx.db.query("exercises").collect();
 
-		// Fetch muscle group info for each exercise
 		const exercisesWithMuscleGroups = await Promise.all(
 			exercises.map(async (exercise) => {
 				if (!exercise.muscleGroupId) {
@@ -38,22 +37,6 @@ export const getById = query({
 			return null;
 		}
 
-		// Handle the nested sets structure - get the last workout's sets
-		let lastWorkoutSets: Doc<"sets">[] = [];
-		if (exercise.sets && exercise.sets.length > 0) {
-			// Get the last inner array (most recent workout)
-			const lastWorkoutSetIds = exercise.sets[exercise.sets.length - 1];
-
-			// Fetch the actual set documents
-			const sets = await Promise.all(
-				lastWorkoutSetIds.map((setId) => ctx.db.get(setId)),
-			);
-
-			// Filter out any null sets
-			lastWorkoutSets = sets.filter((set) => set !== null);
-		}
-
-		// Fetch muscle group info
 		const muscleGroup = exercise.muscleGroupId
 			? await ctx.db.get(exercise.muscleGroupId)
 			: null;
@@ -61,7 +44,6 @@ export const getById = query({
 		return {
 			...exercise,
 			muscleGroup,
-			sets: lastWorkoutSets, // This now contains sets from the last workout only
 		};
 	},
 });
@@ -80,7 +62,7 @@ export const getByMuscleGroup = query({
 	},
 });
 
-export const getCurrentWorkoutSets = query({
+export const getCurrentWorkoutSetsForExercise = query({
 	args: {
 		exerciseId: v.id("exercises"),
 	},
@@ -95,30 +77,14 @@ export const getCurrentWorkoutSets = query({
 			return [];
 		}
 
-		const exercise = await ctx.db.get(args.exerciseId);
-		if (!exercise || !exercise.sets || exercise.sets.length === 0) {
-			return [];
-		}
+		const sets = await ctx.db
+			.query("sets")
+			.withIndex("workoutId_exerciseId", (q) =>
+				q.eq("workoutId", currentWorkout._id).eq("exerciseId", args.exerciseId),
+			)
+			.collect();
 
-		// Get the last workout session sets and check if they belong to current workout
-		const lastWorkoutSetIds = exercise.sets[exercise.sets.length - 1];
-
-		if (lastWorkoutSetIds.length === 0) {
-			return [];
-		}
-
-		// Get the first set to check if it was created after current workout started
-		const firstSet = await ctx.db.get(lastWorkoutSetIds[0]);
-
-		if (firstSet && firstSet._creationTime >= currentWorkout.startTime) {
-			// These sets belong to the current workout
-			const sets = await Promise.all(
-				lastWorkoutSetIds.map((setId) => ctx.db.get(setId)),
-			);
-			return sets.filter((set) => set !== null);
-		}
-
-		return [];
+		return sets;
 	},
 });
 
@@ -127,41 +93,24 @@ export const getLastCompletedWorkoutSets = query({
 		exerciseId: v.id("exercises"),
 	},
 	handler: async (ctx, args) => {
-		const exercise = await ctx.db.get(args.exerciseId);
-		if (!exercise || !exercise.sets || exercise.sets.length === 0) {
+		const finishedWorkouts = await ctx.db
+			.query("workouts")
+			.filter((q) => q.neq(q.field("endTime"), undefined))
+			.collect();
+
+		const lastFinishedWorkout = finishedWorkouts[finishedWorkouts.length - 1];
+
+		if (!lastFinishedWorkout) {
 			return [];
 		}
 
-		// Get current active workout to determine which sets are from current session
-		const currentWorkout = await ctx.db
-			.query("workouts")
-			.filter((q) => q.eq(q.field("endTime"), undefined))
-			.first();
+		const sets = await ctx.db
+			.query("sets")
+			.filter((q) => q.eq(q.field("workoutId"), lastFinishedWorkout._id))
+			.filter((q) => q.eq(q.field("exerciseId"), args.exerciseId))
+			.collect();
 
-		const lastWorkoutSetIds = exercise.sets[exercise.sets.length - 1];
-
-		if (currentWorkout && lastWorkoutSetIds.length > 0) {
-			// Check if the last workout session is the current one
-			const firstSet = await ctx.db.get(lastWorkoutSetIds[0]);
-
-			if (firstSet && firstSet._creationTime >= currentWorkout.startTime) {
-				// Last session is current, get the previous one if it exists
-				if (exercise.sets.length > 1) {
-					const previousWorkoutSetIds = exercise.sets[exercise.sets.length - 2];
-					const sets = await Promise.all(
-						previousWorkoutSetIds.map((setId) => ctx.db.get(setId)),
-					);
-					return sets.filter((set) => set !== null);
-				}
-				return [];
-			}
-		}
-
-		// Last session is completed, return it
-		const sets = await Promise.all(
-			lastWorkoutSetIds.map((setId) => ctx.db.get(setId)),
-		);
-		return sets.filter((set) => set !== null);
+		return sets;
 	},
 });
 
@@ -171,10 +120,8 @@ export const create = mutation({
 		muscleGroupId: v.id("muscleGroups"),
 	},
 	handler: async (ctx, args) => {
-		// Create the exercise
 		const exerciseId = await ctx.db.insert("exercises", args);
 
-		// Add the exercise to the muscle group's exercises array
 		const muscleGroup = await ctx.db.get(args.muscleGroupId);
 		if (muscleGroup) {
 			const currentExercises = muscleGroup.exercises || [];
@@ -228,74 +175,11 @@ export const addSet = mutation({
 			throw new Error("Exercise not found");
 		}
 
-		// Create new set document
 		const setId = await ctx.db.insert("sets", {
 			exerciseId: args.exerciseId,
 			count: args.count,
 			weight: args.weight,
-		});
-
-		// Handle the nested array structure for sets
-		const currentSets = exercise.sets || [];
-		let updatedSets: typeof currentSets;
-
-		if (currentSets.length === 0) {
-			// First workout session ever for this exercise
-			updatedSets = [[setId]];
-		} else {
-			// Check if we need to start a new workout session by comparing workout start time
-			// with the creation time of the last set in the last workout session
-			const lastWorkoutSetIds = currentSets[currentSets.length - 1];
-
-			if (lastWorkoutSetIds.length > 0) {
-				// Get the last set to check its creation time
-				const lastSet = await ctx.db.get(
-					lastWorkoutSetIds[lastWorkoutSetIds.length - 1],
-				);
-
-				if (lastSet && currentWorkout.startTime > lastSet._creationTime) {
-					// Current workout started after the last set was created
-					// This means we should start a new workout session
-					updatedSets = [...currentSets, [setId]];
-				} else {
-					// Add to the current workout session
-					const updatedLastSession = [...lastWorkoutSetIds, setId];
-					updatedSets = [...currentSets.slice(0, -1), updatedLastSession];
-				}
-			} else {
-				// Edge case: empty last session, add to it
-				const updatedLastSession = [setId];
-				updatedSets = [...currentSets.slice(0, -1), updatedLastSession];
-			}
-		}
-
-		await ctx.db.patch(args.exerciseId, {
-			sets: updatedSets,
-		});
-
-		const workoutExercises = currentWorkout.exercises || [];
-
-		const exerciseAlreadyInWorkout = workoutExercises.some(
-			(exercise) => exercise.id === args.exerciseId,
-		);
-
-		let updatedWorkoutExercises: typeof workoutExercises;
-
-		if (exerciseAlreadyInWorkout) {
-			updatedWorkoutExercises = workoutExercises.map((exercise) =>
-				exercise.id === args.exerciseId
-					? { ...exercise, sets: [...exercise.sets, setId] }
-					: exercise,
-			);
-		} else {
-			updatedWorkoutExercises = [
-				...workoutExercises,
-				{ id: args.exerciseId, sets: [setId], name: exercise.name },
-			];
-		}
-
-		await ctx.db.patch(currentWorkout._id, {
-			exercises: updatedWorkoutExercises,
+			workoutId: currentWorkout._id,
 		});
 
 		return setId;
@@ -307,30 +191,11 @@ export const deleteSet = mutation({
 		setId: v.id("sets"),
 	},
 	handler: async (ctx, args) => {
-		// Get the set to find which exercise it belongs to
 		const set = await ctx.db.get(args.setId);
 		if (!set) {
 			throw new Error("Set not found");
 		}
 
-		const exercise = await ctx.db.get(set.exerciseId);
-		if (!exercise) {
-			throw new Error("Exercise not found");
-		}
-
-		// Remove set ID from exercise's nested sets array
-		const updatedSets =
-			exercise.sets
-				?.map((workoutSets) =>
-					workoutSets.filter((setId) => setId !== args.setId),
-				)
-				.filter((workoutSets) => workoutSets.length > 0) || []; // Remove empty workout sessions
-
-		await ctx.db.patch(set.exerciseId, {
-			sets: updatedSets,
-		});
-
-		// Delete the set document
 		await ctx.db.delete(args.setId);
 
 		return set.exerciseId;
@@ -358,16 +223,15 @@ export const deleteExercise = mutation({
 			});
 		}
 
-		// Delete all sets associated with this exercise
-		if (exercise.sets) {
-			for (const workoutSets of exercise.sets) {
-				for (const setId of workoutSets) {
-					await ctx.db.delete(setId);
-				}
-			}
+		const setsForExercise = await ctx.db
+			.query("sets")
+			.withIndex("exerciseId", (q) => q.eq("exerciseId", args.exerciseId))
+			.collect();
+
+		for (const set of setsForExercise) {
+			await ctx.db.delete(set._id);
 		}
 
-		// Delete the exercise
 		await ctx.db.delete(args.exerciseId);
 
 		return args.exerciseId;

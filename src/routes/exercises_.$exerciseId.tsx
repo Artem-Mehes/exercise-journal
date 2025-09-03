@@ -31,9 +31,12 @@ function RouteComponent() {
 	});
 
 	const currentWorkout = useQuery(api.workouts.getCurrentWorkout);
-	const currentWorkoutSets = useQuery(api.exercises.getCurrentWorkoutSets, {
-		exerciseId: exerciseId as Id<"exercises">,
-	});
+	const currentWorkoutSets = useQuery(
+		api.exercises.getCurrentWorkoutSetsForExercise,
+		{
+			exerciseId: exerciseId as Id<"exercises">,
+		},
+	);
 	const lastWorkoutSets = useQuery(api.exercises.getLastCompletedWorkoutSets, {
 		exerciseId: exerciseId as Id<"exercises">,
 	});

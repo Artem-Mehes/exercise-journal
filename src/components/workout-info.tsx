@@ -34,13 +34,7 @@ export function WorkoutInfo() {
 		<div className="flex items-center gap-4">
 			{isWorkoutActive ? (
 				<>
-					<div className="flex items-center gap-2">
-						<span className="text-xs">
-							Exercises: {currentWorkout.exercises?.length || 0}
-						</span>
-
-						<div className="text-muted-foreground">{formattedTime}</div>
-					</div>
+					<div className="text-muted-foreground">{formattedTime}</div>
 
 					<Button variant="destructive" onClick={handleEndWorkout}>
 						End workout
