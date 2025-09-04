@@ -12,11 +12,13 @@ const validationSchema = z.object({
 	groupId: z.string().min(1, {
 		message: "Group is required",
 	}),
+	setsGoal: z.string(),
 });
 
 const defaultValues = {
 	name: "",
 	groupId: "",
+	setsGoal: "",
 };
 
 export function CreateExerciseForm() {
@@ -33,6 +35,7 @@ export function CreateExerciseForm() {
 			await createExercise({
 				name: value.name,
 				groupId: value.groupId as Id<"exerciseGroups">,
+				setsGoal: Number(value.setsGoal),
 			});
 		},
 	});
@@ -46,24 +49,30 @@ export function CreateExerciseForm() {
 			}}
 			className="space-y-5"
 		>
-			<div className="grid grid-cols-2 gap-4">
+			<div className="space-y-3">
 				<form.AppField name="name">
 					{(field) => <field.TextField label="Name" />}
 				</form.AppField>
 
-				<form.AppField name="groupId">
-					{(field) => (
-						<field.SelectField
-							label="Group"
-							values={
-								groups?.map((group) => ({
-									label: group.name,
-									value: group._id,
-								})) || []
-							}
-						/>
-					)}
-				</form.AppField>
+				<div className="grid grid-cols-2 gap-4">
+					<form.AppField name="groupId">
+						{(field) => (
+							<field.SelectField
+								label="Group"
+								values={
+									groups?.map((group) => ({
+										label: group.name,
+										value: group._id,
+									})) || []
+								}
+							/>
+						)}
+					</form.AppField>
+
+					<form.AppField name="setsGoal">
+						{(field) => <field.TextField label="Sets Goal" type="number" />}
+					</form.AppField>
+				</div>
 			</div>
 
 			<Button variant="action" type="submit" className="w-full">

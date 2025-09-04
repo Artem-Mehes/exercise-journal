@@ -19,20 +19,18 @@ export function AppSidebar() {
 				<SidebarGroup>
 					<SidebarGroupLabel>Workout info</SidebarGroupLabel>
 					<SidebarGroupContent>
-						{currentWorkoutExercises &&
-							Object.entries(currentWorkoutExercises).map(
-								([muscleGroupName, exercises]) => (
-									<div key={muscleGroupName}>
-										<h3>{muscleGroupName}</h3>
-										{exercises.map((exercise) => (
-											<div key={exercise.exerciseName}>
-												{exercise.exerciseName}
-												{exercise.sets} / {exercise.setsGoal}
-											</div>
-										))}
+						{currentWorkoutExercises?.map(({ groupName, exercises }) => (
+							<div key={groupName}>
+								<h3>{groupName}</h3>
+								{exercises.map((exercise) => (
+									<div key={exercise.name}>
+										{exercise.name}
+
+										{`${exercise.setsCount}${exercise.setsGoal ? `/${exercise.setsGoal}` : ""}`}
 									</div>
-								),
-							)}
+								))}
+							</div>
+						))}
 					</SidebarGroupContent>
 				</SidebarGroup>
 			</SidebarContent>

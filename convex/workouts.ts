@@ -89,8 +89,18 @@ export const getCurrentWorkoutExercises = query({
 			.filter((q) => q.eq(q.field("endTime"), undefined))
 			.first();
 
+		const result: {
+			groupName: string;
+			exercises: {
+				setsCount: number;
+				name: string;
+				isFinished: boolean;
+				setsGoal: number | undefined;
+			}[];
+		}[] = [];
+
 		if (!activeWorkout) {
-			return {};
+			return result;
 		}
 
 		const currentWorkoutSets = await ctx.db
@@ -98,55 +108,55 @@ export const getCurrentWorkoutExercises = query({
 			.withIndex("workoutId", (q) => q.eq("workoutId", activeWorkout._id))
 			.collect();
 
-		// Group sets by exercise first
-		const exerciseGroups: Record<
-			string,
-			{
-				exercise: Doc<"exercises">;
-				groupId: Doc<"exerciseGroups">;
-				sets: Doc<"sets">[];
-			}
-		> = {};
-
 		for (const set of currentWorkoutSets) {
 			const exercise = await ctx.db.get(set.exerciseId);
-			if (!exercise) continue;
 
-			const groupId = exercise.groupId
-				? await ctx.db.get(exercise.groupId)
-				: null;
-
-			if (!groupId) continue;
-
-			const key = exercise._id;
-			if (!exerciseGroups[key]) {
-				exerciseGroups[key] = {
-					exercise,
-					groupId,
-					sets: [],
-				};
-			}
-			exerciseGroups[key].sets.push(set);
-		}
-
-		// Group by muscle group and format the response
-		const result: Record<
-			string,
-			Array<{ exerciseName: string; sets: number; setsGoal: number }>
-		> = {};
-
-		for (const group of Object.values(exerciseGroups)) {
-			const muscleGroupName = group.groupId.name;
-
-			if (!result[muscleGroupName]) {
-				result[muscleGroupName] = [];
+			if (!exercise) {
+				continue;
 			}
 
-			result[muscleGroupName].push({
-				exerciseName: group.exercise.name,
-				sets: group.sets.length,
-				setsGoal: group.exercise.setsGoal || 0,
-			});
+			const groupId = exercise?.groupId;
+
+			if (!groupId) {
+				continue;
+			}
+
+			const group = await ctx.db.get(groupId);
+
+			if (!group) {
+				continue;
+			}
+
+			const groupName = group.name;
+
+			const groupInResult = result.find((r) => r.groupName === groupName);
+
+			if (groupInResult) {
+				const setsCount = currentWorkoutSets.filter(
+					(s) => s.exerciseId === exercise._id,
+				).length;
+
+				groupInResult.exercises.push({
+					setsCount,
+					name: exercise.name,
+					isFinished: exercise.setsGoal
+						? setsCount >= exercise.setsGoal
+						: false,
+					setsGoal: exercise.setsGoal,
+				});
+			} else {
+				result.push({
+					groupName,
+					exercises: [
+						{
+							setsCount: 1,
+							name: exercise.name,
+							isFinished: false,
+							setsGoal: exercise.setsGoal,
+						},
+					],
+				});
+			}
 		}
 
 		return result;

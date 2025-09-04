@@ -115,6 +115,7 @@ export const create = mutation({
 	args: {
 		name: v.string(),
 		groupId: v.id("exerciseGroups"),
+		setsGoal: v.number(),
 	},
 	handler: async (ctx, args) => {
 		const exerciseId = await ctx.db.insert("exercises", args);
