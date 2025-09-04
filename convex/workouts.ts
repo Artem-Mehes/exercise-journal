@@ -103,7 +103,7 @@ export const getCurrentWorkoutExercises = query({
 			string,
 			{
 				exercise: Doc<"exercises">;
-				muscleGroup: Doc<"muscleGroups">;
+				groupId: Doc<"exerciseGroups">;
 				sets: Doc<"sets">[];
 			}
 		> = {};
@@ -112,14 +112,17 @@ export const getCurrentWorkoutExercises = query({
 			const exercise = await ctx.db.get(set.exerciseId);
 			if (!exercise) continue;
 
-			const muscleGroup = await ctx.db.get(exercise.muscleGroupId);
-			if (!muscleGroup) continue;
+			const groupId = exercise.groupId
+				? await ctx.db.get(exercise.groupId)
+				: null;
+
+			if (!groupId) continue;
 
 			const key = exercise._id;
 			if (!exerciseGroups[key]) {
 				exerciseGroups[key] = {
 					exercise,
-					muscleGroup,
+					groupId,
 					sets: [],
 				};
 			}
@@ -133,7 +136,7 @@ export const getCurrentWorkoutExercises = query({
 		> = {};
 
 		for (const group of Object.values(exerciseGroups)) {
-			const muscleGroupName = group.muscleGroup.name;
+			const muscleGroupName = group.groupId.name;
 
 			if (!result[muscleGroupName]) {
 				result[muscleGroupName] = [];

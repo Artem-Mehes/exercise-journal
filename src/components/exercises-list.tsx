@@ -10,7 +10,7 @@ import { api } from "convex/_generated/api";
 import { useQuery } from "convex/react";
 
 export function ExercisesList() {
-	const muscleGroups = useQuery(api.muscleGroups.getAllWithExercises);
+	const muscleGroups = useQuery(api.exerciseGroups.getAllWithExercises);
 
 	if (muscleGroups === undefined) {
 		return (

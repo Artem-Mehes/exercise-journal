@@ -2,16 +2,15 @@ import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
 export default defineSchema({
-	muscleGroups: defineTable({
+	exerciseGroups: defineTable({
 		name: v.string(),
-		exercises: v.optional(v.array(v.id("exercises"))),
 	}),
 	exercises: defineTable({
 		name: v.string(),
-		muscleGroupId: v.id("muscleGroups"),
+		groupId: v.optional(v.id("exerciseGroups")),
 		notes: v.optional(v.string()),
 		setsGoal: v.optional(v.number()),
-	}).index("muscleGroupId", ["muscleGroupId"]),
+	}).index("groupId", ["groupId"]),
 	sets: defineTable({
 		exerciseId: v.id("exercises"),
 		workoutId: v.id("workouts"), // Made required

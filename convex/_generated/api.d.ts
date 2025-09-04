@@ -13,8 +13,9 @@ import type {
   FilterApi,
   FunctionReference,
 } from "convex/server";
+import type * as exerciseGroups from "../exerciseGroups.js";
 import type * as exercises from "../exercises.js";
-import type * as muscleGroups from "../muscleGroups.js";
+import type * as migrations from "../migrations.js";
 import type * as workouts from "../workouts.js";
 
 /**
@@ -26,8 +27,9 @@ import type * as workouts from "../workouts.js";
  * ```
  */
 declare const fullApi: ApiFromModules<{
+  exerciseGroups: typeof exerciseGroups;
   exercises: typeof exercises;
-  muscleGroups: typeof muscleGroups;
+  migrations: typeof migrations;
   workouts: typeof workouts;
 }>;
 export declare const api: FilterApi<

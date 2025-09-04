@@ -1,5 +1,4 @@
 import { v } from "convex/values";
-import type { Doc } from "./_generated/dataModel";
 import { mutation, query } from "./_generated/server";
 
 export const get = query({
@@ -8,14 +7,14 @@ export const get = query({
 
 		const exercisesWithMuscleGroups = await Promise.all(
 			exercises.map(async (exercise) => {
-				if (!exercise.muscleGroupId) {
+				if (!exercise.groupId) {
 					return {
 						...exercise,
 						muscleGroup: null,
 					};
 				}
 
-				const muscleGroup = await ctx.db.get(exercise.muscleGroupId);
+				const muscleGroup = await ctx.db.get(exercise.groupId);
 				return {
 					...exercise,
 					muscleGroup,
@@ -37,8 +36,8 @@ export const getById = query({
 			return null;
 		}
 
-		const muscleGroup = exercise.muscleGroupId
-			? await ctx.db.get(exercise.muscleGroupId)
+		const muscleGroup = exercise.groupId
+			? await ctx.db.get(exercise.groupId)
 			: null;
 
 		return {
@@ -50,14 +49,12 @@ export const getById = query({
 
 export const getByMuscleGroup = query({
 	args: {
-		muscleGroupId: v.id("muscleGroups"),
+		groupId: v.id("exerciseGroups"),
 	},
 	handler: async (ctx, args) => {
 		return await ctx.db
 			.query("exercises")
-			.withIndex("muscleGroupId", (q) =>
-				q.eq("muscleGroupId", args.muscleGroupId),
-			)
+			.withIndex("groupId", (q) => q.eq("groupId", args.groupId))
 			.collect();
 	},
 });
@@ -121,14 +118,6 @@ export const create = mutation({
 	},
 	handler: async (ctx, args) => {
 		const exerciseId = await ctx.db.insert("exercises", args);
-
-		const muscleGroup = await ctx.db.get(args.muscleGroupId);
-		if (muscleGroup) {
-			const currentExercises = muscleGroup.exercises || [];
-			await ctx.db.patch(args.muscleGroupId, {
-				exercises: [...currentExercises, exerciseId],
-			});
-		}
 
 		return exerciseId;
 	},
@@ -210,17 +199,6 @@ export const deleteExercise = mutation({
 		const exercise = await ctx.db.get(args.exerciseId);
 		if (!exercise) {
 			throw new Error("Exercise not found");
-		}
-
-		// Remove the exercise from the muscle group's exercises array
-		const muscleGroup = await ctx.db.get(exercise.muscleGroupId);
-		if (muscleGroup) {
-			const updatedExercises = (muscleGroup.exercises || []).filter(
-				(id) => id !== args.exerciseId,
-			);
-			await ctx.db.patch(exercise.muscleGroupId, {
-				exercises: updatedExercises,
-			});
 		}
 
 		const setsForExercise = await ctx.db
