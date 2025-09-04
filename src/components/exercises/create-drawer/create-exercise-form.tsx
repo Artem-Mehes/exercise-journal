@@ -66,7 +66,7 @@ export function CreateExerciseForm() {
 				</form.AppField>
 			</div>
 
-			<Button type="submit" className="w-full">
+			<Button variant="action" type="submit" className="w-full">
 				Create
 			</Button>
 		</form>

@@ -89,6 +89,7 @@ code {
 }
 
 @theme inline {
+	--color-action: var(--color-indigo-500);
 	--color-background: var(--background);
 	--color-foreground: var(--foreground);
 	--color-card: var(--card);

@@ -22,7 +22,7 @@ export function AppFooter() {
 					<Link
 						key={item.title}
 						to={item.url}
-						className="flex flex-col items-center justify-center text-gray-400 data-[status=active]:text-primary gap-1"
+						className="flex flex-col items-center justify-center text-gray-400 data-[status=active]:text-primary data-[status=active]:font-bold gap-1"
 					>
 						<item.icon className="size-4" />
 						<span className="text-sm">{item.title}</span>

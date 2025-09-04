@@ -7,6 +7,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BicepsFlexed, Dumbbell, PlusSquare } from "lucide-react";
 import { CreateExerciseForm } from "./create-exercise-form";
+import { CreateGroupForm } from "./create-group-form";
 
 export function CreateDrawer() {
 	return (
@@ -32,7 +33,9 @@ export function CreateDrawer() {
 					<TabsContent value="exercise" className="p-4">
 						<CreateExerciseForm />
 					</TabsContent>
-					<TabsContent value="group">Change your password here.</TabsContent>
+					<TabsContent value="group" className="p-4">
+						<CreateGroupForm />
+					</TabsContent>
 				</Tabs>
 			</DrawerContent>
 		</Drawer>
