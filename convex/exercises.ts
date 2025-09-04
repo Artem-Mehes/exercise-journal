@@ -114,7 +114,7 @@ export const getLastCompletedWorkoutSets = query({
 export const create = mutation({
 	args: {
 		name: v.string(),
-		muscleGroupId: v.id("muscleGroups"),
+		groupId: v.id("exerciseGroups"),
 	},
 	handler: async (ctx, args) => {
 		const exerciseId = await ctx.db.insert("exercises", args);

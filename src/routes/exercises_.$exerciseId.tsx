@@ -42,9 +42,7 @@ function RouteComponent() {
 	});
 	const relatedExercises = useQuery(
 		api.exercises.getByMuscleGroup,
-		exercise?.muscleGroupId
-			? { muscleGroupId: exercise.muscleGroupId }
-			: "skip",
+		exercise?.groupId ? { groupId: exercise.groupId } : "skip",
 	);
 	const addSet = useMutation(api.exercises.addSet);
 	const deleteSet = useMutation(api.exercises.deleteSet);

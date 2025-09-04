@@ -7,6 +7,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import {
+	Select,
+	SelectContent,
+	SelectGroup,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
 
 export function SubscribeButton({ label }: { label: string }) {
 	const form = useFormContext();
@@ -31,7 +39,7 @@ function ErrorMessages({
 			{errors.map((error) => (
 				<div
 					key={typeof error === "string" ? error : error.message}
-					className="text-red-500 mt-1 font-bold"
+					className="text-destructive mt-1 font-bold text-xs"
 				>
 					{typeof error === "string" ? error : error.message}
 				</div>
@@ -54,7 +62,7 @@ export function TextField({
 
 	return (
 		<div>
-			<Label htmlFor={label} className="mb-2  font-bold">
+			<Label htmlFor={label} className="mb-2 font-bold">
 				{label}
 			</Label>
 			<Input
@@ -99,6 +107,47 @@ export function RadioGroupField({
 					</div>
 				))}
 			</RadioGroup>
+			{field.state.meta.isTouched && <ErrorMessages errors={errors} />}
+		</div>
+	);
+}
+
+export function SelectField({
+	label,
+	values,
+	placeholder,
+}: {
+	label: string;
+	values: Array<{ label: string; value: string }>;
+	placeholder?: string;
+}) {
+	const field = useFieldContext<string>();
+	const errors = useStore(field.store, (state) => state.meta.errors);
+
+	return (
+		<div>
+			<Label htmlFor={label} className="mb-2 font-bold">
+				{label}
+			</Label>
+
+			<Select
+				name={field.name}
+				value={field.state.value}
+				onValueChange={(value) => field.handleChange(value)}
+			>
+				<SelectTrigger className="w-full">
+					<SelectValue placeholder={placeholder} />
+				</SelectTrigger>
+				<SelectContent>
+					<SelectGroup>
+						{values.map((value) => (
+							<SelectItem key={value.value} value={value.value}>
+								{value.label}
+							</SelectItem>
+						))}
+					</SelectGroup>
+				</SelectContent>
+			</Select>
 			{field.state.meta.isTouched && <ErrorMessages errors={errors} />}
 		</div>
 	);

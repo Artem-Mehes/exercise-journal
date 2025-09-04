@@ -2,6 +2,7 @@ import { createFormHook } from "@tanstack/react-form";
 
 import {
 	RadioGroupField,
+	SelectField,
 	SubscribeButton,
 	TextField,
 } from "@/components/ui/form";
@@ -11,6 +12,7 @@ export const { useAppForm } = createFormHook({
 	fieldComponents: {
 		TextField,
 		RadioGroupField,
+		SelectField,
 	},
 	formComponents: {
 		SubscribeButton,
