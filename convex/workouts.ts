@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import type { Doc } from "./_generated/dataModel";
+import type { Id } from "./_generated/dataModel";
 import { mutation, query } from "./_generated/server";
 
 export const startWorkout = mutation({
@@ -91,18 +91,22 @@ export const getCurrentWorkoutExercises = query({
 
 		const result: {
 			startedAt: number | undefined;
-			exercises: {
+			totalExercises: number;
+			groups: {
+				id: Id<"exerciseGroups">;
 				groupName: string;
 				exercises: {
 					setsCount: number;
 					name: string;
 					isFinished: boolean;
 					setsGoal: number | undefined;
+					id: Id<"exercises">;
 				}[];
 			}[];
 		} = {
 			startedAt: activeWorkout?.startTime,
-			exercises: [],
+			totalExercises: 0,
+			groups: [],
 		};
 
 		if (!activeWorkout) {
@@ -135,7 +139,7 @@ export const getCurrentWorkoutExercises = query({
 
 			const groupName = group.name;
 
-			const groupInResult = result.exercises.find(
+			const groupInResult = result.groups.find(
 				(r) => r.groupName === groupName,
 			);
 
@@ -144,19 +148,37 @@ export const getCurrentWorkoutExercises = query({
 					(s) => s.exerciseId === exercise._id,
 				).length;
 
-				groupInResult.exercises.push({
-					setsCount,
-					name: exercise.name,
-					isFinished: exercise.setsGoal
+				const exerciseInResult = groupInResult.exercises.find(
+					(e) => e.id === exercise._id,
+				);
+
+				if (exerciseInResult) {
+					exerciseInResult.setsCount = setsCount;
+					exerciseInResult.isFinished = exercise.setsGoal
 						? setsCount >= exercise.setsGoal
-						: false,
-					setsGoal: exercise.setsGoal,
-				});
+						: false;
+				} else {
+					result.totalExercises++;
+
+					groupInResult.exercises.push({
+						id: exercise._id,
+						setsCount,
+						name: exercise.name,
+						isFinished: exercise.setsGoal
+							? setsCount >= exercise.setsGoal
+							: false,
+						setsGoal: exercise.setsGoal,
+					});
+				}
 			} else {
-				result.exercises.push({
+				result.totalExercises++;
+
+				result.groups.push({
+					id: groupId,
 					groupName,
 					exercises: [
 						{
+							id: exercise._id,
 							setsCount: 1,
 							name: exercise.name,
 							isFinished: false,
