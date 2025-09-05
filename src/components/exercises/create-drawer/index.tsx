@@ -30,10 +30,10 @@ export function CreateDrawer() {
 						</TabsList>
 					</DrawerHeader>
 
-					<TabsContent value="exercise" className="p-4">
+					<TabsContent value="exercise" className="p-4 pb-6">
 						<CreateExerciseForm />
 					</TabsContent>
-					<TabsContent value="group" className="p-4">
+					<TabsContent value="group" className="p-4 pb-6">
 						<CreateGroupForm />
 					</TabsContent>
 				</Tabs>

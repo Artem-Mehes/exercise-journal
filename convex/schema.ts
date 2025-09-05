@@ -25,7 +25,7 @@ export default defineSchema({
 		endTime: v.optional(v.number()),
 	}).index("startTime", ["startTime"]),
 	templates: defineTable({
-		name: v.string(),
-		exercises: v.optional(v.array(v.id("exercises"))),
+		name: v.optional(v.string()),
+		exercises: v.array(v.id("exercises")),
 	}),
 });

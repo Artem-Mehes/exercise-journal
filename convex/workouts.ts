@@ -90,14 +90,20 @@ export const getCurrentWorkoutExercises = query({
 			.first();
 
 		const result: {
-			groupName: string;
+			startedAt: number | undefined;
 			exercises: {
-				setsCount: number;
-				name: string;
-				isFinished: boolean;
-				setsGoal: number | undefined;
+				groupName: string;
+				exercises: {
+					setsCount: number;
+					name: string;
+					isFinished: boolean;
+					setsGoal: number | undefined;
+				}[];
 			}[];
-		}[] = [];
+		} = {
+			startedAt: activeWorkout?.startTime,
+			exercises: [],
+		};
 
 		if (!activeWorkout) {
 			return result;
@@ -129,7 +135,9 @@ export const getCurrentWorkoutExercises = query({
 
 			const groupName = group.name;
 
-			const groupInResult = result.find((r) => r.groupName === groupName);
+			const groupInResult = result.exercises.find(
+				(r) => r.groupName === groupName,
+			);
 
 			if (groupInResult) {
 				const setsCount = currentWorkoutSets.filter(
@@ -145,7 +153,7 @@ export const getCurrentWorkoutExercises = query({
 					setsGoal: exercise.setsGoal,
 				});
 			} else {
-				result.push({
+				result.exercises.push({
 					groupName,
 					exercises: [
 						{
