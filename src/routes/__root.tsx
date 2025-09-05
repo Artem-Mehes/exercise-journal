@@ -1,27 +1,17 @@
-import { TanstackDevtools } from "@tanstack/react-devtools";
 import {
 	HeadContent,
 	Scripts,
 	createRootRouteWithContext,
 } from "@tanstack/react-router";
-import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 
 import ConvexProvider from "../integrations/convex/provider";
 
-import StoreDevtools from "../lib/demo-store-devtools";
-
 import { AppFooter } from "@/components/footer";
 import { AppSidebar } from "@/components/sidebar";
 import { WorkoutInfo } from "@/components/workout-info";
 import appCss from "../styles.css?url";
-
-// TODO
-// Forms validation
-// Loading state
-// Toasts
-// Delete oldest workouts when in db more than 10
 
 export const Route = createRootRouteWithContext()({
 	head: () => ({
@@ -80,19 +70,6 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 							<AppFooter />
 						</div>
 					</SidebarProvider>
-					{/* 
-					<TanstackDevtools
-						config={{
-							position: "bottom-left",
-						}}
-						plugins={[
-							{
-								name: "Tanstack Router",
-								render: <TanStackRouterDevtoolsPanel />,
-							},
-							StoreDevtools,
-						]}
-					/> */}
 				</ConvexProvider>
 				<Scripts />
 			</body>

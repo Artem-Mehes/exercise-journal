@@ -1,6 +1,97 @@
 import { v } from "convex/values";
-import type { Id } from "./_generated/dataModel";
+import type { Doc, Id } from "./_generated/dataModel";
 import { mutation, query } from "./_generated/server";
+
+export const getAll = query({
+	handler: async (ctx) => {
+		const workouts = await ctx.db.query("workouts").collect();
+
+		const workoutsWithExercises = await Promise.all(
+			workouts.map(async (workout) => {
+				const sets = await ctx.db
+					.query("sets")
+					.withIndex("workoutId", (q) => q.eq("workoutId", workout._id))
+					.collect();
+
+				const resultGroups: {
+					groupId: Id<"exerciseGroups">;
+					groupName: string;
+					exercises: {
+						exerciseId: Id<"exercises">;
+						exerciseName: string;
+						sets: Pick<Doc<"sets">, "count" | "weight">[];
+					}[];
+				}[] = [];
+
+				for (const set of sets) {
+					const exercise = await ctx.db.get(set.exerciseId);
+
+					if (!exercise) {
+						continue;
+					}
+
+					const group = await ctx.db.get(exercise.groupId);
+
+					if (!group) {
+						continue;
+					}
+
+					const groupInResult = resultGroups.find(
+						(g) => g.groupId === exercise.groupId,
+					);
+
+					if (groupInResult) {
+						const exerciseInResult = groupInResult.exercises.find(
+							(e) => e.exerciseId === exercise._id,
+						);
+
+						if (exerciseInResult) {
+							exerciseInResult.sets.push({
+								count: set.count,
+								weight: set.weight,
+							});
+						} else {
+							groupInResult.exercises.push({
+								exerciseId: exercise._id,
+								exerciseName: exercise.name,
+								sets: [
+									{
+										count: set.count,
+										weight: set.weight,
+									},
+								],
+							});
+						}
+					} else {
+						resultGroups.push({
+							groupId: exercise.groupId,
+							groupName: group.name,
+							exercises: [
+								{
+									exerciseId: exercise._id,
+									exerciseName: exercise.name,
+									sets: [
+										{
+											count: set.count,
+											weight: set.weight,
+										},
+									],
+								},
+							],
+						});
+					}
+				}
+
+				return {
+					...workout,
+					groups: resultGroups,
+				};
+			}),
+		);
+
+		return workoutsWithExercises.sort((a, b) => b.startTime - a.startTime);
+	},
+});
 
 export const startWorkout = mutation({
 	handler: async (ctx) => {
@@ -89,6 +180,10 @@ export const getCurrentWorkoutExercises = query({
 			.filter((q) => q.eq(q.field("endTime"), undefined))
 			.first();
 
+		if (!activeWorkout) {
+			return null;
+		}
+
 		const result: {
 			startedAt: number | undefined;
 			totalExercises: number;
@@ -108,10 +203,6 @@ export const getCurrentWorkoutExercises = query({
 			totalExercises: 0,
 			groups: [],
 		};
-
-		if (!activeWorkout) {
-			return result;
-		}
 
 		const currentWorkoutSets = await ctx.db
 			.query("sets")

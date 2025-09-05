@@ -7,7 +7,7 @@ export default defineSchema({
 	}),
 	exercises: defineTable({
 		name: v.string(),
-		groupId: v.optional(v.id("exerciseGroups")),
+		groupId: v.id("exerciseGroups"),
 		notes: v.optional(v.string()),
 		setsGoal: v.optional(v.number()),
 	}).index("groupId", ["groupId"]),
