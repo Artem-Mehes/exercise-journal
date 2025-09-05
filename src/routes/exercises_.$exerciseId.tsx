@@ -1,3 +1,4 @@
+import { ExerciseBreadcrumbs } from "@/components/exercise/breadcrumbs";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -18,7 +19,6 @@ import type { Id } from "convex/_generated/dataModel";
 import { useMutation, useQuery } from "convex/react";
 import { Pencil, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
-
 export const Route = createFileRoute("/exercises_/$exerciseId")({
 	component: RouteComponent,
 });
@@ -106,7 +106,7 @@ function RouteComponent() {
 	return (
 		<>
 			<div className="flex justify-between items-center">
-				<h1 className="text-2xl font-bold">{exercise?.name}</h1>
+				<ExerciseBreadcrumbs />
 
 				<Button
 					variant="outline"
