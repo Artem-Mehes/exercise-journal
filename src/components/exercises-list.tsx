@@ -6,11 +6,39 @@ import {
 } from "@/components/ui/accordion";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "@tanstack/react-router";
+import { Store, useStore } from "@tanstack/react-store";
 import { api } from "convex/_generated/api";
 import { useQuery } from "convex/react";
+import { useEffect } from "react";
+
+const store = new Store<{
+	openedGroups: string[] | undefined;
+}>({
+	openedGroups: localStorage.getItem("openedGroups")
+		? JSON.parse(localStorage.getItem("openedGroups") as string)
+		: undefined,
+});
+
+const updateOpenedGroups = (openedGroups: string[]) => {
+	localStorage.setItem("openedGroups", JSON.stringify(openedGroups));
+
+	store.setState(() => {
+		return {
+			openedGroups,
+		};
+	});
+};
 
 export function ExercisesList() {
 	const muscleGroups = useQuery(api.exerciseGroups.getAllWithExercises);
+
+	const openedGroups = useStore(store, (state) => state.openedGroups);
+
+	useEffect(() => {
+		if (muscleGroups && !openedGroups) {
+			updateOpenedGroups([muscleGroups[0]._id]);
+		}
+	}, [muscleGroups, openedGroups]);
 
 	if (muscleGroups === undefined) {
 		return (
@@ -27,10 +55,12 @@ export function ExercisesList() {
 
 	return (
 		<Accordion
-			type="single"
-			collapsible
+			type="multiple"
 			className="w-full"
-			defaultValue={muscleGroups[0]._id}
+			value={openedGroups}
+			onValueChange={(value) => {
+				updateOpenedGroups(value);
+			}}
 		>
 			{muscleGroups.map((muscleGroup) => (
 				<AccordionItem key={muscleGroup._id} value={muscleGroup._id}>
