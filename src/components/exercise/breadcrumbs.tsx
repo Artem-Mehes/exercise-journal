@@ -1,7 +1,6 @@
 import {
 	Breadcrumb,
 	BreadcrumbItem,
-	BreadcrumbLink,
 	BreadcrumbList,
 	BreadcrumbPage,
 	BreadcrumbSeparator,
@@ -11,6 +10,7 @@ import type { Id } from "convex/_generated/dataModel";
 import { useQuery } from "convex/react";
 
 import { Route } from "@/routes/exercises_.$exerciseId";
+import { Link } from "@tanstack/react-router";
 
 export function ExerciseBreadcrumbs() {
 	const { exerciseId } = Route.useParams();
@@ -21,11 +21,9 @@ export function ExerciseBreadcrumbs() {
 
 	return (
 		<Breadcrumb>
-			<BreadcrumbList>
+			<BreadcrumbList className="text-lg">
 				<BreadcrumbItem>
-					<BreadcrumbLink href="/">
-						{exercise?.muscleGroup?.name}
-					</BreadcrumbLink>
+					<Link to="/">{exercise?.muscleGroup?.name}</Link>
 				</BreadcrumbItem>
 				<BreadcrumbSeparator />
 				<BreadcrumbItem>

@@ -2,7 +2,7 @@
 
 import { Slot } from "@radix-ui/react-slot";
 import { type VariantProps, cva } from "class-variance-authority";
-import { ListCheck } from "lucide-react";
+import { List } from "lucide-react";
 import * as React from "react";
 
 import { Button } from "@/components/ui/button";
@@ -273,7 +273,7 @@ function SidebarTrigger({
 			}}
 			{...props}
 		>
-			<ListCheck className="size-6" />
+			<List className="size-6" />
 			<span className="sr-only">Toggle Sidebar</span>
 		</Button>
 	);
