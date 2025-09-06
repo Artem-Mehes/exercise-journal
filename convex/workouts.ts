@@ -123,29 +123,6 @@ export const startWorkout = mutation({
 	},
 });
 
-export const endWorkout = mutation({
-	args: {
-		workoutId: v.id("workouts"),
-	},
-	handler: async (ctx, args) => {
-		const workout = await ctx.db.get(args.workoutId);
-		if (!workout) {
-			throw new Error("Workout not found");
-		}
-
-		if (workout.endTime) {
-			throw new Error("Workout is already ended");
-		}
-
-		// Set endTime instead of deleting
-		await ctx.db.patch(args.workoutId, {
-			endTime: Date.now(),
-		});
-
-		return args.workoutId;
-	},
-});
-
 export const getCurrentWorkout = query({
 	handler: async (ctx) => {
 		// Find the active workout (one without endTime)
@@ -174,9 +151,18 @@ export const endCurrentWorkout = mutation({
 			throw new Error("No active workout found");
 		}
 
-		await ctx.db.patch(activeWorkout._id, {
-			endTime: Date.now(),
-		});
+		const sets = await ctx.db
+			.query("sets")
+			.withIndex("workoutId", (q) => q.eq("workoutId", activeWorkout._id))
+			.collect();
+
+		if (sets.length === 0) {
+			await ctx.db.delete(activeWorkout._id);
+		} else {
+			await ctx.db.patch(activeWorkout._id, {
+				endTime: Date.now(),
+			});
+		}
 
 		return activeWorkout._id;
 	},

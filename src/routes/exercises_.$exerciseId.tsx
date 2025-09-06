@@ -40,6 +40,7 @@ function RouteComponent() {
 	const lastWorkoutSets = useQuery(api.exercises.getLastCompletedWorkoutSets, {
 		exerciseId: exerciseId as Id<"exercises">,
 	});
+
 	const relatedExercises = useQuery(
 		api.exercises.getByMuscleGroup,
 		exercise?.groupId ? { groupId: exercise.groupId } : "skip",

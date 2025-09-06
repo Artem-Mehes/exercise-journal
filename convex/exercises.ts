@@ -90,37 +90,34 @@ export const getLastCompletedWorkoutSets = query({
 		exerciseId: v.id("exercises"),
 	},
 	handler: async (ctx, args) => {
-		const finishedWorkouts = await ctx.db
-			.query("workouts")
-			.filter((q) => q.neq(q.field("endTime"), undefined))
-			.collect();
-
-		const lastSet = await ctx.db
+		const setsForExercise = await ctx.db
 			.query("sets")
 			.withIndex("exerciseId", (q) => q.eq("exerciseId", args.exerciseId))
 			.order("desc")
-			.first();
-
-		const lastSetWorkoutId = lastSet?.workoutId;
-
-		const lastFinishedWorkout = finishedWorkouts.find(
-			(w) => w._id === lastSetWorkoutId,
-		);
-
-		if (!lastFinishedWorkout) {
-			return [];
-		}
-
-		const sets = await ctx.db
-			.query("sets")
-			.withIndex("workoutId_exerciseId", (q) =>
-				q
-					.eq("workoutId", lastFinishedWorkout._id)
-					.eq("exerciseId", args.exerciseId),
-			)
 			.collect();
 
-		return sets;
+		let lastWorkoutIdWithSetsForExercise = "";
+
+		const resultSets = [];
+
+		for (const set of setsForExercise) {
+			const workout = await ctx.db.get(set.workoutId);
+
+			if (!workout || !workout.endTime) {
+				continue;
+			}
+
+			if (!lastWorkoutIdWithSetsForExercise) {
+				lastWorkoutIdWithSetsForExercise = set.workoutId;
+				resultSets.push(set);
+			} else if (set.workoutId === lastWorkoutIdWithSetsForExercise) {
+				resultSets.push(set);
+			} else {
+				break;
+			}
+		}
+
+		return resultSets;
 	},
 });
 
