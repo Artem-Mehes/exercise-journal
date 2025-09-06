@@ -297,7 +297,7 @@ function RouteComponent() {
 
 			<Card className="bg-accent border-accent-foreground/40">
 				<CardHeader>
-					<CardTitle>Last Session</CardTitle>
+					<CardTitle>Last Sets</CardTitle>
 				</CardHeader>
 				<CardContent>
 					{!lastWorkoutSets || lastWorkoutSets.length === 0 ? (

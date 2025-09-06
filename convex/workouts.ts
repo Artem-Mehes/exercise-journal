@@ -4,7 +4,11 @@ import { mutation, query } from "./_generated/server";
 
 export const getAll = query({
 	handler: async (ctx) => {
-		const workouts = await ctx.db.query("workouts").collect();
+		const workouts = await ctx.db
+			.query("workouts")
+			.filter((q) => q.neq(q.field("endTime"), undefined))
+			.order("desc")
+			.collect();
 
 		const workoutsWithExercises = await Promise.all(
 			workouts.map(async (workout) => {
@@ -89,7 +93,7 @@ export const getAll = query({
 			}),
 		);
 
-		return workoutsWithExercises.sort((a, b) => b.startTime - a.startTime);
+		return workoutsWithExercises;
 	},
 });
 

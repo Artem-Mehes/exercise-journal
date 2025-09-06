@@ -95,7 +95,17 @@ export const getLastCompletedWorkoutSets = query({
 			.filter((q) => q.neq(q.field("endTime"), undefined))
 			.collect();
 
-		const lastFinishedWorkout = finishedWorkouts[finishedWorkouts.length - 1];
+		const lastSet = await ctx.db
+			.query("sets")
+			.withIndex("exerciseId", (q) => q.eq("exerciseId", args.exerciseId))
+			.order("desc")
+			.first();
+
+		const lastSetWorkoutId = lastSet?.workoutId;
+
+		const lastFinishedWorkout = finishedWorkouts.find(
+			(w) => w._id === lastSetWorkoutId,
+		);
 
 		if (!lastFinishedWorkout) {
 			return [];
@@ -103,8 +113,11 @@ export const getLastCompletedWorkoutSets = query({
 
 		const sets = await ctx.db
 			.query("sets")
-			.filter((q) => q.eq(q.field("workoutId"), lastFinishedWorkout._id))
-			.filter((q) => q.eq(q.field("exerciseId"), args.exerciseId))
+			.withIndex("workoutId_exerciseId", (q) =>
+				q
+					.eq("workoutId", lastFinishedWorkout._id)
+					.eq("exerciseId", args.exerciseId),
+			)
 			.collect();
 
 		return sets;
