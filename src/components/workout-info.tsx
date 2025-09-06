@@ -37,17 +37,16 @@ export function WorkoutInfo() {
 					<div className="text-muted-foreground">{formattedTime}</div>
 
 					<Button variant="destructive" onClick={handleEndWorkout}>
-						End workout
+						End Workout
 					</Button>
 				</>
 			) : (
 				<Button
-					variant="success"
 					onClick={handleStartWorkout}
 					isLoading={isLoading}
 					className="min-w-28"
 				>
-					Start workout
+					Start Workout
 				</Button>
 			)}
 		</div>

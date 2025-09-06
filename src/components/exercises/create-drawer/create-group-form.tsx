@@ -38,12 +38,11 @@ export function CreateGroupForm() {
 			}}
 			className="space-y-5"
 		>
-			
 			<form.AppField name="name">
 				{(field) => <field.TextField label="Name" />}
 			</form.AppField>
 
-			<Button variant="action" type="submit" className="w-full">
+			<Button type="submit" className="w-full">
 				Create
 			</Button>
 		</form>

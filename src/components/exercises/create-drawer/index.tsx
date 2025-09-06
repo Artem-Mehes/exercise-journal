@@ -5,15 +5,16 @@ import {
 	DrawerTrigger,
 } from "@/components/ui/drawer";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BicepsFlexed, Dumbbell, PlusSquare } from "lucide-react";
+import { BicepsFlexed, Dumbbell, Plus } from "lucide-react";
 import { CreateExerciseForm } from "./create-exercise-form";
 import { CreateGroupForm } from "./create-group-form";
 
 export function CreateDrawer() {
 	return (
 		<Drawer>
-			<DrawerTrigger>
-				<PlusSquare className="size-6" />
+			<DrawerTrigger className="flex items-center gap-1 border border-muted-foreground/60 rounded-md px-2 py-1">
+				<span>Create</span>
+				<Plus className="size-6" />
 			</DrawerTrigger>
 			<DrawerContent>
 				<Tabs defaultValue="exercise" className="w-full">
@@ -21,11 +22,11 @@ export function CreateDrawer() {
 						<TabsList className="w-full">
 							<TabsTrigger value="exercise">
 								<Dumbbell />
-								<span>Add Exercise</span>
+								<span>Exercise</span>
 							</TabsTrigger>
 							<TabsTrigger value="group">
 								<BicepsFlexed />
-								<span>Add Group</span>
+								<span>Group</span>
 							</TabsTrigger>
 						</TabsList>
 					</DrawerHeader>

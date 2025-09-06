@@ -75,7 +75,7 @@ export function CreateExerciseForm() {
 				</div>
 			</div>
 
-			<Button variant="action" type="submit" className="w-full">
+			<Button type="submit" className="w-full">
 				Create
 			</Button>
 		</form>
