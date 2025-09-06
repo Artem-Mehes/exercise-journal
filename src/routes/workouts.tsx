@@ -1,4 +1,4 @@
-import { Card, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { createFileRoute } from "@tanstack/react-router";
 import { api } from "convex/_generated/api";
 import { useQuery } from "convex/react";
@@ -36,6 +36,12 @@ function RouteComponent() {
 									: "Ongoing"}
 							</span>
 						</CardTitle>
+
+						<CardContent>
+							<span className="text-muted-foreground text-sm ml-2">
+								Total Volume: {workout.totalVolume}
+							</span>
+						</CardContent>
 					</CardHeader>
 				</Card>
 			))}

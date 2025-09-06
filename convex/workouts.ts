@@ -27,8 +27,12 @@ export const getAll = query({
 					}[];
 				}[] = [];
 
+				let totalVolume = 0;
+
 				for (const set of sets) {
 					const exercise = await ctx.db.get(set.exerciseId);
+
+					totalVolume += set.count * set.weight;
 
 					if (!exercise) {
 						continue;
@@ -88,6 +92,7 @@ export const getAll = query({
 
 				return {
 					...workout,
+					totalVolume: totalVolume.toFixed(0),
 					groups: resultGroups,
 				};
 			}),
