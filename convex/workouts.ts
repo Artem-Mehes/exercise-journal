@@ -292,3 +292,21 @@ export const getCurrentWorkoutExercises = query({
 		return result;
 	},
 });
+
+export const deleteWorkout = mutation({
+	args: {
+		workoutId: v.id("workouts"),
+	},
+	handler: async (ctx, args) => {
+		await ctx.db.delete(args.workoutId);
+
+		const sets = await ctx.db
+			.query("sets")
+			.withIndex("workoutId", (q) => q.eq("workoutId", args.workoutId))
+			.collect();
+
+		for (const set of sets) {
+			await ctx.db.delete(set._id);
+		}
+	},
+});

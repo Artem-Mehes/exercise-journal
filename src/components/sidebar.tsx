@@ -75,7 +75,7 @@ export function AppSidebar() {
 																className={clsx(
 																	"flex items-center gap-1",
 																	exercise.isFinished
-																		? "text-success"
+																		? "text-sidebar-primary"
 																		: "text-muted-foreground",
 																)}
 															>

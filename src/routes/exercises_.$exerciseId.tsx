@@ -176,9 +176,9 @@ function RouteComponent() {
 			)}
 
 			{currentWorkout && (
-				<Card className=" border-green-800 bg-green-950/50">
+				<Card>
 					<CardHeader>
-						<CardTitle className="text-green-300">Current Session</CardTitle>
+						<CardTitle className="text-primary">Current Session</CardTitle>
 					</CardHeader>
 					<CardContent>
 						{!currentWorkoutSets || currentWorkoutSets.length === 0 ? (
@@ -295,9 +295,9 @@ function RouteComponent() {
 				</Card>
 			)}
 
-			<Card className="bg-accent border-accent-foreground/40">
+			<Card>
 				<CardHeader>
-					<CardTitle>Last Sets</CardTitle>
+					<CardTitle>Last Workout Sets</CardTitle>
 				</CardHeader>
 				<CardContent>
 					{!lastWorkoutSets || lastWorkoutSets.length === 0 ? (
@@ -387,7 +387,7 @@ function RouteComponent() {
 											key={relatedExercise._id}
 											to="/exercises/$exerciseId"
 											params={{ exerciseId: relatedExercise._id }}
-											className="p-3 rounded-lg border transition-colors text-center text-sm font-medium bg-accent"
+											className="p-2 rounded-lg border text-center text-sm bg-sidebar-accent/40"
 										>
 											{relatedExercise.name}
 										</Link>
