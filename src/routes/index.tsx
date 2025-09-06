@@ -9,7 +9,7 @@ export const Route = createFileRoute("/")({
 
 function RouteComponent() {
 	return (
-		<div>
+		<div className="space-y-2">
 			<div className="flex items-center justify-between gap-4">
 				<h1 className="text-2xl font-bold">Exercises</h1>
 
