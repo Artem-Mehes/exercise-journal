@@ -270,24 +270,36 @@ export const getSummary = query({
 			};
 		}
 
-		let bestSet = {
-			count: 0,
-			weight: 0,
+		const bestSet = {
+			byVolume: {
+				count: 0,
+				weight: 0,
+			},
 		};
 
 		let biggestSetVolume = 0;
+		let maxWeight = 0;
 
 		for (const set of allSets) {
 			const volume = set.count * set.weight;
+			const weight = set.weight;
+
+			if (weight > maxWeight) {
+				maxWeight = weight;
+			}
 
 			if (volume > biggestSetVolume) {
 				biggestSetVolume = volume;
-				bestSet = set;
+				bestSet.byVolume = {
+					count: set.count,
+					weight: set.weight,
+				};
 			}
 		}
 
 		return {
 			bestSet,
+			maxWeight,
 		};
 	},
 });

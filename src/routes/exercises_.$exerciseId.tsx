@@ -82,8 +82,6 @@ function RouteComponent() {
 				<NotesDrawer />
 			</div>
 
-			<ExerciseSummaryInfo />
-
 			{currentWorkout && <ExerciseAddSetForm />}
 
 			{currentWorkout && (
@@ -205,6 +203,8 @@ function RouteComponent() {
 					</CardContent>
 				</Card>
 			)}
+
+			<ExerciseSummaryInfo />
 
 			<Card>
 				<CardHeader>

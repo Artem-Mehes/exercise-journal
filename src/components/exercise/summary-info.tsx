@@ -3,6 +3,7 @@ import { Route } from "@/routes/exercises_.$exerciseId";
 import { api } from "convex/_generated/api";
 import type { Id } from "convex/_generated/dataModel";
 import { useQuery } from "convex/react";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Skeleton } from "../ui/skeleton";
 
 export function ExerciseSummaryInfo() {
@@ -21,13 +22,32 @@ export function ExerciseSummaryInfo() {
 	}
 
 	return (
-		<div className="text-sm">
-			<div>
-				Best Set : {summary?.bestSet.count} x {summary?.bestSet.weight} kg{" "}
-				<span className="text-muted-foreground">
-					({Math.round(kgToLbs(summary?.bestSet.weight ?? 0))} lbs)
-				</span>
-			</div>
-		</div>
+		<Card>
+			<CardHeader>
+				<CardTitle>Records</CardTitle>
+			</CardHeader>
+			<CardContent>
+				<div className="grid grid-cols-2">
+					<div className="text-center">
+						<div className="text-sm text-muted-foreground">Best Set</div>
+						<div className="font-bold">
+							{summary.bestSet.byVolume.count} ×{" "}
+							{summary.bestSet.byVolume.weight} kg
+						</div>
+						<div className="text-xs text-muted-foreground">
+							({Math.round(kgToLbs(summary.bestSet.byVolume.weight))} lbs)
+						</div>
+					</div>
+
+					<div className="text-center">
+						<div className="text-sm text-muted-foreground">Max Weight</div>
+						<div className="font-bold text-success">{summary.maxWeight} kg</div>
+						<div className="text-xs text-muted-foreground">
+							({Math.round(kgToLbs(summary.maxWeight))} lbs)
+						</div>
+					</div>
+				</div>
+			</CardContent>
+		</Card>
 	);
 }
