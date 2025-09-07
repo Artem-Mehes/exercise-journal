@@ -20,7 +20,7 @@ import clsx from "clsx";
 import { api } from "convex/_generated/api";
 import type { Id } from "convex/_generated/dataModel";
 import { useMutation, useQuery } from "convex/react";
-import { Trash2 } from "lucide-react";
+import { CheckCircle, Trash2 } from "lucide-react";
 
 export const Route = createFileRoute("/exercises_/$exerciseId")({
 	component: RouteComponent,
@@ -281,34 +281,40 @@ function RouteComponent() {
 				</CardContent>
 			</Card>
 
-			{/* Related Exercises */}
-			{exercise?.muscleGroup &&
-				relatedExercises &&
-				relatedExercises.length > 1 && (
-					<Card>
-						<CardHeader>
-							<CardTitle>Other {exercise.muscleGroup.name} Exercises</CardTitle>
-						</CardHeader>
-						<CardContent>
-							<div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-								{relatedExercises
-									.filter(
-										(relatedExercise) => relatedExercise._id !== exercise._id,
-									)
-									.map((relatedExercise) => (
-										<Link
-											key={relatedExercise._id}
-											to="/exercises/$exerciseId"
-											params={{ exerciseId: relatedExercise._id }}
-											className="p-2 rounded-lg border text-center text-sm bg-sidebar-accent/40"
-										>
-											{relatedExercise.name}
-										</Link>
-									))}
-							</div>
-						</CardContent>
-					</Card>
-				)}
+			{exercise && relatedExercises && relatedExercises.length > 1 && (
+				<Card>
+					<CardHeader>
+						<CardTitle>Related</CardTitle>
+					</CardHeader>
+					<CardContent>
+						<div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+							{relatedExercises
+								.filter(
+									(relatedExercise) => relatedExercise._id !== exercise._id,
+								)
+								.map((relatedExercise) => (
+									<Link
+										key={relatedExercise._id}
+										to="/exercises/$exerciseId"
+										params={{ exerciseId: relatedExercise._id }}
+										className={clsx(
+											"p-2 rounded-lg border text-center text-sm relative",
+											relatedExercise.isFinished
+												? "line-through border-success"
+												: "bg-sidebar-accent/40",
+										)}
+									>
+										{relatedExercise.name}
+
+										{relatedExercise.isFinished && (
+											<CheckCircle className="size-4 text-success absolute top-1 right-1" />
+										)}
+									</Link>
+								))}
+						</div>
+					</CardContent>
+				</Card>
+			)}
 		</>
 	);
 }

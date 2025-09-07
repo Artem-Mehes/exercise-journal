@@ -1,4 +1,5 @@
 import { v } from "convex/values";
+import type { Doc } from "./_generated/dataModel";
 import { mutation, query } from "./_generated/server";
 
 export const get = query({
@@ -52,10 +53,42 @@ export const getByMuscleGroup = query({
 		groupId: v.id("exerciseGroups"),
 	},
 	handler: async (ctx, args) => {
-		return await ctx.db
+		const currentWorkout = await ctx.db
+			.query("workouts")
+			.filter((q) => q.eq(q.field("endTime"), undefined))
+			.first();
+
+		const exercises = await ctx.db
 			.query("exercises")
 			.withIndex("groupId", (q) => q.eq("groupId", args.groupId))
 			.collect();
+
+		let resultExercises: (Doc<"exercises"> & { isFinished?: boolean })[] =
+			exercises;
+
+		if (currentWorkout) {
+			resultExercises = await Promise.all(
+				exercises.map(async (exercise) => {
+					const sets = await ctx.db
+						.query("sets")
+						.withIndex("workoutId_exerciseId", (q) =>
+							q
+								.eq("workoutId", currentWorkout._id)
+								.eq("exerciseId", exercise._id),
+						)
+						.collect();
+
+					return {
+						...exercise,
+						isFinished: exercise.setsGoal
+							? sets.length >= exercise.setsGoal
+							: false,
+					};
+				}),
+			);
+		}
+
+		return resultExercises;
 	},
 });
 

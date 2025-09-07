@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { useAppForm } from "@/hooks/form";
+import toast from "@/integrations/toast";
 import { api } from "convex/_generated/api";
 import { useMutation } from "convex/react";
 import { z } from "zod";
@@ -26,6 +27,8 @@ export function CreateGroupForm() {
 			await createGroup({
 				name: value.name,
 			});
+
+			toast.success("Group created successfully");
 		},
 	});
 

@@ -7,8 +7,10 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "@tanstack/react-router";
 import { Store, useStore } from "@tanstack/react-store";
+import clsx from "clsx";
 import { api } from "convex/_generated/api";
 import { useQuery } from "convex/react";
+import { CheckCircle } from "lucide-react";
 import { useEffect } from "react";
 
 const store = new Store<{
@@ -64,20 +66,27 @@ export function ExercisesList() {
 		>
 			{muscleGroups.map((muscleGroup) => (
 				<AccordionItem key={muscleGroup._id} value={muscleGroup._id}>
-					<AccordionTrigger className="text-xl items-center">
+					<AccordionTrigger className="text-xl items-center text-primary">
 						{muscleGroup.name}
 					</AccordionTrigger>
 					<AccordionContent>
 						<ul className="grid grid-cols-2 gap-3">
 							{muscleGroup.exercises.map((exercise) => (
-								<li key={exercise._id}>
+								<li key={exercise._id} className="flex items-center gap-1">
 									<Link
 										to="/exercises/$exerciseId"
 										params={{ exerciseId: exercise._id }}
-										className="flex items-center gap-2 underline"
+										className={clsx(
+											"flex items-center gap-2",
+											exercise.isFinished ? "line-through" : "underline",
+										)}
 									>
 										{exercise.name}
 									</Link>
+
+									{exercise.isFinished && (
+										<CheckCircle className="size-4 text-success" />
+									)}
 								</li>
 							))}
 						</ul>

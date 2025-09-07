@@ -1,4 +1,5 @@
 import { v } from "convex/values";
+import type { Doc } from "./_generated/dataModel";
 import { mutation, query } from "./_generated/server";
 
 export const get = query({
@@ -87,6 +88,11 @@ export const getAllWithExercises = query({
 	handler: async (ctx) => {
 		const exerciseGroups = await ctx.db.query("exerciseGroups").collect();
 
+		const currentActiveWorkout = await ctx.db
+			.query("workouts")
+			.filter((q) => q.eq(q.field("endTime"), undefined))
+			.first();
+
 		const muscleGroupsWithExercises = await Promise.all(
 			exerciseGroups.map(async (group) => {
 				const exercises = await ctx.db
@@ -94,9 +100,43 @@ export const getAllWithExercises = query({
 					.withIndex("groupId", (q) => q.eq("groupId", group._id))
 					.collect();
 
+				let resultExercises: (Doc<"exercises"> & { isFinished?: boolean })[] =
+					[];
+
+				if (currentActiveWorkout) {
+					resultExercises = await Promise.all(
+						exercises.map(async (exercise) => {
+							if (!exercise.setsGoal) {
+								return {
+									...exercise,
+									isFinished: false,
+								};
+							}
+
+							const sets = await ctx.db
+								.query("sets")
+								.withIndex("workoutId_exerciseId", (q) =>
+									q
+										.eq("workoutId", currentActiveWorkout._id)
+										.eq("exerciseId", exercise._id),
+								)
+								.collect();
+
+							return {
+								...exercise,
+								isFinished: exercise.setsGoal
+									? sets.length >= exercise.setsGoal
+									: false,
+							};
+						}),
+					);
+				} else {
+					resultExercises = exercises;
+				}
+
 				return {
 					...group,
-					exercises,
+					exercises: resultExercises,
 				};
 			}),
 		);

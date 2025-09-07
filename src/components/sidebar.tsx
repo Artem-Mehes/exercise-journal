@@ -86,14 +86,14 @@ export function AppSidebar() {
 																className={clsx(
 																	"flex items-center gap-1",
 																	exercise.isFinished
-																		? "text-sidebar-primary"
+																		? "text-success"
 																		: "text-muted-foreground",
 																)}
 															>
 																{`${exercise.setsCount}${exercise.setsGoal ? ` / ${exercise.setsGoal}` : " sets"}`}
 
 																{exercise.isFinished && (
-																	<CheckCircle className="size-4" />
+																	<CheckCircle className="size-4 text-success" />
 																)}
 															</span>
 														</SidebarMenuSubItem>
