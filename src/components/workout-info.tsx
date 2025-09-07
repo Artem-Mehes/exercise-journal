@@ -31,7 +31,7 @@ export function WorkoutInfo() {
 	const isWorkoutActive = currentWorkout && !currentWorkout.endTime;
 
 	return (
-		<div className="flex items-center gap-4">
+		<div className="ml-auto flex items-center gap-4">
 			{isWorkoutActive ? (
 				<>
 					<div className="text-muted-foreground">{formattedTime}</div>
@@ -44,7 +44,7 @@ export function WorkoutInfo() {
 				<Button
 					onClick={handleStartWorkout}
 					isLoading={isLoading}
-					className="min-w-28"
+					className="min-w-28 ml-auto"
 				>
 					Start Workout
 				</Button>

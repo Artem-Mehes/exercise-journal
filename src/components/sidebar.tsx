@@ -11,6 +11,17 @@ import clsx from "clsx";
 import { api } from "convex/_generated/api";
 import { useQuery } from "convex/react";
 import { CheckCircle } from "lucide-react";
+import { SidebarTrigger } from "./ui/sidebar";
+
+export function AppSidebarTrigger() {
+	const currentWorkout = useQuery(api.workouts.getCurrentWorkout);
+
+	if (!currentWorkout) {
+		return null;
+	}
+
+	return <SidebarTrigger />;
+}
 
 export function AppSidebar() {
 	const currentWorkoutExercises = useQuery(

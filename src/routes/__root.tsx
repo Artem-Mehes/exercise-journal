@@ -4,8 +4,8 @@ import {
 	createRootRouteWithContext,
 } from "@tanstack/react-router";
 
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-
+import { AppSidebarTrigger } from "@/components/sidebar";
+import { SidebarProvider } from "@/components/ui/sidebar";
 import ConvexProvider from "../integrations/convex/provider";
 
 import { AppFooter } from "@/components/footer";
@@ -58,8 +58,8 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 						<AppSidebar />
 
 						<div className="flex flex-col  flex-1">
-							<header className="bg-background border-b flex items-center justify-between p-2 min-h-14">
-								<SidebarTrigger />
+							<header className="bg-background border-b flex items-center justify-between p-2 min-h-14 w-full">
+								<AppSidebarTrigger />
 
 								<WorkoutInfo />
 							</header>
