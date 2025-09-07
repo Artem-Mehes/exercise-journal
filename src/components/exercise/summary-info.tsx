@@ -14,7 +14,7 @@ export function ExerciseSummaryInfo() {
 	});
 
 	if (summary === undefined) {
-		return <Skeleton className="h-6" />;
+		return <Skeleton className="h-30" />;
 	}
 
 	if (summary?.bestSet === null) {
