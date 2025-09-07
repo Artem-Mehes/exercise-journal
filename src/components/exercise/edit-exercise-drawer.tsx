@@ -20,9 +20,8 @@ export function EditExerciseDrawer({ exerciseId }: EditExerciseDrawerProps) {
 
 	return (
 		<Drawer open={open} onOpenChange={setOpen}>
-			<DrawerTrigger className="text-sm flex items-center gap-1">
-				Edit
-				<Pencil className="size-4" />
+			<DrawerTrigger>
+				<Pencil className="size-5" />
 			</DrawerTrigger>
 			<DrawerContent>
 				<DrawerHeader>

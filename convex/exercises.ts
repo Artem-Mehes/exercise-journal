@@ -246,3 +246,41 @@ export const deleteExercise = mutation({
 		return args.exerciseId;
 	},
 });
+
+export const getSummary = query({
+	args: {
+		exerciseId: v.id("exercises"),
+	},
+	handler: async (ctx, args) => {
+		const exercise = await ctx.db.get(args.exerciseId);
+
+		if (!exercise) {
+			throw new Error("Exercise not found");
+		}
+
+		const allSets = await ctx.db
+			.query("sets")
+			.withIndex("exerciseId", (q) => q.eq("exerciseId", args.exerciseId))
+			.collect();
+
+		let bestSet = {
+			count: 0,
+			weight: 0,
+		};
+
+		let biggestSetVolume = 0;
+
+		for (const set of allSets) {
+			const volume = set.count * set.weight;
+
+			if (volume > biggestSetVolume) {
+				biggestSetVolume = volume;
+				bestSet = set;
+			}
+		}
+
+		return {
+			bestSet,
+		};
+	},
+});

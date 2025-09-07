@@ -1,9 +1,9 @@
 import { ExerciseBreadcrumbs } from "@/components/exercise/breadcrumbs";
 import { EditExerciseDrawer } from "@/components/exercise/edit-exercise-drawer";
 import { NotesDrawer } from "@/components/exercise/notes-drawer";
+import { ExerciseSummaryInfo } from "@/components/exercise/summary-info";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
 	Table,
@@ -59,17 +59,10 @@ function RouteComponent() {
 		}
 	};
 
-	// Determine if we should prepopulate with last workout's first set
-	const shouldPrepopulate =
-		currentWorkout &&
-		(!currentWorkoutSets || currentWorkoutSets.length === 0) &&
-		lastWorkoutSets &&
-		lastWorkoutSets.length > 0;
-
 	const form = useAppForm({
 		defaultValues: {
-			count: shouldPrepopulate ? lastWorkoutSets[0].count.toString() : "",
-			weight: shouldPrepopulate ? lastWorkoutSets[0].weight.toString() : "",
+			count: "",
+			weight: "",
 			unit: "kg",
 		},
 		onSubmit: async ({ value }) => {
@@ -100,16 +93,16 @@ function RouteComponent() {
 	return (
 		<>
 			<div className="flex justify-between">
-				<ExerciseBreadcrumbs />
+				<div className="flex items-center gap-3">
+					<ExerciseBreadcrumbs />
 
-				<div className="flex h-6 space-x-2">
 					<EditExerciseDrawer exerciseId={exerciseId as Id<"exercises">} />
-
-					<Separator orientation="vertical" />
-
-					<NotesDrawer />
 				</div>
+
+				<NotesDrawer />
 			</div>
+
+			<ExerciseSummaryInfo />
 
 			{currentWorkout && (
 				<Card>
