@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { createFileRoute } from "@tanstack/react-router";
 import { api } from "convex/_generated/api";
@@ -64,12 +64,6 @@ function RouteComponent() {
 								<Trash2 />
 							</Button>
 						</CardTitle>
-
-						<CardContent>
-							<span className="text-muted-foreground text-sm ml-2">
-								Total Volume: {workout.totalVolume}
-							</span>
-						</CardContent>
 					</CardHeader>
 				</Card>
 			))}
