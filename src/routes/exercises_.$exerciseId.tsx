@@ -1,7 +1,10 @@
 import { ExerciseBreadcrumbs } from "@/components/exercise/breadcrumbs";
+import { EditExerciseDrawer } from "@/components/exercise/edit-exercise-drawer";
 import { NotesDrawer } from "@/components/exercise/notes-drawer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
 	Table,
 	TableBody,
@@ -83,12 +86,29 @@ function RouteComponent() {
 		},
 	});
 
+	if (exercise === undefined) {
+		return (
+			<div className="space-y-4">
+				<Skeleton className="h-10" />
+				<Skeleton className="h-30" />
+				<Skeleton className="h-30" />
+				<Skeleton className="h-30" />
+			</div>
+		);
+	}
+
 	return (
 		<>
-			<div className="flex justify-between items-center">
+			<div className="flex justify-between">
 				<ExerciseBreadcrumbs />
 
-				<NotesDrawer />
+				<div className="flex h-6 space-x-2">
+					<EditExerciseDrawer exerciseId={exerciseId as Id<"exercises">} />
+
+					<Separator orientation="vertical" />
+
+					<NotesDrawer />
+				</div>
 			</div>
 
 			{currentWorkout && (

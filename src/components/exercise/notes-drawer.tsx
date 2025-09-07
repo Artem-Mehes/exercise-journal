@@ -1,11 +1,11 @@
 import { useDebounce } from "@/hooks/use-debounce";
+import toast from "@/integrations/toast";
 import { Route } from "@/routes/exercises_.$exerciseId";
 import { api } from "convex/_generated/api";
 import type { Id } from "convex/_generated/dataModel";
 import { useMutation, useQuery } from "convex/react";
 import { Check, Loader2, Notebook } from "lucide-react";
 import { useEffect, useState } from "react";
-import { toast } from "sonner";
 import {
 	Drawer,
 	DrawerContent,
@@ -60,9 +60,9 @@ export function NotesDrawer() {
 
 	return (
 		<Drawer>
-			<DrawerTrigger className="flex items-center gap-1 border border-muted-foreground/60 rounded-md px-2 py-1">
-				<span>Notes</span>
-				<Notebook className="size-5" />
+			<DrawerTrigger className="flex items-center gap-1">
+				<span className="text-sm">Notes</span>
+				<Notebook className="size-4" />
 			</DrawerTrigger>
 
 			<DrawerContent>

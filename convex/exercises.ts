@@ -134,6 +134,26 @@ export const create = mutation({
 	},
 });
 
+export const update = mutation({
+	args: {
+		exerciseId: v.id("exercises"),
+		name: v.string(),
+		groupId: v.id("exerciseGroups"),
+		setsGoal: v.number(),
+	},
+	handler: async (ctx, args) => {
+		const exercise = await ctx.db.get(args.exerciseId);
+		if (!exercise) {
+			throw new Error("Exercise not found");
+		}
+
+		const { exerciseId, ...updates } = args;
+		await ctx.db.patch(exerciseId, updates);
+
+		return exerciseId;
+	},
+});
+
 export const updateNotes = mutation({
 	args: {
 		exerciseId: v.id("exercises"),
