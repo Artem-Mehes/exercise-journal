@@ -1,4 +1,5 @@
 import { ExerciseBreadcrumbs } from "@/components/exercise/breadcrumbs";
+import { NotesDrawer } from "@/components/exercise/notes-drawer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -9,7 +10,6 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import { Textarea } from "@/components/ui/textarea";
 import { useAppForm } from "@/hooks/form";
 import { formatWeight, lbsToKg } from "@/lib/utils";
 import { Link, createFileRoute } from "@tanstack/react-router";
@@ -17,8 +17,8 @@ import clsx from "clsx";
 import { api } from "convex/_generated/api";
 import type { Id } from "convex/_generated/dataModel";
 import { useMutation, useQuery } from "convex/react";
-import { Pencil, Trash2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Trash2 } from "lucide-react";
+
 export const Route = createFileRoute("/exercises_/$exerciseId")({
 	component: RouteComponent,
 });
@@ -47,33 +47,12 @@ function RouteComponent() {
 	);
 	const addSet = useMutation(api.exercises.addSet);
 	const deleteSet = useMutation(api.exercises.deleteSet);
-	const updateNotes = useMutation(api.exercises.updateNotes);
-
-	const [isNotesOpened, setIsNotesOpened] = useState(false);
-	const [notesValue, setNotesValue] = useState(exercise?.notes || "");
-
-	useEffect(() => {
-		if (exercise?.notes) {
-			setNotesValue(exercise.notes);
-		}
-	}, [exercise?.notes]);
 
 	const handleDeleteSet = async (setId: Id<"sets">) => {
 		try {
 			await deleteSet({ setId });
 		} catch (error) {
 			console.error("Failed to delete set:", error);
-		}
-	};
-
-	const handleSaveNotes = async () => {
-		try {
-			await updateNotes({
-				exerciseId: exerciseId as Id<"exercises">,
-				notes: notesValue,
-			});
-		} catch (error) {
-			console.error("Failed to save notes:", error);
 		}
 	};
 
@@ -109,33 +88,8 @@ function RouteComponent() {
 			<div className="flex justify-between items-center">
 				<ExerciseBreadcrumbs />
 
-				<Button
-					variant="outline"
-					size="sm"
-					onClick={() => setIsNotesOpened(!isNotesOpened)}
-				>
-					<Pencil className="w-4 h-4" />
-					Notes
-				</Button>
+				<NotesDrawer />
 			</div>
-
-			{isNotesOpened && (
-				<Card className="bg-yellow-500/10 border-yellow-500/40">
-					<CardContent>
-						<div className="space-y-3">
-							<Textarea
-								value={notesValue}
-								onChange={(e) => setNotesValue(e.target.value)}
-								className="min-h-24 border-none bg-transparent focus-visible:ring-0 resize-none"
-								autoFocus
-							/>
-							<Button size="sm" onClick={handleSaveNotes}>
-								Save
-							</Button>
-						</div>
-					</CardContent>
-				</Card>
-			)}
 
 			{currentWorkout && (
 				<Card>

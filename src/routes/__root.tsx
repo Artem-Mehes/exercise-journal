@@ -10,6 +10,7 @@ import ConvexProvider from "../integrations/convex/provider";
 
 import { AppFooter } from "@/components/footer";
 import { AppSidebar } from "@/components/sidebar";
+import { Toaster } from "@/components/ui/sonner";
 import { WorkoutInfo } from "@/components/workout-info";
 import appCss from "../styles.css?url";
 
@@ -50,6 +51,8 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 				<meta name="apple-mobile-web-app-title" content="Exercise Journal" />
 			</head>
 			<body>
+				<Toaster richColors />
+
 				<ConvexProvider>
 					<SidebarProvider>
 						<AppSidebar />
