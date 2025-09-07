@@ -191,6 +191,7 @@ export const addSet = mutation({
 		}
 
 		const exercise = await ctx.db.get(args.exerciseId);
+
 		if (!exercise) {
 			throw new Error("Exercise not found");
 		}
@@ -262,6 +263,12 @@ export const getSummary = query({
 			.query("sets")
 			.withIndex("exerciseId", (q) => q.eq("exerciseId", args.exerciseId))
 			.collect();
+
+		if (allSets.length === 0) {
+			return {
+				bestSet: null,
+			};
+		}
 
 		let bestSet = {
 			count: 0,

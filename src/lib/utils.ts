@@ -14,9 +14,9 @@ export function kgToLbs(kg: number): number {
 	return kg * 2.20462;
 }
 
-export function formatWeight(weightInKg: number): { kg: string; lbs: string } {
+export function formatWeight(weightInKg: number): { kg: number; lbs: number } {
 	return {
-		kg: weightInKg.toFixed(1),
-		lbs: kgToLbs(weightInKg).toFixed(1),
+		kg: Math.floor(weightInKg),
+		lbs: Math.floor(kgToLbs(weightInKg)),
 	};
 }

@@ -1,3 +1,4 @@
+import { ExerciseAddSetForm } from "@/components/exercise/add-set-form";
 import { ExerciseBreadcrumbs } from "@/components/exercise/breadcrumbs";
 import { EditExerciseDrawer } from "@/components/exercise/edit-exercise-drawer";
 import { NotesDrawer } from "@/components/exercise/notes-drawer";
@@ -13,8 +14,7 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import { useAppForm } from "@/hooks/form";
-import { formatWeight, lbsToKg } from "@/lib/utils";
+import { formatWeight } from "@/lib/utils";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import clsx from "clsx";
 import { api } from "convex/_generated/api";
@@ -48,7 +48,7 @@ function RouteComponent() {
 		api.exercises.getByMuscleGroup,
 		exercise?.groupId ? { groupId: exercise.groupId } : "skip",
 	);
-	const addSet = useMutation(api.exercises.addSet);
+
 	const deleteSet = useMutation(api.exercises.deleteSet);
 
 	const handleDeleteSet = async (setId: Id<"sets">) => {
@@ -58,26 +58,6 @@ function RouteComponent() {
 			console.error("Failed to delete set:", error);
 		}
 	};
-
-	const form = useAppForm({
-		defaultValues: {
-			count: "",
-			weight: "",
-			unit: "kg",
-		},
-		onSubmit: async ({ value }) => {
-			const weightInKg =
-				value.unit === "lbs"
-					? lbsToKg(Number(value.weight))
-					: Number(value.weight);
-
-			await addSet({
-				exerciseId: exerciseId as Id<"exercises">,
-				count: Number(value.count),
-				weight: weightInKg,
-			});
-		},
-	});
 
 	if (exercise === undefined) {
 		return (
@@ -104,44 +84,7 @@ function RouteComponent() {
 
 			<ExerciseSummaryInfo />
 
-			{currentWorkout && (
-				<Card>
-					<form
-						onSubmit={(e) => {
-							e.preventDefault();
-							e.stopPropagation();
-							form.handleSubmit();
-						}}
-						className="space-y-4"
-					>
-						<CardHeader className="flex justify-between items-center">
-							<CardTitle>Add Set</CardTitle>
-
-							<form.AppField name="unit">
-								{(field) => <field.RadioGroupField options={["kg", "lbs"]} />}
-							</form.AppField>
-						</CardHeader>
-
-						<CardContent className="space-y-4">
-							<div className="grid grid-cols-2 gap-4">
-								<form.AppField name="count">
-									{(field) => <field.TextField label="Count" type="number" />}
-								</form.AppField>
-
-								<form.AppField name="weight">
-									{(field) => <field.TextField label="Weight" type="number" />}
-								</form.AppField>
-							</div>
-
-							<div className="md:col-span-3">
-								<Button type="submit" className="w-full">
-									Add Set
-								</Button>
-							</div>
-						</CardContent>
-					</form>
-				</Card>
-			)}
+			{currentWorkout && <ExerciseAddSetForm />}
 
 			{currentWorkout && (
 				<Card>
@@ -177,9 +120,9 @@ function RouteComponent() {
 												lastWorkoutSets[index].weight;
 											const currentVolume = set.count * set.weight;
 											if (currentVolume > lastSetVolume) {
-												volumeColorClass = "text-green-600";
+												volumeColorClass = "text-success";
 											} else if (currentVolume < lastSetVolume) {
-												volumeColorClass = "text-red-600";
+												volumeColorClass = "text-destructive";
 											}
 										}
 
@@ -226,9 +169,9 @@ function RouteComponent() {
 											let totalVolumeColorClass = "";
 											if (lastWorkoutSets && lastWorkoutSets.length > 0) {
 												if (currentTotalVolume > lastTotalVolume) {
-													totalVolumeColorClass = "text-green-600";
+													totalVolumeColorClass = "text-success";
 												} else if (currentTotalVolume < lastTotalVolume) {
-													totalVolumeColorClass = "text-red-600";
+													totalVolumeColorClass = "text-destructive";
 												}
 											}
 
@@ -290,9 +233,11 @@ function RouteComponent() {
 									const volume = (set.count * set.weight).toFixed(0);
 									return (
 										<TableRow key={set._id}>
-											<TableCell className="font-medium">{index + 1}</TableCell>
-											<TableCell>{set.count}</TableCell>
-											<TableCell>{kg}</TableCell>
+											<TableCell className="font-muted-foreground">
+												{index + 1}
+											</TableCell>
+											<TableCell className="font-bold">{set.count}</TableCell>
+											<TableCell className="font-bold">{kg}</TableCell>
 											<TableCell className="text-muted-foreground">
 												{lbs}
 											</TableCell>
