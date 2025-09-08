@@ -85,7 +85,6 @@ function RouteComponent() {
 							sets={currentWorkoutSets || []}
 							comparisonSets={lastWorkoutSets || undefined}
 							onDeleteSet={handleDeleteSet}
-							showDeleteButton={true}
 							emptyMessage="No sets in current session"
 						/>
 					</CardContent>
@@ -102,7 +101,6 @@ function RouteComponent() {
 					<WorkoutSetsTable
 						sets={lastWorkoutSets || []}
 						onDeleteSet={handleDeleteSet}
-						showDeleteButton={true}
 						emptyMessage="No sets from last session"
 					/>
 				</CardContent>

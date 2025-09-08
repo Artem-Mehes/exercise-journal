@@ -240,6 +240,29 @@ export const addSet = mutation({
 	},
 });
 
+export const updateSet = mutation({
+	args: {
+		setId: v.id("sets"),
+		count: v.optional(v.number()),
+		weight: v.optional(v.number()),
+	},
+	handler: async (ctx, args) => {
+		const updateParams: Partial<Doc<"sets">> = {};
+
+		if (args.count) {
+			updateParams.count = args.count;
+		}
+
+		if (args.weight) {
+			updateParams.weight = args.weight;
+		}
+
+		await ctx.db.patch(args.setId, updateParams);
+
+		return args.setId;
+	},
+});
+
 export const deleteSet = mutation({
 	args: {
 		setId: v.id("sets"),

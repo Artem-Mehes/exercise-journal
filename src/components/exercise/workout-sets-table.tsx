@@ -11,12 +11,12 @@ import { formatWeight } from "@/lib/utils";
 import clsx from "clsx";
 import type { Doc, Id } from "convex/_generated/dataModel";
 import { Trash2 } from "lucide-react";
+import { EditableSetRowCell } from "./editable-set-row-cell";
 
 interface WorkoutSetsTableProps {
 	sets: Doc<"sets">[];
 	comparisonSets?: Doc<"sets">[];
-	onDeleteSet?: (setId: Id<"sets">) => void;
-	showDeleteButton?: boolean;
+	onDeleteSet: (setId: Id<"sets">) => void;
 	emptyMessage?: string;
 }
 
@@ -24,7 +24,6 @@ export function WorkoutSetsTable({
 	sets,
 	comparisonSets,
 	onDeleteSet,
-	showDeleteButton = false,
 	emptyMessage = "No sets found",
 }: WorkoutSetsTableProps) {
 	if (!sets || sets.length === 0) {
@@ -80,26 +79,20 @@ export function WorkoutSetsTable({
 
 					return (
 						<TableRow key={set._id}>
-							<TableCell className="font-medium">{index + 1}</TableCell>
-							<TableCell className={showDeleteButton ? "" : "font-bold"}>
-								{set.count}
-							</TableCell>
-							<TableCell className={showDeleteButton ? "" : "font-bold"}>
-								{kg}
-							</TableCell>
+							<TableCell>{index + 1}</TableCell>
+							<EditableSetRowCell setId={set._id} field="count">{set.count}</EditableSetRowCell>
+							<EditableSetRowCell setId={set._id} field="weight">{kg}</EditableSetRowCell>
 							<TableCell className="text-muted-foreground">{lbs}</TableCell>
 							<TableCell className={volumeColorClass}>{volume}</TableCell>
 							<TableCell>
-								{showDeleteButton && onDeleteSet && (
-									<Button
-										variant="ghost"
-										size="sm"
-										onClick={() => onDeleteSet(set._id)}
-										className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
-									>
-										<Trash2 className="h-4 w-4" />
-									</Button>
-								)}
+								<Button
+									variant="ghost"
+									size="sm"
+									onClick={() => onDeleteSet(set._id)}
+									className="h-8 w-8 p-0 text-destructive"
+								>
+									<Trash2 className="h-4 w-4" />
+								</Button>
 							</TableCell>
 						</TableRow>
 					);
