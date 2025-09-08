@@ -25,7 +25,7 @@ export function WorkoutSummaryTable({
 	}
 
 	return (
-		<Table className="text-xs">
+		<Table>
 			<TableHeader>
 				<TableRow>
 					<TableHead>Exercise</TableHead>
@@ -55,7 +55,9 @@ export function WorkoutSummaryTable({
 			</TableBody>
 			<TableFooter>
 				<TableRow>
-					<TableCell className="font-bold">Total</TableCell>
+					<TableCell className="font-bold">
+						Total: {workoutSummary?.length}
+					</TableCell>
 					<TableCell className="font-bold">
 						{workoutSummary?.reduce((sum, data) => sum + data.setsCount, 0)}
 					</TableCell>
