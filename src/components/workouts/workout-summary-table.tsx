@@ -11,6 +11,7 @@ import { kgToLbs } from "@/lib/utils";
 import { api } from "convex/_generated/api";
 import type { Id } from "convex/_generated/dataModel";
 import { useQuery } from "convex/react";
+import { Skeleton } from "../ui/skeleton";
 
 export function WorkoutSummaryTable({
 	workoutId,
@@ -18,6 +19,10 @@ export function WorkoutSummaryTable({
 	const workoutSummary = useQuery(api.workouts.getSummary, {
 		workoutId,
 	});
+
+	if (workoutSummary === undefined) {
+		return <Skeleton className="h-50 bg-foreground/10" />;
+	}
 
 	return (
 		<Table className="text-xs">

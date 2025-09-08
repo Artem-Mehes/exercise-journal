@@ -3,20 +3,49 @@ import { lbsToKg } from "@/lib/utils";
 import { Route } from "@/routes/exercises_.$exerciseId";
 import { api } from "convex/_generated/api";
 import type { Id } from "convex/_generated/dataModel";
-import { useMutation } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
+import { useEffect } from "react";
+import z from "zod";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+
+const validationSchema = z.object({
+	count: z.string().min(1, {
+		message: "Count is required",
+	}),
+	weight: z.string().min(1, {
+		message: "Weight is required",
+	}),
+	unit: z.enum(["kg", "lbs"]),
+});
 
 export function ExerciseAddSetForm() {
 	const { exerciseId } = Route.useParams();
 
 	const addSet = useMutation(api.exercises.addSet);
 
+	const currentWorkoutSets = useQuery(
+		api.exercises.getCurrentWorkoutSetsForExercise,
+		{
+			exerciseId: exerciseId as Id<"exercises">,
+		},
+	);
+
+	const previousWorkoutSet = useQuery(
+		api.exercises.getLastCompletedWorkoutSets,
+		{
+			exerciseId: exerciseId as Id<"exercises">,
+		},
+	);
+
 	const form = useAppForm({
 		defaultValues: {
 			count: "",
 			weight: "",
 			unit: "kg",
+		},
+		validators: {
+			onSubmit: validationSchema,
 		},
 		onSubmit: async ({ value }) => {
 			const weightInKg =
@@ -31,6 +60,21 @@ export function ExerciseAddSetForm() {
 			});
 		},
 	});
+
+	useEffect(() => {
+		if (previousWorkoutSet && currentWorkoutSets) {
+			const previousWorkoutSetValues =
+				previousWorkoutSet[currentWorkoutSets.length];
+
+			if (previousWorkoutSetValues?.count && previousWorkoutSetValues?.weight) {
+				form.setFieldValue("count", previousWorkoutSetValues.count.toString());
+				form.setFieldValue(
+					"weight",
+					previousWorkoutSetValues.weight.toString(),
+				);
+			}
+		}
+	}, [currentWorkoutSets, previousWorkoutSet, form.setFieldValue]);
 
 	return (
 		<Card>
@@ -52,20 +96,20 @@ export function ExerciseAddSetForm() {
 
 				<CardContent className="space-y-4">
 					<div className="grid grid-cols-2 gap-4">
-						<form.AppField name="weight">
+						<form.AppField name="count">
 							{(field) => (
 								<field.TextField
-									label="Weight"
+									label="Reps"
 									type="number"
 									onFocus={(e) => e.target.select()}
 								/>
 							)}
 						</form.AppField>
 
-						<form.AppField name="count">
+						<form.AppField name="weight">
 							{(field) => (
 								<field.TextField
-									label="Count"
+									label="Weight"
 									type="number"
 									onFocus={(e) => e.target.select()}
 								/>

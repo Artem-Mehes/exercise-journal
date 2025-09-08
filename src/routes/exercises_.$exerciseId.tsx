@@ -99,12 +99,12 @@ function RouteComponent() {
 							<Table>
 								<TableHeader>
 									<TableRow>
-										<TableHead className="w-16">Set</TableHead>
-										<TableHead className="w-20">Reps</TableHead>
-										<TableHead className="w-24">kg</TableHead>
-										<TableHead className="w-24">lbs</TableHead>
-										<TableHead className="w-20">Volume</TableHead>
-										<TableHead className="w-16" />
+										<TableHead>Set</TableHead>
+										<TableHead>Reps</TableHead>
+										<TableHead>kg</TableHead>
+										<TableHead>lbs</TableHead>
+										<TableHead>Volume</TableHead>
+										<TableHead />
 									</TableRow>
 								</TableHeader>
 								<TableBody>
@@ -175,32 +175,27 @@ function RouteComponent() {
 											}
 
 											return (
-												<TableFooter>
-													<TableRow>
-														<TableCell className="font-bold">Total</TableCell>
-														<TableCell className="font-bold">
-															{currentWorkoutSets.reduce(
-																(sum, set) => sum + set.count,
-																0,
-															)}
-														</TableCell>
-														<TableCell className="font-bold">
-															{currentWorkoutSets
-																.reduce((sum, set) => sum + set.weight, 0)
-																.toFixed(1)}
-														</TableCell>
-														<TableCell />
-														<TableCell
-															className={clsx(
-																"font-bold",
-																totalVolumeColorClass,
-															)}
-														>
-															{currentTotalVolume.toFixed(0)}
-														</TableCell>
-														<TableCell />
-													</TableRow>
-												</TableFooter>
+												<TableRow>
+													<TableCell className="font-bold">Total</TableCell>
+													<TableCell className="font-bold">
+														{currentWorkoutSets.reduce(
+															(sum, set) => sum + set.count,
+															0,
+														)}
+													</TableCell>
+													<TableCell className="font-bold">
+														{currentWorkoutSets
+															.reduce((sum, set) => sum + set.weight, 0)
+															.toFixed(1)}
+													</TableCell>
+													<TableCell />
+													<TableCell
+														className={clsx("font-bold", totalVolumeColorClass)}
+													>
+														{currentTotalVolume.toFixed(0)}
+													</TableCell>
+													<TableCell />
+												</TableRow>
 											);
 										})()}
 								</TableBody>
