@@ -62,8 +62,8 @@ export function WorkoutSetsTable({
 			</TableHeader>
 			<TableBody>
 				{sets.map((set, index) => {
-					const { kg, lbs } = formatWeight(set.weight);
 					const volume = (set.count * set.weight).toFixed(0);
+					const { kg, lbs } = formatWeight(set.weight);
 
 					let volumeColorClass = "";
 					if (comparisonSets?.[index]) {
@@ -80,8 +80,12 @@ export function WorkoutSetsTable({
 					return (
 						<TableRow key={set._id}>
 							<TableCell>{index + 1}</TableCell>
-							<EditableSetRowCell setId={set._id} field="count">{set.count}</EditableSetRowCell>
-							<EditableSetRowCell setId={set._id} field="weight">{kg}</EditableSetRowCell>
+							<EditableSetRowCell setId={set._id} field="count">
+								{set.count}
+							</EditableSetRowCell>
+							<EditableSetRowCell setId={set._id} field="weight">
+								{kg}
+							</EditableSetRowCell>
 							<TableCell className="text-muted-foreground">{lbs}</TableCell>
 							<TableCell className={volumeColorClass}>{volume}</TableCell>
 							<TableCell>

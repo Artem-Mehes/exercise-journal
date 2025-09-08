@@ -20,13 +20,13 @@ export function EditableSetRowCell({
 	const [value, setValue] = useState(children.toString());
 	const [showSuccess, setShowSuccess] = useState(false);
 
-	const editSet = useMutation(api.exercises.updateSet);
+	const editSet = useMutation(api.sets.update);
 
 	const debouncedValue = useDebounce(value, 1000);
 
 	useEffect(() => {
 		if (debouncedValue !== children.toString()) {
-			if (debouncedValue === "") {
+			if (debouncedValue === "" || Number(debouncedValue) === 0) {
 				return;
 			}
 

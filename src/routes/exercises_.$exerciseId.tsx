@@ -40,7 +40,7 @@ function RouteComponent() {
 		exercise?.groupId ? { groupId: exercise.groupId } : "skip",
 	);
 
-	const deleteSet = useMutation(api.exercises.deleteSet);
+	const deleteSet = useMutation(api.sets.deleteSet);
 
 	const handleDeleteSet = async (setId: Id<"sets">) => {
 		try {

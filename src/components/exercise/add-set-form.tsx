@@ -22,7 +22,7 @@ const validationSchema = z.object({
 export function ExerciseAddSetForm() {
 	const { exerciseId } = Route.useParams();
 
-	const addSet = useMutation(api.exercises.addSet);
+	const addSet = useMutation(api.sets.add);
 
 	const currentWorkoutSets = useQuery(
 		api.exercises.getCurrentWorkoutSetsForExercise,
