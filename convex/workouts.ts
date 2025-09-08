@@ -17,15 +17,7 @@ export const getAll = query({
 					.withIndex("workoutId", (q) => q.eq("workoutId", workout._id))
 					.collect();
 
-				const resultGroups: {
-					groupId: Id<"exerciseGroups">;
-					groupName: string;
-					exercises: {
-						exerciseId: Id<"exercises">;
-						exerciseName: string;
-						sets: Pick<Doc<"sets">, "count" | "weight">[];
-					}[];
-				}[] = [];
+				const workoutGroups = new Set<string>();
 
 				for (const set of sets) {
 					const exercise = await ctx.db.get(set.exerciseId);
@@ -40,55 +32,12 @@ export const getAll = query({
 						continue;
 					}
 
-					const groupInResult = resultGroups.find(
-						(g) => g.groupId === exercise.groupId,
-					);
-
-					if (groupInResult) {
-						const exerciseInResult = groupInResult.exercises.find(
-							(e) => e.exerciseId === exercise._id,
-						);
-
-						if (exerciseInResult) {
-							exerciseInResult.sets.push({
-								count: set.count,
-								weight: set.weight,
-							});
-						} else {
-							groupInResult.exercises.push({
-								exerciseId: exercise._id,
-								exerciseName: exercise.name,
-								sets: [
-									{
-										count: set.count,
-										weight: set.weight,
-									},
-								],
-							});
-						}
-					} else {
-						resultGroups.push({
-							groupId: exercise.groupId,
-							groupName: group.name,
-							exercises: [
-								{
-									exerciseId: exercise._id,
-									exerciseName: exercise.name,
-									sets: [
-										{
-											count: set.count,
-											weight: set.weight,
-										},
-									],
-								},
-							],
-						});
-					}
+					workoutGroups.add(group.name);
 				}
 
 				return {
 					...workout,
-					groups: resultGroups,
+					groups: Array.from(workoutGroups),
 				};
 			}),
 		);
@@ -289,5 +238,86 @@ export const deleteWorkout = mutation({
 		for (const set of sets) {
 			await ctx.db.delete(set._id);
 		}
+	},
+});
+
+export const getSummary = query({
+	args: {
+		workoutId: v.id("workouts"),
+	},
+	handler: async (ctx, args) => {
+		const workout = await ctx.db.get(args.workoutId);
+
+		if (!workout) {
+			return [];
+		}
+
+		const result: {
+			id: Id<"exercises">;
+			name: Doc<"exercises">["name"];
+			setsCount: number;
+			bestSet: Pick<Doc<"sets">, "count" | "weight">;
+			maxWeight: number;
+		}[] = [];
+
+		const sets = await ctx.db
+			.query("sets")
+			.withIndex("workoutId", (q) => q.eq("workoutId", args.workoutId))
+			.collect();
+
+		const exerciseMap = new Map<Id<"exercises">, typeof sets>();
+
+		for (const set of sets) {
+			const exerciseInMap = exerciseMap.get(set.exerciseId);
+
+			if (exerciseInMap) {
+				exerciseInMap.push(set);
+			} else {
+				exerciseMap.set(set.exerciseId, [set]);
+			}
+		}
+
+		for (const [exerciseId, exerciseSets] of exerciseMap) {
+			const exercise = await ctx.db.get(exerciseId);
+
+			if (!exercise) {
+				continue;
+			}
+
+			// Find the best set (highest weight, or if tied, highest reps)
+			const records = exerciseSets.reduce(
+				(best, current) => {
+					if (current.weight > best.maxWeight) {
+						best.maxWeight = current.weight;
+					}
+
+					const currentVolume = current.count * current.weight;
+					const previousVolume = best.bestSet.count * best.bestSet.weight;
+
+					if (currentVolume > previousVolume) {
+						best.bestSet.count = current.count;
+						best.bestSet.weight = current.weight;
+					}
+
+					return best;
+				},
+				{
+					bestSet: {
+						count: 0,
+						weight: 0,
+					},
+					maxWeight: 0,
+				},
+			);
+
+			result.push({
+				id: exerciseId,
+				name: exercise.name,
+				setsCount: exerciseSets.length,
+				...records,
+			});
+		}
+
+		return result;
 	},
 });

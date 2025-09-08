@@ -10,6 +10,7 @@ import {
 	Table,
 	TableBody,
 	TableCell,
+	TableFooter,
 	TableHead,
 	TableHeader,
 	TableRow,
@@ -174,27 +175,32 @@ function RouteComponent() {
 											}
 
 											return (
-												<TableRow className="border-t-2">
-													<TableCell className="font-bold">Total</TableCell>
-													<TableCell className="font-bold">
-														{currentWorkoutSets.reduce(
-															(sum, set) => sum + set.count,
-															0,
-														)}
-													</TableCell>
-													<TableCell className="font-bold">
-														{currentWorkoutSets
-															.reduce((sum, set) => sum + set.weight, 0)
-															.toFixed(1)}
-													</TableCell>
-													<TableCell />
-													<TableCell
-														className={clsx("font-bold", totalVolumeColorClass)}
-													>
-														{currentTotalVolume.toFixed(0)}
-													</TableCell>
-													<TableCell />
-												</TableRow>
+												<TableFooter>
+													<TableRow>
+														<TableCell className="font-bold">Total</TableCell>
+														<TableCell className="font-bold">
+															{currentWorkoutSets.reduce(
+																(sum, set) => sum + set.count,
+																0,
+															)}
+														</TableCell>
+														<TableCell className="font-bold">
+															{currentWorkoutSets
+																.reduce((sum, set) => sum + set.weight, 0)
+																.toFixed(1)}
+														</TableCell>
+														<TableCell />
+														<TableCell
+															className={clsx(
+																"font-bold",
+																totalVolumeColorClass,
+															)}
+														>
+															{currentTotalVolume.toFixed(0)}
+														</TableCell>
+														<TableCell />
+													</TableRow>
+												</TableFooter>
 											);
 										})()}
 								</TableBody>

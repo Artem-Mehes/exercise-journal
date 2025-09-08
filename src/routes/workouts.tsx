@@ -1,10 +1,12 @@
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { WorkoutSummaryTable } from "@/components/workouts/workout-summary-table";
 import { createFileRoute } from "@tanstack/react-router";
 import { api } from "convex/_generated/api";
 import { useMutation, useQuery } from "convex/react";
-import { Trash2 } from "lucide-react";
+import { Group, Trash2 } from "lucide-react";
 
 export const Route = createFileRoute("/workouts")({
 	component: RouteComponent,
@@ -40,33 +42,59 @@ function RouteComponent() {
 	}
 
 	return (
-		<div className="space-y-4">
-			{workouts?.map((workout) => (
-				<Card key={workout._id}>
-					<CardHeader>
-						<CardTitle className="flex justify-between items-center">
-							<span>
-								{new Date(workout.startTime).toLocaleDateString()}
+		<>
+			<h1 className="text-2xl font-bold">Workouts</h1>
 
-								<span className="text-muted-foreground text-sm ml-2">
-									{workout.endTime
-										? calculateDuration(workout.startTime, workout.endTime)
-										: "Ongoing"}
-								</span>
-							</span>
+			<div className="space-y-4">
+				{workouts?.map((workout) => (
+					<Card key={workout._id}>
+						<CardHeader>
+							<CardTitle className="flex justify-between items-center">
+								<div>
+									<span>
+										{new Date(workout.startTime).toLocaleDateString(undefined, {
+											weekday: "long",
+											day: "numeric",
+											month: "short",
+										})}
+									</span>
 
-							<Button
-								variant="ghost"
-								size="sm"
-								className="text-destructive"
-								onClick={() => deleteWorkout({ workoutId: workout._id })}
-							>
-								<Trash2 />
-							</Button>
-						</CardTitle>
-					</CardHeader>
-				</Card>
-			))}
-		</div>
+									<span className="text-muted-foreground text-sm ml-2">
+										{workout.endTime
+											? calculateDuration(workout.startTime, workout.endTime)
+											: "Ongoing"}
+									</span>
+								</div>
+
+								<Button
+									variant="ghost"
+									size="sm"
+									className="text-destructive"
+									onClick={() => deleteWorkout({ workoutId: workout._id })}
+								>
+									<Trash2 />
+								</Button>
+							</CardTitle>
+						</CardHeader>
+
+						<CardContent className="space-y-2">
+							<div className="flex items-start gap-2 text-sm">
+								<Group className="size-5 text-muted-foreground" />
+								<span className="text-muted-foreground">Groups:</span>
+								<div className="flex flex-wrap gap-1">
+									{workout.groups.map((group, index) => (
+										<Badge key={index} className="text-xs">
+											{group}
+										</Badge>
+									))}
+								</div>
+							</div>
+
+							<WorkoutSummaryTable workoutId={workout._id} />
+						</CardContent>
+					</Card>
+				))}
+			</div>
+		</>
 	);
 }
