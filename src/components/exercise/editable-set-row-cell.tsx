@@ -43,6 +43,8 @@ export function EditableSetRowCell({
 	return (
 		<TableCell className="font-bold relative">
 			<Input
+				type="number"
+				inputMode="numeric"
 				value={value}
 				onChange={(e) => setValue(e.target.value)}
 				onFocus={(e) => e.target.select()}
