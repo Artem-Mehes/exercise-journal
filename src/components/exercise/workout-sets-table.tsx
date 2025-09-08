@@ -111,11 +111,11 @@ export function WorkoutSetsTable({
 							{sets.reduce((sum, set) => sum + set.count, 0)}
 						</TableCell>
 						<TableCell className="font-bold">
-							{sets.reduce((sum, set) => sum + set.weight, 0).toFixed(1)}
+							{sets.reduce((sum, set) => sum + set.weight, 0)}
 						</TableCell>
 						<TableCell />
 						<TableCell className={clsx("font-bold", totalVolumeColorClass)}>
-							{currentTotalVolume.toFixed(0)}
+							{currentTotalVolume}
 						</TableCell>
 						<TableCell />
 					</TableRow>
