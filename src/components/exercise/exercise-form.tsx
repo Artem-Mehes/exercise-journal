@@ -98,7 +98,13 @@ export function ExerciseForm({
 					</form.AppField>
 
 					<form.AppField name="setsGoal">
-						{(field) => <field.TextField label="Sets Goal" type="number" />}
+						{(field) => (
+							<field.TextField
+								label="Sets Goal"
+								type="number"
+								inputMode="numeric"
+							/>
+						)}
 					</form.AppField>
 				</div>
 			</div>

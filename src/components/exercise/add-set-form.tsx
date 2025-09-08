@@ -99,6 +99,7 @@ export function ExerciseAddSetForm() {
 						<form.AppField name="count">
 							{(field) => (
 								<field.TextField
+									inputMode="numeric"
 									label="Reps"
 									type="number"
 									onFocus={(e) => e.target.select()}
@@ -109,6 +110,7 @@ export function ExerciseAddSetForm() {
 						<form.AppField name="weight">
 							{(field) => (
 								<field.TextField
+									inputMode="numeric"
 									label="Weight"
 									type="number"
 									onFocus={(e) => e.target.select()}
