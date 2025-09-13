@@ -4,12 +4,10 @@ import {
 	createRootRouteWithContext,
 } from "@tanstack/react-router";
 
-import { AppSidebarTrigger } from "@/components/sidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import ConvexProvider from "../integrations/convex/provider";
 
 import { AppFooter } from "@/components/footer";
-import { AppSidebar } from "@/components/sidebar";
 import { Toaster } from "@/components/ui/sonner";
 import { WorkoutInfo } from "@/components/workout-info";
 import appCss from "../styles.css?url";
@@ -59,12 +57,8 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 
 				<ConvexProvider>
 					<SidebarProvider>
-						<AppSidebar />
-
 						<div className="flex flex-col  flex-1">
 							<header className="bg-background border-b flex items-center justify-between p-2 min-h-14 w-full">
-								<AppSidebarTrigger />
-
 								<WorkoutInfo />
 							</header>
 
