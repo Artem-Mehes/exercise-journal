@@ -80,6 +80,7 @@ export function NotesDrawer() {
 				</DrawerHeader>
 
 				<Textarea
+					autoFocus
 					className="min-h-50 bg-transparent border-none resize-none focus-visible:ring-0"
 					placeholder="Add notes for this exercise"
 					value={notes}

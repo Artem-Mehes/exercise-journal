@@ -7,6 +7,7 @@ export const add = mutation({
 		exerciseId: v.id("exercises"),
 		count: v.number(),
 		weight: v.number(),
+		unit: v.union(v.literal("kg"), v.literal("lbs")),
 	},
 	handler: async (ctx, args) => {
 		// Check if there's an active workout first
@@ -30,6 +31,7 @@ export const add = mutation({
 			count: args.count,
 			weight: args.weight,
 			workoutId: currentWorkout._id,
+			unit: args.unit,
 		});
 
 		return setId;

@@ -13,9 +13,10 @@ export default defineSchema({
 	}).index("groupId", ["groupId"]),
 	sets: defineTable({
 		exerciseId: v.id("exercises"),
-		workoutId: v.id("workouts"), // Made required
+		workoutId: v.id("workouts"),
 		count: v.number(),
 		weight: v.number(),
+		unit: v.union(v.literal("kg"), v.literal("lbs")),
 	})
 		.index("exerciseId", ["exerciseId"])
 		.index("workoutId", ["workoutId"])

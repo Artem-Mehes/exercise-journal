@@ -1,5 +1,4 @@
 import { useAppForm } from "@/hooks/form";
-import { lbsToKg } from "@/lib/utils";
 import { Route } from "@/routes/exercises_.$exerciseId";
 import { api } from "convex/_generated/api";
 import type { Id } from "convex/_generated/dataModel";
@@ -18,6 +17,12 @@ const validationSchema = z.object({
 	}),
 	unit: z.enum(["kg", "lbs"]),
 });
+
+const defaultValues: z.infer<typeof validationSchema> = {
+	count: "",
+	weight: "",
+	unit: "kg",
+};
 
 export function ExerciseAddSetForm() {
 	const { exerciseId } = Route.useParams();
@@ -39,24 +44,16 @@ export function ExerciseAddSetForm() {
 	);
 
 	const form = useAppForm({
-		defaultValues: {
-			count: "",
-			weight: "",
-			unit: "kg",
-		},
+		defaultValues,
 		validators: {
 			onSubmit: validationSchema,
 		},
 		onSubmit: async ({ value }) => {
-			const weightInKg =
-				value.unit === "lbs"
-					? lbsToKg(Number(value.weight))
-					: Number(value.weight);
-
 			await addSet({
 				exerciseId: exerciseId as Id<"exercises">,
 				count: Number(value.count),
-				weight: Math.round(weightInKg),
+				weight: Number(value.weight),
+				unit: value.unit,
 			});
 		},
 	});
@@ -72,6 +69,7 @@ export function ExerciseAddSetForm() {
 					"weight",
 					previousWorkoutSetValues.weight.toString(),
 				);
+				form.setFieldValue("unit", previousWorkoutSetValues.unit);
 			}
 		}
 	}, [currentWorkoutSets, previousWorkoutSet, form.setFieldValue]);
@@ -99,7 +97,7 @@ export function ExerciseAddSetForm() {
 						<form.AppField name="count">
 							{(field) => (
 								<field.TextField
-									inputMode="numeric"
+									inputMode="decimal"
 									label="Reps"
 									type="number"
 									onFocus={(e) => e.target.select()}
@@ -110,7 +108,7 @@ export function ExerciseAddSetForm() {
 						<form.AppField name="weight">
 							{(field) => (
 								<field.TextField
-									inputMode="numeric"
+									inputMode="decimal"
 									label="Weight"
 									type="number"
 									onFocus={(e) => e.target.select()}

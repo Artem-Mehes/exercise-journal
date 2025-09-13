@@ -7,7 +7,7 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import { formatWeight } from "@/lib/utils";
+import { kgToLbs, lbsToKg } from "@/lib/utils";
 import clsx from "clsx";
 import type { Doc, Id } from "convex/_generated/dataModel";
 import { Trash2 } from "lucide-react";
@@ -63,7 +63,6 @@ export function WorkoutSetsTable({
 			<TableBody>
 				{sets.map((set, index) => {
 					const volume = (set.count * set.weight).toFixed(0);
-					const { kg, lbs } = formatWeight(set.weight);
 
 					let volumeColorClass = "";
 					if (comparisonSets?.[index]) {
@@ -84,9 +83,15 @@ export function WorkoutSetsTable({
 								{set.count}
 							</EditableSetRowCell>
 							<EditableSetRowCell setId={set._id} field="weight">
-								{kg}
+								{set.unit === "kg"
+									? set.weight
+									: Math.round(lbsToKg(set.weight))}
 							</EditableSetRowCell>
-							<TableCell className="text-muted-foreground">{lbs}</TableCell>
+							<TableCell className="text-muted-foreground">
+								{set.unit === "lbs"
+									? set.weight
+									: Math.round(kgToLbs(set.weight))}
+							</TableCell>
 							<TableCell className={volumeColorClass}>{volume}</TableCell>
 							<TableCell>
 								<Button
