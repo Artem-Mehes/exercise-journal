@@ -154,6 +154,14 @@ export const getLastCompletedWorkoutSets = query({
 	},
 });
 
+const formatExerciseName = (name: string): string => {
+	return name
+		.toLowerCase()
+		.split(" ")
+		.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+		.join(" ");
+};
+
 export const create = mutation({
 	args: {
 		name: v.string(),
@@ -161,7 +169,11 @@ export const create = mutation({
 		setsGoal: v.number(),
 	},
 	handler: async (ctx, args) => {
-		const exerciseId = await ctx.db.insert("exercises", args);
+		const formattedName = formatExerciseName(args.name);
+		const exerciseId = await ctx.db.insert("exercises", {
+			...args,
+			name: formattedName,
+		});
 
 		return exerciseId;
 	},
@@ -181,7 +193,10 @@ export const update = mutation({
 		}
 
 		const { exerciseId, ...updates } = args;
-		await ctx.db.patch(exerciseId, updates);
+		await ctx.db.patch(exerciseId, {
+			...updates,
+			name: formatExerciseName(updates.name),
+		});
 
 		return exerciseId;
 	},

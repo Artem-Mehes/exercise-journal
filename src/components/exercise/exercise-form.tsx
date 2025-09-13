@@ -46,20 +46,22 @@ export function ExerciseForm({
 		validators: {
 			onSubmit: validationSchema,
 		},
-		onSubmit: async ({ value }) => {
+		onSubmit: async ({ value, formApi }) => {
 			if (mode === "create") {
 				await createExercise({
-					name: value.name,
+					name: value.name.trim(),
 					groupId: value.groupId as Id<"exerciseGroups">,
 					setsGoal: Number(value.setsGoal),
 				});
+
+				formApi.reset();
 			} else {
 				if (!exerciseId) {
 					throw new Error("Exercise ID is required for edit mode");
 				}
 				await updateExercise({
 					exerciseId,
-					name: value.name,
+					name: value.name.trim(),
 					groupId: value.groupId as Id<"exerciseGroups">,
 					setsGoal: Number(value.setsGoal),
 				});
