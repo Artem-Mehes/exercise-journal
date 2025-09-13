@@ -3,6 +3,7 @@ import { Route } from "@/routes/exercises_.$exerciseId";
 import { api } from "convex/_generated/api";
 import type { Id } from "convex/_generated/dataModel";
 import { useMutation, useQuery } from "convex/react";
+import { SquareCheckBig } from "lucide-react";
 import { useEffect } from "react";
 import z from "zod";
 import { Button } from "../ui/button";
@@ -63,7 +64,12 @@ export function ExerciseAddSetForm() {
 			const previousWorkoutSetValues =
 				previousWorkoutSet[currentWorkoutSets.length];
 
-			if (previousWorkoutSetValues?.count && previousWorkoutSetValues?.weight) {
+			if (
+				previousWorkoutSetValues?.count &&
+				previousWorkoutSetValues?.weight &&
+				!form.state.values.count &&
+				!form.state.values.weight
+			) {
 				form.setFieldValue("count", previousWorkoutSetValues.count.toString());
 				form.setFieldValue(
 					"weight",
@@ -72,7 +78,13 @@ export function ExerciseAddSetForm() {
 				form.setFieldValue("unit", previousWorkoutSetValues.unit);
 			}
 		}
-	}, [currentWorkoutSets, previousWorkoutSet, form.setFieldValue]);
+	}, [
+		currentWorkoutSets,
+		previousWorkoutSet,
+		form.setFieldValue,
+		form.state.values.count,
+		form.state.values.weight,
+	]);
 
 	return (
 		<Card>
@@ -93,11 +105,11 @@ export function ExerciseAddSetForm() {
 				</CardHeader>
 
 				<CardContent className="space-y-4">
-					<div className="grid grid-cols-2 gap-4">
+					<div className="flex space-x-4 items-end">
 						<form.AppField name="count">
 							{(field) => (
 								<field.TextField
-									inputMode="decimal"
+									inputMode="numeric"
 									label="Reps"
 									type="number"
 									onFocus={(e) => e.target.select()}
@@ -115,11 +127,9 @@ export function ExerciseAddSetForm() {
 								/>
 							)}
 						</form.AppField>
-					</div>
 
-					<div className="md:col-span-3">
-						<Button type="submit" className="w-full">
-							Add Set
+						<Button type="submit" size="icon">
+							<SquareCheckBig />
 						</Button>
 					</div>
 				</CardContent>
