@@ -10,6 +10,7 @@ export default defineSchema({
 		groupId: v.id("exerciseGroups"),
 		notes: v.optional(v.string()),
 		setsGoal: v.optional(v.number()),
+		barbellId: v.optional(v.id("barbells")),
 	}).index("groupId", ["groupId"]),
 	sets: defineTable({
 		exerciseId: v.id("exercises"),
@@ -28,5 +29,10 @@ export default defineSchema({
 	templates: defineTable({
 		name: v.optional(v.string()),
 		exercises: v.array(v.id("exercises")),
+	}),
+	barbells: defineTable({
+		name: v.string(),
+		weight: v.number(),
+		unit: v.union(v.literal("kg"), v.literal("lbs")),
 	}),
 });

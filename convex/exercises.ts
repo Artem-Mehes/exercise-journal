@@ -185,6 +185,7 @@ export const update = mutation({
 		name: v.string(),
 		groupId: v.id("exerciseGroups"),
 		setsGoal: v.number(),
+		barbellId: v.optional(v.id("barbells")),
 	},
 	handler: async (ctx, args) => {
 		const exercise = await ctx.db.get(args.exerciseId);

@@ -13,6 +13,7 @@ const validationSchema = z.object({
 		message: "Group is required",
 	}),
 	setsGoal: z.string(),
+	barbellId: z.string(),
 });
 
 interface ExerciseFormProps {
@@ -31,6 +32,7 @@ export function ExerciseForm({
 		api.exercises.getById,
 		mode === "edit" && exerciseId ? { exerciseId } : "skip",
 	);
+	const barbells = useQuery(api.barbells.get);
 
 	const createExercise = useMutation(api.exercises.create);
 	const updateExercise = useMutation(api.exercises.update);
@@ -39,6 +41,7 @@ export function ExerciseForm({
 		name: mode === "edit" ? exercise?.name || "" : "",
 		groupId: mode === "edit" ? exercise?.groupId || "" : "",
 		setsGoal: mode === "edit" ? exercise?.setsGoal?.toString() || "" : "",
+		barbellId: mode === "edit" ? exercise?.barbellId || "" : "",
 	};
 
 	const form = useAppForm({
@@ -64,6 +67,7 @@ export function ExerciseForm({
 					name: value.name.trim(),
 					groupId: value.groupId as Id<"exerciseGroups">,
 					setsGoal: Number(value.setsGoal),
+					barbellId: value.barbellId as Id<"barbells">,
 				});
 			}
 			onSuccess?.();
@@ -80,11 +84,11 @@ export function ExerciseForm({
 			className="space-y-5"
 		>
 			<div className="space-y-3">
-				<form.AppField name="name">
-					{(field) => <field.TextField label="Name" />}
-				</form.AppField>
-
 				<div className="grid grid-cols-2 gap-4">
+					<form.AppField name="name">
+						{(field) => <field.TextField label="Name" />}
+					</form.AppField>
+
 					<form.AppField name="groupId">
 						{(field) => (
 							<field.SelectField
@@ -93,6 +97,22 @@ export function ExerciseForm({
 									groups?.map((group) => ({
 										label: group.name,
 										value: group._id,
+									})) || []
+								}
+							/>
+						)}
+					</form.AppField>
+				</div>
+
+				<div className="grid grid-cols-2 gap-4">
+					<form.AppField name="barbellId">
+						{(field) => (
+							<field.SelectField
+								label="Barbell (optional)"
+								values={
+									barbells?.map((barbell) => ({
+										label: `${barbell.name} (${barbell.weight} ${barbell.unit})`,
+										value: barbell._id,
 									})) || []
 								}
 							/>
