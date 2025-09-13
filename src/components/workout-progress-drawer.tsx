@@ -27,11 +27,11 @@ export function WorkoutProgressDrawer() {
 			</DrawerTrigger>
 
 			<DrawerContent>
-				<DrawerHeader className="m-auto relative">
+				<DrawerHeader>
 					<DrawerTitle>Progress</DrawerTitle>
 				</DrawerHeader>
 
-				<div className="min-h-80 space-y-6 px-4">
+				<div className="min-h-60 space-y-6 px-4 pb-6">
 					<div className="space-y-1">
 						{currentWorkoutExercises?.startedAt && (
 							<div className="text-muted-foreground ">
