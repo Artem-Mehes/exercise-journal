@@ -19,7 +19,7 @@ export function WorkoutProgressDrawer() {
 
 	return (
 		<Drawer>
-			<DrawerTrigger>
+			<DrawerTrigger asChild>
 				<Button variant="outline">
 					<ListChecks />
 					Progress

@@ -1,4 +1,4 @@
-import { kgToLbs } from "@/lib/utils";
+import { kgToLbs, lbsToKg } from "@/lib/utils";
 import { Route } from "@/routes/exercises_.$exerciseId";
 import { api } from "convex/_generated/api";
 import type { Id } from "convex/_generated/dataModel";
@@ -41,9 +41,18 @@ export function ExerciseSummaryInfo() {
 
 					<div className="text-center">
 						<div className="text-sm text-muted-foreground">Max Weight</div>
-						<div className="font-bold text-success">{summary.maxWeight} kg</div>
+						<div className="font-bold text-success">
+							{summary.maxWeight.unit === "kg"
+								? summary.maxWeight.value
+								: Math.round(lbsToKg(summary.maxWeight.value))}{" "}
+							kg
+						</div>
 						<div className="text-xs text-muted-foreground">
-							({Math.round(kgToLbs(summary.maxWeight))} lbs)
+							(
+							{summary.maxWeight.unit === "kg"
+								? Math.round(kgToLbs(summary.maxWeight.value))
+								: summary.maxWeight.value}{" "}
+							lbs)
 						</div>
 					</div>
 				</div>

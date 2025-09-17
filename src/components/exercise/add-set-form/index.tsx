@@ -3,11 +3,12 @@ import { Route } from "@/routes/exercises_.$exerciseId";
 import { api } from "convex/_generated/api";
 import type { Id } from "convex/_generated/dataModel";
 import { useMutation, useQuery } from "convex/react";
-import { SquareCheckBig } from "lucide-react";
+import { Plus } from "lucide-react";
 import { useEffect } from "react";
 import z from "zod";
-import { Button } from "../ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Button } from "../../ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "../../ui/card";
+import { WeightField } from "./weight-field";
 
 const validationSchema = z.object({
 	count: z.string().min(1, {
@@ -117,19 +118,16 @@ export function ExerciseAddSetForm() {
 							)}
 						</form.AppField>
 
-						<form.AppField name="weight">
-							{(field) => (
-								<field.TextField
-									inputMode="decimal"
-									label="Weight"
-									type="number"
-									onFocus={(e) => e.target.select()}
-								/>
+						<form.Subscribe selector={(state) => state.values.unit}>
+							{(unit) => (
+								<form.AppField name="weight">
+									{(field) => <WeightField field={field} unit={unit} />}
+								</form.AppField>
 							)}
-						</form.AppField>
+						</form.Subscribe>
 
 						<Button type="submit" size="icon">
-							<SquareCheckBig />
+							<Plus className="size-6" />
 						</Button>
 					</div>
 				</CardContent>

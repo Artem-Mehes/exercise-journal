@@ -7,7 +7,6 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import { kgToLbs, lbsToKg } from "@/lib/utils";
 import clsx from "clsx";
 import type { Doc, Id } from "convex/_generated/dataModel";
 import { Trash2 } from "lucide-react";
@@ -54,8 +53,7 @@ export function WorkoutSetsTable({
 				<TableRow>
 					<TableHead>Set</TableHead>
 					<TableHead>Reps</TableHead>
-					<TableHead>kg</TableHead>
-					<TableHead>lbs</TableHead>
+					<TableHead>Weight</TableHead>
 					<TableHead>Volume</TableHead>
 					<TableHead />
 				</TableRow>
@@ -82,15 +80,8 @@ export function WorkoutSetsTable({
 							<EditableSetRowCell setId={set._id} field="count">
 								{set.count}
 							</EditableSetRowCell>
-							<EditableSetRowCell setId={set._id} field="weight">
-								{set.unit === "kg"
-									? set.weight
-									: Math.round(lbsToKg(set.weight))}
-							</EditableSetRowCell>
-							<TableCell className="text-muted-foreground">
-								{set.unit === "lbs"
-									? set.weight
-									: Math.round(kgToLbs(set.weight))}
+							<TableCell>
+								{set.weight} {set.unit}
 							</TableCell>
 							<TableCell className={volumeColorClass}>{volume}</TableCell>
 							<TableCell>

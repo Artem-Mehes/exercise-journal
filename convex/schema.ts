@@ -35,4 +35,8 @@ export default defineSchema({
 		weight: v.number(),
 		unit: v.union(v.literal("kg"), v.literal("lbs")),
 	}),
+	plates: defineTable({
+		weight: v.number(),
+		unit: v.union(v.literal("kg"), v.literal("lbs")),
+	}),
 });

@@ -41,9 +41,14 @@ export const getById = query({
 			? await ctx.db.get(exercise.groupId)
 			: null;
 
+		const barbell = exercise.barbellId
+			? await ctx.db.get(exercise.barbellId)
+			: null;
+
 		return {
 			...exercise,
 			muscleGroup,
+			barbell,
 		};
 	},
 });
@@ -273,18 +278,25 @@ export const getSummary = query({
 			byVolume: {
 				count: 0,
 				weight: 0,
+				unit: "",
 			},
 		};
 
 		let biggestSetVolume = 0;
-		let maxWeight = 0;
+		let maxWeight = {
+			value: 0,
+			unit: "",
+		};
 
 		for (const set of allSets) {
 			const volume = set.count * set.weight;
 			const weight = set.weight;
 
-			if (weight > maxWeight) {
-				maxWeight = weight;
+			if (weight > maxWeight.value) {
+				maxWeight = {
+					value: weight,
+					unit: set.unit,
+				};
 			}
 
 			if (volume > biggestSetVolume) {
@@ -292,6 +304,7 @@ export const getSummary = query({
 				bestSet.byVolume = {
 					count: set.count,
 					weight: set.weight,
+					unit: set.unit,
 				};
 			}
 		}
