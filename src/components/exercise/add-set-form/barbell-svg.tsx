@@ -4,7 +4,7 @@ const height = 150;
 
 const halfHeight = height / 2;
 
-const barbellHeight = 15;
+const barbellHeight = 20;
 
 const barbellSvgConfig = {
 	height: barbellHeight,
@@ -89,10 +89,12 @@ export const BarbellSvg = ({
 	unit,
 	selectedPlates,
 	onRemovePlate,
+	barbellWeight,
 }: {
 	unit: "lbs" | "kg";
 	selectedPlates: number[];
-	onRemovePlate: (plate: number) => void;
+	onRemovePlate: ({ plate, index }: { plate: number; index: number }) => void;
+	barbellWeight: number;
 }) => {
 	const middleY = halfHeight;
 
@@ -102,13 +104,25 @@ export const BarbellSvg = ({
 		<svg height={height}>
 			<title>Barbell Visualization</title>
 
-			<rect
-				className={barbellColor}
-				width={barbellSvgConfig.firstElement.width}
-				height={barbellSvgConfig.height}
-				y={getCenteredY(barbellSvgConfig.height)}
-				rx={2}
-			/>
+			<g>
+				<rect
+					className={barbellColor}
+					width={barbellSvgConfig.firstElement.width}
+					height={barbellSvgConfig.height}
+					y={getCenteredY(barbellSvgConfig.height)}
+					rx={2}
+				/>
+
+				<text
+					x={barbellSvgConfig.firstElement.width / 2}
+					y={halfHeight}
+					className="text-xs fill-black"
+					textAnchor="middle"
+					dominantBaseline="middle"
+				>
+					{barbellWeight} {unit}
+				</text>
+			</g>
 
 			<rect
 				className={barbellColor}
@@ -153,7 +167,7 @@ export const BarbellSvg = ({
 					<g
 						key={index}
 						onClick={() => {
-							onRemovePlate(index);
+							onRemovePlate({ plate, index });
 						}}
 					>
 						<rect

@@ -1,103 +1,113 @@
+import { useState } from "react";
+
 import {
 	Drawer,
 	DrawerContent,
 	DrawerHeader,
 	DrawerTitle,
+	DrawerTrigger,
 } from "@/components/ui/drawer";
 
+import { Button } from "@/components/ui/button";
 import { api } from "convex/_generated/api";
 import { useQuery } from "convex/react";
-import { useMemo } from "react";
+import { Diff } from "lucide-react";
 import { BarbellSvg } from "./barbell-svg";
 
-// Function to calculate which plates should be displayed on one side of the barbell
-function calculatePlatesForWeight(
-	weightValue: number,
-	availablePlates: { weight: number }[],
-	barbellWeight = 45, // Default Olympic barbell weight in lbs
-) {
-	// If no weight or weight is less than barbell weight, return empty array
-	if (weightValue <= barbellWeight) {
-		return [];
-	}
-
-	// Calculate the weight that needs to be distributed on both sides
-	const weightPerSide = (weightValue - barbellWeight) / 2;
-
-	// Sort plates by weight in descending order
-	const sortedPlates = [...availablePlates].sort((a, b) => b.weight - a.weight);
-
-	const selectedPlates: number[] = [];
-	let remainingWeight = weightPerSide;
-
-	// Greedy algorithm to select plates
-	for (const plate of sortedPlates) {
-		const plateWeight = plate.weight;
-		// Calculate how many of this plate we can use
-		const platesNeeded = Math.floor(remainingWeight / plateWeight);
-
-		if (platesNeeded > 0) {
-			// Add the plate to our selection (only one side, so we add it once)
-			selectedPlates.push(plateWeight);
-			remainingWeight -= plateWeight * platesNeeded;
-		}
-
-		// If we've used all the weight, break
-		if (remainingWeight <= 0) {
-			break;
-		}
-	}
-
-	return selectedPlates;
-}
-
 export function BarbellVisualizationDrawer({
-	open,
-	onOpenChange,
-	unit,
-	weightValue,
+	selectedUnit,
 	onPlateSelect,
 	onPlateRemove,
+	weightValue,
+	barbellWeight = 0,
 }: {
-	open: boolean;
-	onOpenChange: (open: boolean) => void;
-	unit: "lbs" | "kg";
+	selectedUnit: "lbs" | "kg";
 	weightValue: number;
 	onPlateSelect: (plateValue: number) => void;
 	onPlateRemove: (plateValue: number) => void;
+	barbellWeight: number | undefined;
 }) {
+	const [selectedPlates, setSelectedPlates] = useState<number[]>([]);
+
 	const plates = useQuery(api.plates.get, {
-		unit,
+		unit: selectedUnit,
 	});
 
-	// Calculate which plates should be displayed based on the weight value
-	const selectedPlates = useMemo(() => {
-		if (!plates || !weightValue) {
-			return [];
-		}
+	// const calculatePlates = () => {
+	// 	if (barbell?.weight && barbell?.unit && weightValue && plates) {
+	// 		const calculatedPlates: number[] = [];
 
-		// Get barbell weight based on unit (Olympic barbell: 45 lbs or 20 kg)
-		const barbellWeight = unit === "lbs" ? 45 : 20;
+	// 		// Convert barbell weight to selected unit
+	// 		let barbellWeight: number;
+	// 		if (selectedUnit === "lbs" && barbell?.unit === "lbs") {
+	// 			barbellWeight = barbell.weight;
+	// 		} else if (selectedUnit === "kg" && barbell?.unit === "kg") {
+	// 			barbellWeight = barbell.weight;
+	// 		} else if (selectedUnit === "lbs" && barbell?.unit === "kg") {
+	// 			barbellWeight = kgToLbs(barbell.weight);
+	// 		} else if (selectedUnit === "kg" && barbell?.unit === "lbs") {
+	// 			barbellWeight = lbsToKg(barbell.weight);
+	// 		} else {
+	// 			barbellWeight = barbell.weight;
+	// 		}
 
-		return calculatePlatesForWeight(weightValue, plates, barbellWeight);
-	}, [plates, weightValue, unit]);
+	// 		let remainingWeight = weightValue - barbellWeight;
 
-	const onRemovePlate = (index: number) => {
-		onPlateRemove(selectedPlates[index]);
+	// 		// If remaining weight is negative or zero, no plates needed
+	// 		if (remainingWeight <= 0) {
+	// 			return [];
+	// 		}
+
+	// 		// Sort plates from heaviest to lightest for greedy algorithm
+	// 		const sortedPlates = [...plates].sort((a, b) => b.weight - a.weight);
+
+	// 		for (const plate of sortedPlates) {
+	// 			while (remainingWeight >= plate.weight * 2) {
+	// 				calculatedPlates.push(plate.weight);
+	// 				remainingWeight -= plate.weight * 2;
+	// 			}
+	// 		}
+
+	// 		return calculatedPlates;
+	// 	}
+
+	// 	return [];
+	// };
+
+	const handlePlateRemove = ({
+		plate,
+		index,
+	}: { plate: number; index: number }) => {
+		setSelectedPlates(selectedPlates.filter((_, i) => i !== index));
+		onPlateRemove(plate);
+	};
+
+	const handlePlateSelect = (plate: number) => {
+		setSelectedPlates([...selectedPlates, plate]);
+		onPlateSelect(plate);
 	};
 
 	return (
-		<Drawer open={open} onOpenChange={onOpenChange}>
+		<Drawer>
+			<DrawerTrigger asChild>
+				<Button variant="outline" size="icon">
+					<Diff />
+				</Button>
+			</DrawerTrigger>
+
 			<DrawerContent>
 				<DrawerHeader className="m-auto relative">
-					<DrawerTitle>Barbell</DrawerTitle>
+					<DrawerTitle>
+						{weightValue || 0} {selectedUnit}
+					</DrawerTitle>
 				</DrawerHeader>
 
 				<div className="flex pr-2 items-start gap-6">
 					<BarbellSvg
-						unit={unit}
+						unit={selectedUnit}
 						selectedPlates={selectedPlates}
-						onRemovePlate={onRemovePlate}
+						onRemovePlate={handlePlateRemove}
+						barbellWeight={barbellWeight}
 					/>
 
 					<div className="grid grid-cols-2 gap-2">
@@ -107,7 +117,7 @@ export function BarbellVisualizationDrawer({
 								type="button"
 								key={plate._id}
 								onClick={() => {
-									onPlateSelect(plate.weight);
+									handlePlateSelect(plate.weight);
 								}}
 								className="text-sm text-black bg-white rounded-md py-1 w-10"
 							>
