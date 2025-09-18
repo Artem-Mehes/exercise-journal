@@ -83,7 +83,7 @@ export function BarbellVisualizationDrawer({
 	};
 
 	const handlePlateSelect = (plate: number) => {
-		setSelectedPlates([...selectedPlates, plate]);
+		setSelectedPlates([...selectedPlates, plate].sort((a, b) => b - a));
 		onPlateSelect(plate);
 	};
 
