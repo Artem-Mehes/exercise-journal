@@ -101,7 +101,12 @@ export const BarbellSvg = ({
 	const getCenteredY = (elementHeight: number) => middleY - elementHeight / 2;
 
 	return (
-		<svg height={height}>
+		<svg
+			height={height}
+			width={280}
+			viewBox={`0 0 280 ${height}`}
+			xmlns="http://www.w3.org/2000/svg"
+		>
 			<title>Barbell Visualization</title>
 
 			<g>
@@ -148,15 +153,25 @@ export const BarbellSvg = ({
 			/>
 
 			{selectedPlates.map((plate, index, array) => {
-				// @ts-ignore
-				const plateConfig = barbellSvgConfig.plates[unit][plate];
+				const plateConfig =
+					barbellSvgConfig.plates[unit]?.[
+						plate as keyof (typeof barbellSvgConfig.plates)[typeof unit]
+					];
+
+				// Skip rendering if plate configuration doesn't exist
+				if (!plateConfig) {
+					console.warn(`No configuration found for ${plate} ${unit} plate`);
+					return null;
+				}
 
 				const previousPlatesWidth = array
 					.slice(0, index)
 					.reduce((acc, plate) => {
-						// @ts-ignore
-						const plateConfig = barbellSvgConfig.plates[unit][plate];
-						return acc + plateConfig.width;
+						const plateConfig =
+							barbellSvgConfig.plates[unit]?.[
+								plate as keyof (typeof barbellSvgConfig.plates)[typeof unit]
+							];
+						return acc + (plateConfig?.width || 0);
 					}, 0);
 
 				const barbellElementsWidth =
