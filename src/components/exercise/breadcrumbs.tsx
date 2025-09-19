@@ -21,7 +21,7 @@ export function ExerciseBreadcrumbs() {
 
 	return (
 		<Breadcrumb>
-			<BreadcrumbList className="text-lg">
+			<BreadcrumbList className="text-md">
 				<BreadcrumbItem>
 					<Link to="/">{exercise?.muscleGroup?.name}</Link>
 				</BreadcrumbItem>

@@ -48,7 +48,7 @@ const barbellSvgConfig = {
 			45: {
 				width: 30,
 				height: barbellHeight * 7,
-				fill: "fill-blue-700",
+				fill: "fill-blue-600",
 				rx: 6,
 			},
 		},

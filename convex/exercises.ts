@@ -189,7 +189,7 @@ export const update = mutation({
 		exerciseId: v.id("exercises"),
 		name: v.string(),
 		groupId: v.id("exerciseGroups"),
-		setsGoal: v.number(),
+		setsGoal: v.optional(v.number()),
 		barbellId: v.optional(v.id("barbells")),
 	},
 	handler: async (ctx, args) => {

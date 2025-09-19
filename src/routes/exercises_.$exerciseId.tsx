@@ -123,7 +123,7 @@ function RouteComponent() {
 										to="/exercises/$exerciseId"
 										params={{ exerciseId: relatedExercise._id }}
 										className={clsx(
-											"p-2 rounded-lg border text-center text-sm relative",
+											"p-2 rounded-lg border text-center text-sm relative flex items-center justify-center",
 											relatedExercise.isFinished
 												? "line-through border-success"
 												: "bg-sidebar-accent/40",

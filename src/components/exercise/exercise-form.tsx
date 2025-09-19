@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { useAppForm } from "@/hooks/form";
 import { api } from "convex/_generated/api";
-import type { Id } from "convex/_generated/dataModel";
+import type { Doc, Id } from "convex/_generated/dataModel";
 import { useMutation, useQuery } from "convex/react";
 import { z } from "zod";
 
@@ -62,13 +62,27 @@ export function ExerciseForm({
 				if (!exerciseId) {
 					throw new Error("Exercise ID is required for edit mode");
 				}
-				await updateExercise({
+
+				const requestParams: Pick<
+					Doc<"exercises">,
+					"name" | "groupId" | "setsGoal" | "barbellId"
+				> & {
+					exerciseId: Id<"exercises">;
+				} = {
 					exerciseId,
 					name: value.name.trim(),
 					groupId: value.groupId as Id<"exerciseGroups">,
-					setsGoal: Number(value.setsGoal),
-					barbellId: value.barbellId as Id<"barbells">,
-				});
+				};
+
+				if (value.barbellId) {
+					requestParams.barbellId = value.barbellId as Id<"barbells">;
+				}
+
+				if (value.setsGoal) {
+					requestParams.setsGoal = Number(value.setsGoal);
+				}
+
+				await updateExercise(requestParams);
 			}
 			onSuccess?.();
 		},

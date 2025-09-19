@@ -7,7 +7,7 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import clsx from "clsx";
+import { kgToLbs, lbsToKg } from "@/lib/utils";
 import type { Doc, Id } from "convex/_generated/dataModel";
 import { Trash2 } from "lucide-react";
 import { EditableSetRowCell } from "./editable-set-row-cell";
@@ -31,48 +31,23 @@ export function WorkoutSetsTable({
 		);
 	}
 
-	const currentTotalVolume = sets.reduce(
-		(sum, set) => sum + set.count * set.weight,
-		0,
-	);
-	const comparisonTotalVolume =
-		comparisonSets?.reduce((sum, set) => sum + set.count * set.weight, 0) || 0;
-
-	let totalVolumeColorClass = "";
-	if (comparisonSets && comparisonSets.length > 0) {
-		if (currentTotalVolume > comparisonTotalVolume) {
-			totalVolumeColorClass = "text-success";
-		} else if (currentTotalVolume < comparisonTotalVolume) {
-			totalVolumeColorClass = "text-destructive";
-		}
-	}
-
 	return (
 		<Table>
 			<TableHeader>
 				<TableRow>
 					<TableHead>Set</TableHead>
 					<TableHead>Reps</TableHead>
-					<TableHead>Weight</TableHead>
-					<TableHead>Volume</TableHead>
-					<TableHead />
+					<TableHead className="w-32">Weight</TableHead>
+					<TableHead className="w-10" />
 				</TableRow>
 			</TableHeader>
 			<TableBody>
 				{sets.map((set, index) => {
-					const volume = (set.count * set.weight).toFixed(0);
+					const comparisonSet = comparisonSets?.[index];
 
-					let volumeColorClass = "";
-					if (comparisonSets?.[index]) {
-						const comparisonSetVolume =
-							comparisonSets[index].count * comparisonSets[index].weight;
-						const currentVolume = set.count * set.weight;
-						if (currentVolume > comparisonSetVolume) {
-							volumeColorClass = "text-success";
-						} else if (currentVolume < comparisonSetVolume) {
-							volumeColorClass = "text-destructive";
-						}
-					}
+					const comparisonWeight = comparisonSet?.weight;
+					const comparisonUnit = comparisonSet?.unit;
+					const comparisonCount = comparisonSet?.count;
 
 					return (
 						<TableRow key={set._id}>
@@ -80,10 +55,20 @@ export function WorkoutSetsTable({
 							<EditableSetRowCell setId={set._id} field="count">
 								{set.count}
 							</EditableSetRowCell>
-							<TableCell>
-								{set.weight} {set.unit}
+							<TableCell className="space-x-1">
+								<span className="font-bold">
+									{set.weight} {set.unit}
+								</span>
+								<span className="text-muted-foreground">
+									(
+									{Math.round(
+										set.unit === "kg"
+											? kgToLbs(set.weight)
+											: lbsToKg(set.weight),
+									)}
+									{set.unit === "kg" ? "lbs" : "kg"})
+								</span>
 							</TableCell>
-							<TableCell className={volumeColorClass}>{volume}</TableCell>
 							<TableCell>
 								<Button
 									variant="ghost"
@@ -107,9 +92,6 @@ export function WorkoutSetsTable({
 							{sets.reduce((sum, set) => sum + set.weight, 0)}
 						</TableCell>
 						<TableCell />
-						<TableCell className={clsx("font-bold", totalVolumeColorClass)}>
-							{currentTotalVolume}
-						</TableCell>
 						<TableCell />
 					</TableRow>
 				)}

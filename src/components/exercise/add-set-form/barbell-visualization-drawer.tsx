@@ -95,8 +95,8 @@ export function BarbellVisualizationDrawer({
 				</Button>
 			</DrawerTrigger>
 
-			<DrawerContent>
-				<DrawerHeader className="m-auto relative">
+			<DrawerContent className="h-64">
+				<DrawerHeader className="relative">
 					<DrawerTitle>
 						{weightValue || 0} {selectedUnit}
 					</DrawerTitle>
