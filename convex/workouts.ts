@@ -256,8 +256,11 @@ export const getSummary = query({
 			id: Id<"exercises">;
 			name: Doc<"exercises">["name"];
 			setsCount: number;
-			bestSet: Pick<Doc<"sets">, "count" | "weight">;
-			maxWeight: number;
+			bestSet: Pick<Doc<"sets">, "count" | "weight" | "unit">;
+			maxWeight: {
+				value: number;
+				unit: Doc<"sets">["unit"];
+			};
 		}[] = [];
 
 		const sets = await ctx.db
@@ -287,8 +290,11 @@ export const getSummary = query({
 			// Find the best set (highest weight, or if tied, highest reps)
 			const records = exerciseSets.reduce(
 				(best, current) => {
-					if (current.weight > best.maxWeight) {
-						best.maxWeight = current.weight;
+					if (current.weight > best.maxWeight.value) {
+						best.maxWeight = {
+							value: current.weight,
+							unit: current.unit,
+						};
 					}
 
 					const currentVolume = current.count * current.weight;
@@ -297,6 +303,7 @@ export const getSummary = query({
 					if (currentVolume > previousVolume) {
 						best.bestSet.count = current.count;
 						best.bestSet.weight = current.weight;
+						best.bestSet.unit = current.unit;
 					}
 
 					return best;
@@ -305,8 +312,12 @@ export const getSummary = query({
 					bestSet: {
 						count: 0,
 						weight: 0,
+						unit: "kg" as Doc<"sets">["unit"],
 					},
-					maxWeight: 0,
+					maxWeight: {
+						value: 0,
+						unit: "kg" as Doc<"sets">["unit"],
+					},
 				},
 			);
 

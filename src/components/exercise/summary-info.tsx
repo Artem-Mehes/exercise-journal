@@ -21,6 +21,8 @@ export function ExerciseSummaryInfo() {
 		return null;
 	}
 
+	const volumeBestSet = summary.bestSet.byVolume;
+
 	return (
 		<Card>
 			<CardHeader>
@@ -31,28 +33,33 @@ export function ExerciseSummaryInfo() {
 					<div className="text-center">
 						<div className="text-sm text-muted-foreground">Best Set</div>
 						<div className="font-bold">
-							{summary.bestSet.byVolume.count} ×{" "}
-							{summary.bestSet.byVolume.weight} kg
+							{volumeBestSet.count} × {volumeBestSet.weight}{" "}
+							{volumeBestSet.unit}
 						</div>
 						<div className="text-xs text-muted-foreground">
-							({Math.round(kgToLbs(summary.bestSet.byVolume.weight))} lbs)
+							(
+							{Math.round(
+								volumeBestSet.unit === "kg"
+									? kgToLbs(volumeBestSet.weight)
+									: lbsToKg(volumeBestSet.weight),
+							)}{" "}
+							{volumeBestSet.unit === "kg" ? "lbs" : "kg"})
 						</div>
 					</div>
 
 					<div className="text-center">
 						<div className="text-sm text-muted-foreground">Max Weight</div>
 						<div className="font-bold text-success">
-							{summary.maxWeight.unit === "kg"
-								? summary.maxWeight.value
-								: Math.round(lbsToKg(summary.maxWeight.value))}{" "}
-							kg
+							{summary.maxWeight.value} {summary.maxWeight.unit}
 						</div>
 						<div className="text-xs text-muted-foreground">
 							(
-							{summary.maxWeight.unit === "kg"
-								? Math.round(kgToLbs(summary.maxWeight.value))
-								: summary.maxWeight.value}{" "}
-							lbs)
+							{Math.round(
+								summary.maxWeight.unit === "kg"
+									? kgToLbs(summary.maxWeight.value)
+									: lbsToKg(summary.maxWeight.value),
+							)}{" "}
+							{summary.maxWeight.unit === "kg" ? "lbs" : "kg"})
 						</div>
 					</div>
 				</div>

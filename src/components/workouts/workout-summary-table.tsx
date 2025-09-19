@@ -7,7 +7,6 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import { kgToLbs } from "@/lib/utils";
 import { api } from "convex/_generated/api";
 import type { Id } from "convex/_generated/dataModel";
 import { useQuery } from "convex/react";
@@ -42,13 +41,10 @@ export function WorkoutSummaryTable({
 						</TableCell>
 						<TableCell>{data.setsCount}</TableCell>
 						<TableCell>
-							{data.bestSet.count} x {data.bestSet.weight} kg{" "}
+							{data.bestSet.count} x {data.bestSet.weight} {data.bestSet.unit}
 						</TableCell>
 						<TableCell>
-							{data.maxWeight} kg{" "}
-							<span className="text-muted-foreground">
-								({Math.round(kgToLbs(data.maxWeight))} lbs)
-							</span>
+							{data.maxWeight.value} {data.maxWeight.unit}
 						</TableCell>
 					</TableRow>
 				))}
