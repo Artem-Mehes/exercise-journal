@@ -8,8 +8,9 @@ import {
 	TableRow,
 } from "@/components/ui/table";
 import { kgToLbs, lbsToKg } from "@/lib/utils";
+import clsx from "clsx";
 import type { Doc, Id } from "convex/_generated/dataModel";
-import { Trash2 } from "lucide-react";
+import { ChevronDown, ChevronUp, Trash2 } from "lucide-react";
 import { EditableSetRowCell } from "./editable-set-row-cell";
 
 interface WorkoutSetsTableProps {
@@ -31,6 +32,8 @@ export function WorkoutSetsTable({
 		);
 	}
 
+	const useComparison = Boolean(comparisonSets && comparisonSets.length > 0);
+
 	return (
 		<Table>
 			<TableHeader>
@@ -45,27 +48,61 @@ export function WorkoutSetsTable({
 				{sets.map((set, index) => {
 					const comparisonSet = comparisonSets?.[index];
 
-					const comparisonWeight = comparisonSet?.weight;
-					const comparisonUnit = comparisonSet?.unit;
-					const comparisonCount = comparisonSet?.count;
+					const comparisonWeight = comparisonSet?.weight ?? 0;
+					const comparisonCount = comparisonSet?.count ?? 0;
+
+					const weightIncreased = set.weight > comparisonWeight;
+					const weightDecreased = set.weight < comparisonWeight;
+					const countIncreased = set.count > comparisonCount;
+					const countDecreased = set.count < comparisonCount;
 
 					return (
 						<TableRow key={set._id}>
 							<TableCell>{index + 1}</TableCell>
-							<EditableSetRowCell setId={set._id} field="count">
-								{set.count}
+							<EditableSetRowCell
+								setId={set._id}
+								countValue={set.count}
+								field="count"
+								className={clsx(
+									useComparison && {
+										"border-success text-success": countIncreased,
+										"border-destructive text-destructive": countDecreased,
+									},
+								)}
+							>
+								{useComparison && countIncreased ? (
+									<ChevronUp className="size-4" />
+								) : countDecreased ? (
+									<ChevronDown className="size-4" />
+								) : null}
 							</EditableSetRowCell>
-							<TableCell className="space-x-1">
-								<span className="font-bold">
-									{set.weight} {set.unit}
-								</span>
+							<TableCell>
+								<div
+									className={clsx(
+										"font-bold flex items-center",
+										useComparison && {
+											"text-success": weightIncreased,
+											"text-destructive": weightDecreased,
+										},
+									)}
+								>
+									<span>
+										{set.weight} {set.unit}
+									</span>
+									{useComparison && weightIncreased ? (
+										<ChevronUp className="size-4" />
+									) : weightDecreased ? (
+										<ChevronDown className="size-4" />
+									) : null}
+								</div>
+
 								<span className="text-muted-foreground">
 									(
 									{Math.round(
 										set.unit === "kg"
 											? kgToLbs(set.weight)
 											: lbsToKg(set.weight),
-									)}
+									)}{" "}
 									{set.unit === "kg" ? "lbs" : "kg"})
 								</span>
 							</TableCell>

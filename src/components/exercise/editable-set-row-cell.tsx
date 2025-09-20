@@ -3,21 +3,25 @@ import clsx from "clsx";
 import { api } from "convex/_generated/api";
 import type { Doc, Id } from "convex/_generated/dataModel";
 import { useMutation } from "convex/react";
-import { useEffect, useRef, useState } from "react";
+import { type ComponentProps, useEffect, useRef, useState } from "react";
 import { Input } from "../ui/input";
 import { TableCell } from "../ui/table";
+
+interface EditableSetRowCellProps extends ComponentProps<"div"> {
+	setId: Id<"sets">;
+	field: keyof Doc<"sets">;
+	countValue: number;
+}
 
 export function EditableSetRowCell({
 	children,
 	setId,
 	field,
-}: {
-	children: string | number;
-	setId: Id<"sets">;
-	field: keyof Doc<"sets">;
-}) {
-	const [value, setValue] = useState(children.toString());
-	const lastSavedValueRef = useRef(children.toString());
+	className,
+	countValue,
+}: EditableSetRowCellProps) {
+	const [value, setValue] = useState(countValue.toString());
+	const lastSavedValueRef = useRef(countValue.toString());
 
 	const editSet = useMutation(api.sets.update);
 
@@ -25,14 +29,14 @@ export function EditableSetRowCell({
 
 	// Update local state when props change (external updates)
 	useEffect(() => {
-		const newValue = children.toString();
+		const newValue = countValue.toString();
 		if (newValue !== lastSavedValueRef.current) {
 			setValue(newValue);
 			lastSavedValueRef.current = newValue;
 		}
-	}, [children]);
+	}, [countValue]);
 
-	const childrenString = children.toString();
+	const childrenString = countValue.toString();
 
 	// Handle debounced value changes for database updates
 	useEffect(() => {
@@ -61,15 +65,17 @@ export function EditableSetRowCell({
 	}, [debouncedValue, editSet, setId, field, childrenString]);
 
 	return (
-		<TableCell className="font-bold relative">
+		<TableCell className={clsx("font-bold flex", className)}>
 			<Input
 				type="number"
 				inputMode="decimal"
 				value={value}
 				onChange={(e) => setValue(e.target.value)}
 				onFocus={(e) => e.target.select()}
-				className={clsx("text-sm w-[50px]")}
+				className="text-sm w-[50px]"
 			/>
+
+			{children}
 		</TableCell>
 	);
 }
