@@ -10,6 +10,8 @@ export const add = mutation({
 		unit: v.union(v.literal("kg"), v.literal("lbs")),
 	},
 	handler: async (ctx, args) => {
+		const MAX_SETS_PER_EXERCISE = 20;
+
 		// Check if there's an active workout first
 		const currentWorkout = await ctx.db
 			.query("workouts")
@@ -24,6 +26,26 @@ export const add = mutation({
 
 		if (!exercise) {
 			throw new Error("Exercise not found");
+		}
+
+		// Get all sets for this exercise, ordered by creation time (oldest first)
+		const existingSets = await ctx.db
+			.query("sets")
+			.filter((q) => q.eq(q.field("exerciseId"), args.exerciseId))
+			.collect();
+
+		// Sort by creation time (oldest first)
+		existingSets.sort((a, b) => a._creationTime - b._creationTime);
+
+		// If we have MAX_SETS_PER_EXERCISE or more, delete the oldest ones to make room
+		if (existingSets.length >= MAX_SETS_PER_EXERCISE) {
+			// Calculate how many sets to delete (keep only MAX_SETS_PER_EXERCISE - 1 to make room for the new one)
+			const setsToDeleteCount = existingSets.length - MAX_SETS_PER_EXERCISE + 1;
+			const setsToDelete = existingSets.slice(0, setsToDeleteCount);
+
+			for (const set of setsToDelete) {
+				await ctx.db.delete(set._id);
+			}
 		}
 
 		const setId = await ctx.db.insert("sets", {
