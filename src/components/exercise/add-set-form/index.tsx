@@ -124,7 +124,7 @@ export function ExerciseAddSetForm() {
 							</form.AppField>
 						</div>
 
-						<div className="flex-1">
+						<div className="flex-1 flex items-end gap-2 w-full">
 							<form.Subscribe selector={(state) => state.values.unit}>
 								{(unit) => (
 									<form.AppField name="weight">

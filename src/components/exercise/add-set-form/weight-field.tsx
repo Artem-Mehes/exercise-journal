@@ -32,13 +32,15 @@ export function WeightField({
 
 	return (
 		<>
-			{/* @ts-ignore */}
-			<field.TextField
-				inputMode="decimal"
-				label="Weight"
-				type="number"
-				onFocus={(e: React.FocusEvent<HTMLInputElement>) => e.target.select()}
-			/>
+			<div className="flex-1 w-full">
+				{/* @ts-ignore */}
+				<field.TextField
+					inputMode="decimal"
+					label="Weight"
+					type="number"
+					onFocus={(e: React.FocusEvent<HTMLInputElement>) => e.target.select()}
+				/>
+			</div>
 
 			{isOlympicBarbell && (
 				<BarbellVisualizationDrawer
