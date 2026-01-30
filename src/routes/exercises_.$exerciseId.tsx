@@ -4,14 +4,15 @@ import { EditExerciseDrawer } from "@/components/exercise/edit-exercise-drawer";
 import { NotesDrawer } from "@/components/exercise/notes-drawer";
 import { ExerciseSummaryInfo } from "@/components/exercise/summary-info";
 import { WorkoutSetsTable } from "@/components/exercise/workout-sets-table";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
 import { Link, createFileRoute } from "@tanstack/react-router";
-import clsx from "clsx";
 import { api } from "convex/_generated/api";
 import type { Id } from "convex/_generated/dataModel";
 import { useMutation, useQuery } from "convex/react";
-import { CheckCircle } from "lucide-react";
+import { CheckCircle2, ChevronRight, Clock, Dumbbell } from "lucide-react";
 
 export const Route = createFileRoute("/exercises_/$exerciseId")({
 	component: RouteComponent,
@@ -53,32 +54,63 @@ function RouteComponent() {
 	if (exercise === undefined) {
 		return (
 			<div className="space-y-4">
-				<Skeleton className="h-10" />
-				<Skeleton className="h-30" />
-				<Skeleton className="h-30" />
-				<Skeleton className="h-30" />
+				<div className="flex items-center justify-between">
+					<div className="flex items-center gap-3">
+						<Skeleton className="h-6 w-48" />
+					</div>
+					<div className="flex gap-2">
+						<Skeleton className="size-9 rounded-md" />
+						<Skeleton className="size-9 rounded-md" />
+					</div>
+				</div>
+				<div className="rounded-xl border bg-card p-4 shadow-sm">
+					<Skeleton className="mb-4 h-6 w-24" />
+					<div className="flex gap-4">
+						<Skeleton className="h-10 flex-1" />
+						<Skeleton className="h-10 flex-1" />
+						<Skeleton className="size-10" />
+					</div>
+				</div>
+				<div className="rounded-xl border bg-card p-4 shadow-sm">
+					<Skeleton className="mb-4 h-6 w-32" />
+					<Skeleton className="h-24" />
+				</div>
 			</div>
 		);
 	}
 
 	return (
-		<>
-			<div className="flex justify-between">
+		<div className="space-y-4">
+			{/* Header */}
+			<div className="flex items-center justify-between">
 				<div className="flex items-center gap-3">
 					<ExerciseBreadcrumbs />
-
 					<EditExerciseDrawer exerciseId={exerciseId as Id<"exercises">} />
 				</div>
-
 				<NotesDrawer />
 			</div>
 
+			{/* Add Set Form */}
 			{currentWorkout && <ExerciseAddSetForm />}
 
+			{/* Current Session */}
 			{currentWorkout && (
-				<Card>
-					<CardHeader>
-						<CardTitle className="text-primary">Current Session</CardTitle>
+				<Card className="border-primary/20 shadow-sm">
+					<CardHeader className="pb-2">
+						<div className="flex items-center gap-2">
+							<div className="flex size-8 items-center justify-center rounded-lg bg-primary/10">
+								<Dumbbell className="size-4 text-primary" />
+							</div>
+							<CardTitle className="text-base font-semibold">
+								Current Session
+							</CardTitle>
+							{currentWorkoutSets && currentWorkoutSets.length > 0 && (
+								<Badge variant="secondary" className="ml-auto">
+									{currentWorkoutSets.length}{" "}
+									{currentWorkoutSets.length === 1 ? "set" : "sets"}
+								</Badge>
+							)}
+						</div>
 					</CardHeader>
 					<CardContent>
 						<WorkoutSetsTable
@@ -91,28 +123,46 @@ function RouteComponent() {
 				</Card>
 			)}
 
+			{/* Records Summary */}
 			<ExerciseSummaryInfo />
 
-			<Card>
-				<CardHeader>
-					<CardTitle>Last Workout Sets</CardTitle>
+			{/* Last Workout */}
+			<Card className="shadow-sm">
+				<CardHeader className="pb-2">
+					<div className="flex items-center gap-2">
+						<div className="flex size-8 items-center justify-center rounded-lg bg-muted">
+							<Clock className="size-4 text-muted-foreground" />
+						</div>
+						<CardTitle className="text-base font-semibold">
+							Previous Session
+						</CardTitle>
+						{lastWorkoutSets && lastWorkoutSets.length > 0 && (
+							<Badge variant="outline" className="ml-auto">
+								{lastWorkoutSets.length}{" "}
+								{lastWorkoutSets.length === 1 ? "set" : "sets"}
+							</Badge>
+						)}
+					</div>
 				</CardHeader>
 				<CardContent>
 					<WorkoutSetsTable
 						sets={lastWorkoutSets || []}
 						onDeleteSet={handleDeleteSet}
-						emptyMessage="No sets from last session"
+						emptyMessage="No sets from previous session"
 					/>
 				</CardContent>
 			</Card>
 
+			{/* Related Exercises */}
 			{exercise && relatedExercises && relatedExercises.length > 1 && (
-				<Card>
-					<CardHeader>
-						<CardTitle>Related</CardTitle>
+				<Card className="shadow-sm">
+					<CardHeader className="pb-2">
+						<CardTitle className="text-base font-semibold">
+							Related Exercises
+						</CardTitle>
 					</CardHeader>
 					<CardContent>
-						<div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+						<div className="grid gap-2 sm:grid-cols-2">
 							{relatedExercises
 								.filter(
 									(relatedExercise) => relatedExercise._id !== exercise._id,
@@ -122,17 +172,25 @@ function RouteComponent() {
 										key={relatedExercise._id}
 										to="/exercises/$exerciseId"
 										params={{ exerciseId: relatedExercise._id }}
-										className={clsx(
-											"p-2 rounded-lg border text-center text-sm relative flex items-center justify-center",
-											relatedExercise.isFinished
-												? "line-through border-success"
-												: "bg-sidebar-accent/40",
+										className={cn(
+											"group flex items-center justify-between rounded-md border bg-background p-3 transition-all hover:border-primary/50 hover:bg-accent",
+											relatedExercise.isFinished &&
+												"border-success/20 bg-success/5 hover:border-success/40 hover:bg-success/10",
 										)}
 									>
-										{relatedExercise.name}
-
-										{relatedExercise.isFinished && (
-											<CheckCircle className="size-4 text-success absolute top-1 right-1" />
+										<span
+											className={cn(
+												"text-sm font-medium transition-colors group-hover:text-primary",
+												relatedExercise.isFinished &&
+													"text-muted-foreground group-hover:text-success",
+											)}
+										>
+											{relatedExercise.name}
+										</span>
+										{relatedExercise.isFinished ? (
+											<CheckCircle2 className="size-5 text-success" />
+										) : (
+											<ChevronRight className="size-4 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
 										)}
 									</Link>
 								))}
@@ -140,6 +198,6 @@ function RouteComponent() {
 					</CardContent>
 				</Card>
 			)}
-		</>
+		</div>
 	);
 }

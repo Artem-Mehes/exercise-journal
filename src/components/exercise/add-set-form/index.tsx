@@ -3,7 +3,7 @@ import { Route } from "@/routes/exercises_.$exerciseId";
 import { api } from "convex/_generated/api";
 import type { Id } from "convex/_generated/dataModel";
 import { useMutation, useQuery } from "convex/react";
-import { Plus } from "lucide-react";
+import { PlusCircle } from "lucide-react";
 import { useEffect } from "react";
 import z from "zod";
 import { Button } from "../../ui/button";
@@ -88,46 +88,54 @@ export function ExerciseAddSetForm() {
 	]);
 
 	return (
-		<Card>
+		<Card className="border-primary/20 bg-gradient-to-br from-card to-primary/5 shadow-sm">
 			<form
 				onSubmit={(e) => {
 					e.preventDefault();
 					e.stopPropagation();
 					form.handleSubmit();
 				}}
-				className="space-y-4"
 			>
-				<CardHeader className="flex justify-between items-center">
-					<CardTitle>Add Set</CardTitle>
+				<CardHeader className="flex justify-between items-center pb-2">
+					<div className="flex items-center gap-2">
+						<div className="flex size-8 items-center justify-center rounded-lg bg-primary/10">
+							<PlusCircle className="size-4 text-primary" />
+						</div>
+						<CardTitle className="text-base font-semibold">Add Set</CardTitle>
+					</div>
 
 					<form.AppField name="unit">
 						{(field) => <field.RadioGroupField options={["kg", "lbs"]} />}
 					</form.AppField>
 				</CardHeader>
 
-				<CardContent className="space-y-4">
-					<div className="flex space-x-4 items-end">
-						<form.AppField name="count">
-							{(field) => (
-								<field.TextField
-									inputMode="numeric"
-									label="Reps"
-									type="number"
-									onFocus={(e) => e.target.select()}
-								/>
-							)}
-						</form.AppField>
+				<CardContent>
+					<div className="flex gap-3 items-end">
+						<div className="flex-1">
+							<form.AppField name="count">
+								{(field) => (
+									<field.TextField
+										inputMode="numeric"
+										label="Reps"
+										type="number"
+										onFocus={(e) => e.target.select()}
+									/>
+								)}
+							</form.AppField>
+						</div>
 
-						<form.Subscribe selector={(state) => state.values.unit}>
-							{(unit) => (
-								<form.AppField name="weight">
-									{(field) => <WeightField field={field} unit={unit} />}
-								</form.AppField>
-							)}
-						</form.Subscribe>
+						<div className="flex-1">
+							<form.Subscribe selector={(state) => state.values.unit}>
+								{(unit) => (
+									<form.AppField name="weight">
+										{(field) => <WeightField field={field} unit={unit} />}
+									</form.AppField>
+								)}
+							</form.Subscribe>
+						</div>
 
-						<Button type="submit" size="icon">
-							<Plus className="size-6" />
+						<Button type="submit" size="icon" className="shrink-0">
+							<PlusCircle className="size-5" />
 						</Button>
 					</div>
 				</CardContent>
