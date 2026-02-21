@@ -1,11 +1,16 @@
 import { Link } from "@tanstack/react-router";
-import { BicepsFlexed, Dumbbell } from "lucide-react";
+import { BicepsFlexed, Dumbbell, LayoutTemplate } from "lucide-react";
 
 const items = [
 	{
 		title: "Exercises",
 		url: "/",
 		icon: Dumbbell,
+	},
+	{
+		title: "Templates",
+		url: "/templates",
+		icon: LayoutTemplate,
 	},
 	{
 		title: "Workouts",
