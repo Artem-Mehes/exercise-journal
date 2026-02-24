@@ -39,4 +39,11 @@ export default defineSchema({
 		weight: v.number(),
 		unit: v.union(v.literal("kg"), v.literal("lbs")),
 	}),
+	cardio: defineTable({
+		title: v.string(),
+		time: v.number(),
+		incline: v.number(),
+		speed: v.number(),
+		createdAt: v.number(),
+	}).index("createdAt", ["createdAt"]),
 });
