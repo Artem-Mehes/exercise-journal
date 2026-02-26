@@ -1,5 +1,5 @@
 import { mutation } from "./_generated/server";
 
-export const migration = mutation({
+export const removeSetsGoalFromExercises = mutation({
 	handler: async (ctx) => {},
 });

@@ -101,6 +101,15 @@ export const endCurrentWorkout = mutation({
 			.collect();
 
 		if (sets.length === 0) {
+			const finishedRows = await ctx.db
+				.query("finishedExercises")
+				.withIndex("workoutId", (q) => q.eq("workoutId", activeWorkout._id))
+				.collect();
+
+			for (const row of finishedRows) {
+				await ctx.db.delete(row._id);
+			}
+
 			await ctx.db.delete(activeWorkout._id);
 		} else {
 			await ctx.db.patch(activeWorkout._id, {
@@ -133,7 +142,6 @@ export const getCurrentWorkoutExercises = query({
 					setsCount: number;
 					name: string;
 					isFinished: boolean;
-					setsGoal: number | undefined;
 					id: Id<"exercises">;
 				}[];
 			}[];
@@ -147,6 +155,15 @@ export const getCurrentWorkoutExercises = query({
 			.query("sets")
 			.withIndex("workoutId", (q) => q.eq("workoutId", activeWorkout._id))
 			.collect();
+
+		const finishedRows = await ctx.db
+			.query("finishedExercises")
+			.withIndex("workoutId", (q) => q.eq("workoutId", activeWorkout._id))
+			.collect();
+
+		const finishedExerciseIds = new Set(
+			finishedRows.map((r) => r.exerciseId),
+		);
 
 		for (const set of currentWorkoutSets) {
 			const exercise = await ctx.db.get(set.exerciseId);
@@ -184,9 +201,7 @@ export const getCurrentWorkoutExercises = query({
 
 				if (exerciseInResult) {
 					exerciseInResult.setsCount = setsCount;
-					exerciseInResult.isFinished = exercise.setsGoal
-						? setsCount >= exercise.setsGoal
-						: false;
+					exerciseInResult.isFinished = finishedExerciseIds.has(exercise._id);
 				} else {
 					result.totalExercises++;
 
@@ -194,10 +209,7 @@ export const getCurrentWorkoutExercises = query({
 						id: exercise._id,
 						setsCount,
 						name: exercise.name,
-						isFinished: exercise.setsGoal
-							? setsCount >= exercise.setsGoal
-							: false,
-						setsGoal: exercise.setsGoal,
+						isFinished: finishedExerciseIds.has(exercise._id),
 					});
 				}
 			} else {
@@ -211,8 +223,62 @@ export const getCurrentWorkoutExercises = query({
 							id: exercise._id,
 							setsCount: 1,
 							name: exercise.name,
-							isFinished: false,
-							setsGoal: exercise.setsGoal,
+							isFinished: finishedExerciseIds.has(exercise._id),
+						},
+					],
+				});
+			}
+		}
+
+		// Add finished exercises that have no sets in this workout
+		const exerciseIdsWithSets = new Set(
+			currentWorkoutSets.map((s) => s.exerciseId),
+		);
+
+		for (const row of finishedRows) {
+			if (exerciseIdsWithSets.has(row.exerciseId)) {
+				continue;
+			}
+
+			const exercise = await ctx.db.get(row.exerciseId);
+			if (!exercise) {
+				continue;
+			}
+
+			const groupId = exercise.groupId;
+			if (!groupId) {
+				continue;
+			}
+
+			const group = await ctx.db.get(groupId);
+			if (!group) {
+				continue;
+			}
+
+			const groupName = group.name;
+			const groupInResult = result.groups.find(
+				(r) => r.groupName === groupName,
+			);
+
+			if (groupInResult) {
+				result.totalExercises++;
+				groupInResult.exercises.push({
+					id: exercise._id,
+					setsCount: 0,
+					name: exercise.name,
+					isFinished: true,
+				});
+			} else {
+				result.totalExercises++;
+				result.groups.push({
+					id: groupId,
+					groupName,
+					exercises: [
+						{
+							id: exercise._id,
+							setsCount: 0,
+							name: exercise.name,
+							isFinished: true,
 						},
 					],
 				});
@@ -237,6 +303,15 @@ export const deleteWorkout = mutation({
 
 		for (const set of sets) {
 			await ctx.db.delete(set._id);
+		}
+
+		const finishedRows = await ctx.db
+			.query("finishedExercises")
+			.withIndex("workoutId", (q) => q.eq("workoutId", args.workoutId))
+			.collect();
+
+		for (const row of finishedRows) {
+			await ctx.db.delete(row._id);
 		}
 	},
 });

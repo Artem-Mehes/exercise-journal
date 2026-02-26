@@ -6,7 +6,8 @@
       "Bash(npx biome:*)",
       "Bash(npx tsc:*)",
       "Bash(xxd:*)",
-      "Bash(pnpm build:*)"
+      "Bash(pnpm build:*)",
+      "Bash(sed:*)"
     ]
   }
 }

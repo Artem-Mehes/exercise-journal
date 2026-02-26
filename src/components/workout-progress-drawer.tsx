@@ -72,26 +72,31 @@ export function WorkoutProgressDrawer() {
 												<span
 													className={clsx(
 														"text-sm",
-														exercise.isFinished && "line-through",
+														exercise.isFinished &&
+															"line-through text-muted-foreground",
 													)}
 												>
 													{exercise.name}
 												</span>
 
-												<span
-													className={clsx(
-														"flex items-center gap-1 font-display text-sm tabular-nums",
-														exercise.isFinished
-															? "text-success"
-															: "text-muted-foreground",
-													)}
-												>
-													{`${exercise.setsCount}${exercise.setsGoal ? ` / ${exercise.setsGoal}` : " sets"}`}
+												<div className="flex items-center gap-1">
+													{exercise.setsCount ? (
+														<span
+															className={clsx(
+																"flex font-display text-sm tabular-nums",
+																exercise.isFinished
+																	? "text-success"
+																	: "text-muted-foreground",
+															)}
+														>
+															{`${exercise.setsCount} sets`}
+														</span>
+													) : null}
 
 													{exercise.isFinished && (
 														<CheckCircle className="size-4 text-success" />
 													)}
-												</span>
+												</div>
 											</div>
 										))}
 									</div>

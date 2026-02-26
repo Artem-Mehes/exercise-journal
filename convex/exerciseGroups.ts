@@ -93,6 +93,19 @@ export const getAllWithExercises = query({
 			.filter((q) => q.eq(q.field("endTime"), undefined))
 			.first();
 
+		const finishedRows = currentActiveWorkout
+			? await ctx.db
+					.query("finishedExercises")
+					.withIndex("workoutId", (q) =>
+						q.eq("workoutId", currentActiveWorkout._id),
+					)
+					.collect()
+			: [];
+
+		const finishedExerciseIds = new Set(
+			finishedRows.map((r) => r.exerciseId),
+		);
+
 		const muscleGroupsWithExercises = await Promise.all(
 			exerciseGroups.map(async (group) => {
 				const exercises = await ctx.db
@@ -120,9 +133,7 @@ export const getAllWithExercises = query({
 							return {
 								...exercise,
 								currentSetsCount: sets.length,
-								isFinished: exercise.setsGoal
-									? sets.length >= exercise.setsGoal
-									: false,
+								isFinished: finishedExerciseIds.has(exercise._id),
 							};
 						}),
 					);

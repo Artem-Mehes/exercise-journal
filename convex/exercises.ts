@@ -58,42 +58,10 @@ export const getByMuscleGroup = query({
 		groupId: v.id("exerciseGroups"),
 	},
 	handler: async (ctx, args) => {
-		const currentWorkout = await ctx.db
-			.query("workouts")
-			.filter((q) => q.eq(q.field("endTime"), undefined))
-			.first();
-
-		const exercises = await ctx.db
+		return await ctx.db
 			.query("exercises")
 			.withIndex("groupId", (q) => q.eq("groupId", args.groupId))
 			.collect();
-
-		let resultExercises: (Doc<"exercises"> & { isFinished?: boolean })[] =
-			exercises;
-
-		if (currentWorkout) {
-			resultExercises = await Promise.all(
-				exercises.map(async (exercise) => {
-					const sets = await ctx.db
-						.query("sets")
-						.withIndex("workoutId_exerciseId", (q) =>
-							q
-								.eq("workoutId", currentWorkout._id)
-								.eq("exerciseId", exercise._id),
-						)
-						.collect();
-
-					return {
-						...exercise,
-						isFinished: exercise.setsGoal
-							? sets.length >= exercise.setsGoal
-							: false,
-					};
-				}),
-			);
-		}
-
-		return resultExercises;
 	},
 });
 
@@ -171,7 +139,6 @@ export const create = mutation({
 	args: {
 		name: v.string(),
 		groupId: v.id("exerciseGroups"),
-		setsGoal: v.number(),
 	},
 	handler: async (ctx, args) => {
 		const formattedName = formatExerciseName(args.name);
@@ -189,7 +156,6 @@ export const update = mutation({
 		exerciseId: v.id("exercises"),
 		name: v.string(),
 		groupId: v.id("exerciseGroups"),
-		setsGoal: v.optional(v.number()),
 		barbellId: v.optional(v.id("barbells")),
 	},
 	handler: async (ctx, args) => {
@@ -246,9 +212,81 @@ export const deleteExercise = mutation({
 			await ctx.db.delete(set._id);
 		}
 
+		const finishedRows = await ctx.db
+			.query("finishedExercises")
+			.withIndex("exerciseId", (q) => q.eq("exerciseId", args.exerciseId))
+			.collect();
+
+		for (const row of finishedRows) {
+			await ctx.db.delete(row._id);
+		}
+
 		await ctx.db.delete(args.exerciseId);
 
 		return args.exerciseId;
+	},
+});
+
+export const toggleFinished = mutation({
+	args: {
+		exerciseId: v.id("exercises"),
+	},
+	handler: async (ctx, args) => {
+		const activeWorkout = await ctx.db
+			.query("workouts")
+			.filter((q) => q.eq(q.field("endTime"), undefined))
+			.first();
+
+		if (!activeWorkout) {
+			throw new Error("No active workout found");
+		}
+
+		const existing = await ctx.db
+			.query("finishedExercises")
+			.withIndex("workoutId_exerciseId", (q) =>
+				q
+					.eq("workoutId", activeWorkout._id)
+					.eq("exerciseId", args.exerciseId),
+			)
+			.first();
+
+		if (existing) {
+			await ctx.db.delete(existing._id);
+			return false;
+		}
+
+		await ctx.db.insert("finishedExercises", {
+			workoutId: activeWorkout._id,
+			exerciseId: args.exerciseId,
+		});
+		return true;
+	},
+});
+
+export const isFinishedInCurrentWorkout = query({
+	args: {
+		exerciseId: v.id("exercises"),
+	},
+	handler: async (ctx, args) => {
+		const activeWorkout = await ctx.db
+			.query("workouts")
+			.filter((q) => q.eq(q.field("endTime"), undefined))
+			.first();
+
+		if (!activeWorkout) {
+			return false;
+		}
+
+		const existing = await ctx.db
+			.query("finishedExercises")
+			.withIndex("workoutId_exerciseId", (q) =>
+				q
+					.eq("workoutId", activeWorkout._id)
+					.eq("exerciseId", args.exerciseId),
+			)
+			.first();
+
+		return !!existing;
 	},
 });
 

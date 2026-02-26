@@ -9,7 +9,6 @@ export default defineSchema({
 		name: v.string(),
 		groupId: v.id("exerciseGroups"),
 		notes: v.optional(v.string()),
-		setsGoal: v.optional(v.number()),
 		barbellId: v.optional(v.id("barbells")),
 	}).index("groupId", ["groupId"]),
 	sets: defineTable({
@@ -46,4 +45,11 @@ export default defineSchema({
 		speed: v.number(),
 		createdAt: v.number(),
 	}).index("createdAt", ["createdAt"]),
+	finishedExercises: defineTable({
+		workoutId: v.id("workouts"),
+		exerciseId: v.id("exercises"),
+	})
+		.index("workoutId", ["workoutId"])
+		.index("exerciseId", ["exerciseId"])
+		.index("workoutId_exerciseId", ["workoutId", "exerciseId"]),
 });

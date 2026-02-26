@@ -12,7 +12,6 @@ const validationSchema = z.object({
 	groupId: z.string().min(1, {
 		message: "Group is required",
 	}),
-	setsGoal: z.string(),
 	barbellId: z.string(),
 });
 
@@ -40,7 +39,6 @@ export function ExerciseForm({
 	const defaultValues = {
 		name: mode === "edit" ? exercise?.name || "" : "",
 		groupId: mode === "edit" ? exercise?.groupId || "" : "",
-		setsGoal: mode === "edit" ? exercise?.setsGoal?.toString() || "" : "",
 		barbellId: mode === "edit" ? exercise?.barbellId || "" : "",
 	};
 
@@ -54,7 +52,6 @@ export function ExerciseForm({
 				await createExercise({
 					name: value.name.trim(),
 					groupId: value.groupId as Id<"exerciseGroups">,
-					setsGoal: Number(value.setsGoal),
 				});
 
 				formApi.reset();
@@ -65,7 +62,7 @@ export function ExerciseForm({
 
 				const requestParams: Pick<
 					Doc<"exercises">,
-					"name" | "groupId" | "setsGoal" | "barbellId"
+					"name" | "groupId" | "barbellId"
 				> & {
 					exerciseId: Id<"exercises">;
 				} = {
@@ -76,10 +73,6 @@ export function ExerciseForm({
 
 				if (value.barbellId) {
 					requestParams.barbellId = value.barbellId as Id<"barbells">;
-				}
-
-				if (value.setsGoal) {
-					requestParams.setsGoal = Number(value.setsGoal);
 				}
 
 				await updateExercise(requestParams);
@@ -118,31 +111,19 @@ export function ExerciseForm({
 					</form.AppField>
 				</div>
 
-				<div className="grid grid-cols-2 gap-4">
-					<form.AppField name="barbellId">
-						{(field) => (
-							<field.SelectField
-								label="Barbell (optional)"
-								values={
-									barbells?.map((barbell) => ({
-										label: `${barbell.name} (${barbell.weight} ${barbell.unit})`,
-										value: barbell._id,
-									})) || []
-								}
-							/>
-						)}
-					</form.AppField>
-
-					<form.AppField name="setsGoal">
-						{(field) => (
-							<field.TextField
-								label="Sets Goal"
-								type="number"
-								inputMode="numeric"
-							/>
-						)}
-					</form.AppField>
-				</div>
+				<form.AppField name="barbellId">
+					{(field) => (
+						<field.SelectField
+							label="Barbell (optional)"
+							values={
+								barbells?.map((barbell) => ({
+									label: `${barbell.name} (${barbell.weight} ${barbell.unit})`,
+									value: barbell._id,
+								})) || []
+							}
+						/>
+					)}
+				</form.AppField>
 			</div>
 
 			<Button type="submit" className="w-full">

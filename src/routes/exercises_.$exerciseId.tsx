@@ -5,14 +5,14 @@ import { NotesDrawer } from "@/components/exercise/notes-drawer";
 import { ExerciseSummaryInfo } from "@/components/exercise/summary-info";
 import { WorkoutSetsTable } from "@/components/exercise/workout-sets-table";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { cn } from "@/lib/utils";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { api } from "convex/_generated/api";
 import type { Id } from "convex/_generated/dataModel";
 import { useMutation, useQuery } from "convex/react";
-import { CheckCircle2, ChevronRight, Clock, Dumbbell } from "lucide-react";
+import { Check, ChevronRight, Clock, Dumbbell } from "lucide-react";
 
 export const Route = createFileRoute("/exercises_/$exerciseId")({
 	component: RouteComponent,
@@ -35,6 +35,11 @@ function RouteComponent() {
 	const lastWorkoutSets = useQuery(api.exercises.getLastCompletedWorkoutSets, {
 		exerciseId: exerciseId as Id<"exercises">,
 	});
+
+	const isFinished = useQuery(api.exercises.isFinishedInCurrentWorkout, {
+		exerciseId: exerciseId as Id<"exercises">,
+	});
+	const toggleFinished = useMutation(api.exercises.toggleFinished);
 
 	const relatedExercises = useQuery(
 		api.exercises.getByMuscleGroup,
@@ -87,7 +92,27 @@ function RouteComponent() {
 					<ExerciseBreadcrumbs />
 					<EditExerciseDrawer exerciseId={exerciseId as Id<"exercises">} />
 				</div>
-				<NotesDrawer />
+				<div className="flex items-center gap-2">
+					<NotesDrawer />
+					{currentWorkout && (
+						<Button
+							variant={isFinished ? "default" : "outline"}
+							size="icon"
+							className={
+								isFinished
+									? "bg-success hover:bg-success/80 text-white"
+									: ""
+							}
+							onClick={() =>
+								toggleFinished({
+									exerciseId: exerciseId as Id<"exercises">,
+								})
+							}
+						>
+							<Check className="size-4" />
+						</Button>
+					)}
+				</div>
 			</div>
 
 			{/* Add Set Form */}
@@ -172,26 +197,12 @@ function RouteComponent() {
 										key={relatedExercise._id}
 										to="/exercises/$exerciseId"
 										params={{ exerciseId: relatedExercise._id }}
-										className={cn(
-											"group flex items-center justify-between rounded-lg border bg-background/60 p-3 transition-all duration-200 hover:border-primary/30 hover:bg-accent/50",
-											relatedExercise.isFinished &&
-												"border-success/20 bg-success/5 hover:border-success/40 hover:bg-success/10",
-										)}
+										className="group flex items-center justify-between rounded-lg border bg-background/60 p-3 transition-all duration-200 hover:border-primary/30 hover:bg-accent/50"
 									>
-										<span
-											className={cn(
-												"text-sm font-medium transition-colors group-hover:text-primary",
-												relatedExercise.isFinished &&
-													"text-muted-foreground group-hover:text-success",
-											)}
-										>
+										<span className="text-sm font-medium transition-colors group-hover:text-primary">
 											{relatedExercise.name}
 										</span>
-										{relatedExercise.isFinished ? (
-											<CheckCircle2 className="size-5 text-success" />
-										) : (
-											<ChevronRight className="size-4 text-muted-foreground transition-transform duration-200 group-hover:translate-x-0.5" />
-										)}
+										<ChevronRight className="size-4 text-muted-foreground transition-transform duration-200 group-hover:translate-x-0.5" />
 									</Link>
 								))}
 						</div>

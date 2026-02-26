@@ -90,7 +90,7 @@ export function AppSidebar() {
 																		: "text-muted-foreground",
 																)}
 															>
-																{`${exercise.setsCount}${exercise.setsGoal ? ` / ${exercise.setsGoal}` : " sets"}`}
+																{`${exercise.setsCount} sets`}
 
 																{exercise.isFinished && (
 																	<CheckCircle className="size-4 text-success" />
