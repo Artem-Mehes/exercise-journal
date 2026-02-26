@@ -4,7 +4,6 @@ import {
 	AccordionItem,
 	AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "@tanstack/react-router";
 import { Store, useStore } from "@tanstack/react-store";
@@ -153,52 +152,58 @@ export function ExercisesList({ searchQuery = "" }: { searchQuery?: string }) {
 				}}
 			>
 				{(filteredGroups ?? []).map((muscleGroup) => {
-					const totalCount = muscleGroup.exercises.length;
 					const activeCount = muscleGroup.exercises.filter(
 						(e) =>
 							("currentSetsCount" in e && (e.currentSetsCount as number) > 0) ||
 							("isFinished" in e && e.isFinished),
 					).length;
-					const hasActiveWorkout = muscleGroup.exercises.some(
-						(e) => "currentSetsCount" in e,
-					);
-					const progressPercent =
-						totalCount > 0 ? (activeCount / totalCount) * 100 : 0;
+					const hasActivity = activeCount > 0;
+					const isMultiple = activeCount > 1;
 
 					return (
 						<AccordionItem
 							key={muscleGroup._id}
 							value={muscleGroup._id}
-							className="rounded-xl border border-border/60 bg-card px-4 shadow-sm transition-all duration-200 hover:shadow-md overflow-hidden"
+							className={`rounded-xl border px-4 shadow-sm transition-all duration-300 hover:shadow-md overflow-hidden ${
+								isMultiple
+									? "border-emerald-400/40 bg-emerald-400/[0.04] shadow-emerald-500/5"
+									: hasActivity
+										? "border-amber-400/30 bg-amber-400/[0.03]"
+										: "border-border/60 bg-card"
+							}`}
 						>
 							<AccordionTrigger className="py-4 hover:no-underline">
 								<div className="flex w-full flex-col gap-2 pr-2">
 									<div className="flex w-full items-center justify-between">
 										<div className="flex items-center gap-3">
-											<div className="flex size-9 items-center justify-center rounded-lg bg-primary/10 text-primary transition-colors">
+											<div
+												className={`flex size-9 items-center justify-center rounded-lg transition-colors ${
+													isMultiple
+														? "bg-emerald-400/15 text-emerald-400"
+														: hasActivity
+															? "bg-amber-400/15 text-amber-400"
+															: "bg-primary/10 text-primary"
+												}`}
+											>
 												<Dumbbell className="size-4" />
 											</div>
 											<span className="font-display text-base font-semibold tracking-tight">
 												{muscleGroup.name}
 											</span>
 										</div>
-										<Badge
-											variant="secondary"
-											className="ml-auto mr-2 tabular-nums font-display text-xs"
-										>
-											{activeCount}/{totalCount}
-										</Badge>
+										{hasActivity && (
+											<span
+												className={`ml-auto mr-2 inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold tabular-nums font-display transition-colors ${
+													isMultiple
+														? "bg-emerald-400/15 text-emerald-400"
+														: "bg-amber-400/15 text-amber-400"
+												}`}
+											>
+												<CheckCircle className="size-3" />
+												{activeCount}
+											</span>
+										)}
 									</div>
-									{hasActiveWorkout && totalCount > 0 && (
-										<div className="ml-12 mr-2 h-1 overflow-hidden rounded-full bg-muted">
-											<div
-												className="h-full rounded-full transition-all duration-500 ease-out bg-primary"
-												style={{
-													width: `${progressPercent}%`,
-												}}
-											/>
-										</div>
-									)}
 								</div>
 							</AccordionTrigger>
 							<AccordionContent className="pb-4">
