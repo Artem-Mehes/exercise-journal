@@ -5,11 +5,12 @@ import {
 	AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
 import { Link } from "@tanstack/react-router";
 import { Store, useStore } from "@tanstack/react-store";
 import { api } from "convex/_generated/api";
-import { useQuery } from "convex/react";
-import { CheckCircle, ChevronRight, Dumbbell, SearchX } from "lucide-react";
+import { useMutation, useQuery } from "convex/react";
+import { Check, ChevronRight, Dumbbell, Flame, SearchX } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 const store = new Store<{
@@ -32,6 +33,7 @@ const updateOpenedGroups = (openedGroups: string[]) => {
 
 export function ExercisesList({ searchQuery = "" }: { searchQuery?: string }) {
 	const muscleGroups = useQuery(api.exerciseGroups.getAllWithExercises);
+	const toggleFinished = useMutation(api.exercises.toggleFinished);
 
 	const openedGroups = useStore(store, (state) => state.openedGroups);
 	const [selectedGroupIds, setSelectedGroupIds] = useState<Set<string>>(
@@ -95,13 +97,19 @@ export function ExercisesList({ searchQuery = "" }: { searchQuery?: string }) {
 		return (
 			<div className="space-y-3">
 				{[...Array(5)].map((_, i) => (
-					<div key={i} className="rounded-xl border bg-card p-4">
-						<div className="flex items-center justify-between">
-							<div className="flex items-center gap-3">
-								<Skeleton className="size-9 rounded-lg" />
-								<Skeleton className="h-5 w-32" />
+					<div
+						key={i}
+						className="rounded-xl border-l-[3px] border-l-transparent bg-card/70 p-4"
+					>
+						<div className="flex items-center gap-3">
+							<Skeleton className="size-9 rounded-lg" />
+							<div className="flex-1 space-y-2.5">
+								<div className="flex items-center justify-between">
+									<Skeleton className="h-4 w-28" />
+									<Skeleton className="h-4 w-10 rounded-full" />
+								</div>
+								<Skeleton className="h-[3px] w-full rounded-full" />
 							</div>
-							<Skeleton className="h-6 w-14 rounded-full" />
 						</div>
 					</div>
 				))}
@@ -122,11 +130,18 @@ export function ExercisesList({ searchQuery = "" }: { searchQuery?: string }) {
 						onToggle={toggleGroup}
 					/>
 				)}
-				<div className="flex flex-col items-center justify-center gap-3 py-12 text-muted-foreground">
-					<SearchX className="size-10 opacity-40" />
-					<p className="text-sm">
-						No exercises matching "{searchQuery.trim()}"
-					</p>
+				<div className="flex flex-col items-center justify-center gap-4 py-16 text-muted-foreground">
+					<div className="flex size-14 items-center justify-center rounded-2xl bg-muted/60">
+						<SearchX className="size-7 opacity-40" />
+					</div>
+					<div className="space-y-1 text-center">
+						<p className="text-sm font-medium text-foreground/70">
+							No exercises found
+						</p>
+						<p className="text-xs text-muted-foreground/60">
+							Try adjusting your search or filters
+						</p>
+					</div>
 				</div>
 			</>
 		);
@@ -143,7 +158,7 @@ export function ExercisesList({ searchQuery = "" }: { searchQuery?: string }) {
 			)}
 			<Accordion
 				type="multiple"
-				className="w-full space-y-3"
+				className="w-full space-y-2.5"
 				value={accordionValue}
 				onValueChange={(value) => {
 					if (!isSearching) {
@@ -164,50 +179,49 @@ export function ExercisesList({ searchQuery = "" }: { searchQuery?: string }) {
 						<AccordionItem
 							key={muscleGroup._id}
 							value={muscleGroup._id}
-							className={`rounded-xl border px-4 shadow-sm transition-all duration-300 hover:shadow-md overflow-hidden ${
+							className={cn(
+								"rounded-xl border border-border/40 border-l-[3px] overflow-hidden transition-all duration-300",
 								isMultiple
-									? "border-emerald-400/40 bg-emerald-400/[0.04] shadow-emerald-500/5"
+									? "border-l-emerald-400 bg-card shadow-md"
 									: hasActivity
-										? "border-amber-400/30 bg-amber-400/[0.03]"
-										: "border-border/60 bg-card"
-							}`}
+										? "border-l-amber-400 bg-card shadow-md"
+										: "border-l-transparent bg-card/70 shadow-sm hover:shadow-md hover:bg-card/90",
+							)}
 						>
-							<AccordionTrigger className="py-4 hover:no-underline">
-								<div className="flex w-full flex-col gap-2 pr-2">
-									<div className="flex w-full items-center justify-between">
-										<div className="flex items-center gap-3">
-											<div
-												className={`flex size-9 items-center justify-center rounded-lg transition-colors ${
-													isMultiple
-														? "bg-emerald-400/15 text-emerald-400"
-														: hasActivity
-															? "bg-amber-400/15 text-amber-400"
-															: "bg-primary/10 text-primary"
-												}`}
-											>
-												<Dumbbell className="size-4" />
-											</div>
-											<span className="font-display text-base font-semibold tracking-tight">
-												{muscleGroup.name}
-											</span>
-										</div>
-										{hasActivity && (
-											<span
-												className={`ml-auto mr-2 inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold tabular-nums font-display transition-colors ${
-													isMultiple
-														? "bg-emerald-400/15 text-emerald-400"
-														: "bg-amber-400/15 text-amber-400"
-												}`}
-											>
-												<CheckCircle className="size-3" />
-												{activeCount}
-											</span>
+							<AccordionTrigger className="px-4 py-3.5 hover:no-underline">
+								<div className="flex w-full items-center gap-3 pr-2">
+									<div
+										className={cn(
+											"flex size-9 shrink-0 items-center justify-center rounded-lg transition-colors",
+											isMultiple
+												? "bg-emerald-400/15 text-emerald-400"
+												: hasActivity
+													? "bg-amber-400/15 text-amber-400"
+													: "bg-muted text-muted-foreground",
 										)}
+									>
+										<Dumbbell className="size-[18px]" />
 									</div>
+									<span className="truncate font-display text-[15px] font-semibold tracking-tight">
+										{muscleGroup.name}
+									</span>
+									{hasActivity && (
+										<span
+											className={cn(
+												"ml-auto mr-2 inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold tabular-nums font-display transition-colors",
+												isMultiple
+													? "bg-emerald-400/15 text-emerald-400"
+													: "bg-amber-400/15 text-amber-400",
+											)}
+										>
+											<Check className="size-3" strokeWidth={3} />
+											{activeCount}
+										</span>
+									)}
 								</div>
 							</AccordionTrigger>
-							<AccordionContent className="pb-4">
-								<div className="grid gap-2 sm:grid-cols-2">
+							<AccordionContent className="px-4 pb-2">
+								<div className="space-y-0.5">
 									{muscleGroup.exercises.map((exercise) => {
 										const currentSets =
 											"currentSetsCount" in exercise
@@ -216,6 +230,7 @@ export function ExercisesList({ searchQuery = "" }: { searchQuery?: string }) {
 										const isActive = currentSets > 0;
 										const isFinished =
 											"isFinished" in exercise && exercise.isFinished;
+										const hasWorkout = "isFinished" in exercise;
 
 										return (
 											<Link
@@ -224,28 +239,91 @@ export function ExercisesList({ searchQuery = "" }: { searchQuery?: string }) {
 												params={{
 													exerciseId: exercise._id,
 												}}
-												className={`group flex items-center justify-between rounded-lg border bg-background/60 px-3.5 py-3 transition-all duration-200 hover:bg-accent/50 hover:border-primary/30 hover:shadow-sm min-h-14 ${isFinished ? "border-success/30 bg-success/5" : ""}`}
+												className={cn(
+													"group flex items-center rounded-lg px-3 py-3 transition-all duration-200",
+													"hover:bg-accent/40 active:scale-[0.99]",
+													isFinished
+														? "opacity-55"
+														: isActive
+															? "bg-primary/[0.04]"
+															: "",
+												)}
 											>
-												<div className="flex flex-col gap-1 min-w-0">
+												<div
+													className="grid transition-all duration-300 ease-out"
+													style={{
+														gridTemplateColumns: hasWorkout
+															? "24px"
+															: "0px",
+														marginRight: hasWorkout
+															? "12px"
+															: "0px",
+													}}
+												>
+													<div className="overflow-hidden">
+														<button
+															type="button"
+															className="shrink-0 -my-0.5 rounded-full p-0.5 transition-transform active:scale-90"
+															onClick={(e) => {
+																e.preventDefault();
+																e.stopPropagation();
+																toggleFinished({
+																	exerciseId: exercise._id,
+																});
+															}}
+														>
+															{isFinished ? (
+																<div className="flex size-5 items-center justify-center rounded-full bg-emerald-500/20">
+																	<Check
+																		className="size-3 text-emerald-400"
+																		strokeWidth={3}
+																	/>
+																</div>
+															) : isActive ? (
+																<div className="flex size-5 items-center justify-center rounded-full bg-amber-400/20">
+																	<Flame className="size-3 text-amber-400" />
+																</div>
+															) : (
+																<div className="size-5 rounded-full border-2 border-border/60 transition-colors group-hover:border-primary/40" />
+															)}
+														</button>
+													</div>
+												</div>
+
+												<div className="min-w-0 flex-1">
 													<span
-														className={`font-medium transition-colors truncate ${isFinished ? "text-success line-through" : "text-foreground group-hover:text-primary"}`}
+														className={cn(
+															"block truncate text-sm font-medium transition-colors",
+															isFinished
+																? "text-muted-foreground line-through decoration-muted-foreground/30"
+																: "text-foreground group-hover:text-primary",
+														)}
 													>
 														{exercise.name}
 													</span>
+												</div>
+
+												<div className="ml-3 flex shrink-0 items-center gap-2">
 													{isActive && (
 														<span
-															className={`text-xs tabular-nums ${isFinished ? "text-success/70" : "text-muted-foreground"}`}
+															className={cn(
+																"rounded-full px-2 py-0.5 text-xs font-medium tabular-nums",
+																isFinished
+																	? "bg-emerald-500/10 text-emerald-400/60"
+																	: "bg-primary/10 text-primary",
+															)}
 														>
-															{currentSets} {currentSets === 1 ? "set" : "sets"}
+															{currentSets}
 														</span>
 													)}
-												</div>
-												<div className="flex items-center gap-2 ml-2 shrink-0">
-													{isFinished ? (
-														<CheckCircle className="size-4 text-success" />
-													) : (
-														<ChevronRight className="size-4 text-muted-foreground transition-transform duration-200 group-hover:translate-x-0.5 group-hover:text-primary" />
-													)}
+													<ChevronRight
+														className={cn(
+															"size-4 transition-all duration-200",
+															isFinished
+																? "text-muted-foreground/20"
+																: "text-muted-foreground/40 group-hover:translate-x-0.5 group-hover:text-primary",
+														)}
+													/>
 												</div>
 											</Link>
 										);
@@ -270,7 +348,7 @@ function GroupChips({
 	onToggle: (id: string) => void;
 }) {
 	return (
-		<div className="flex gap-2 flex-wrap [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none]">
+		<div className="flex flex-wrap gap-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none]">
 			{groups.map((group) => {
 				const isActive = selectedIds.has(group._id);
 				return (
@@ -278,11 +356,12 @@ function GroupChips({
 						key={group._id}
 						type="button"
 						onClick={() => onToggle(group._id)}
-						className={`shrink-0 rounded-lg px-3 py-1.5 text-xs font-medium border transition-all duration-150 active:scale-95 ${
+						className={cn(
+							"shrink-0 rounded-full px-3.5 py-1.5 text-xs font-medium transition-all duration-200 active:scale-95",
 							isActive
-								? "bg-primary text-primary-foreground border-primary shadow-sm"
-								: "bg-card border-border/60 text-muted-foreground hover:text-foreground hover:border-border"
-						}`}
+								? "bg-primary text-primary-foreground shadow-sm shadow-primary/25"
+								: "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground",
+						)}
 					>
 						{group.name}
 					</button>
