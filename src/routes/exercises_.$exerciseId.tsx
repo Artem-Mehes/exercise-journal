@@ -59,8 +59,8 @@ function RouteComponent() {
 						<Skeleton className="h-6 w-48" />
 					</div>
 					<div className="flex gap-2">
-						<Skeleton className="size-9 rounded-md" />
-						<Skeleton className="size-9 rounded-md" />
+						<Skeleton className="size-9 rounded-lg" />
+						<Skeleton className="size-9 rounded-lg" />
 					</div>
 				</div>
 				<div className="rounded-xl border bg-card p-4 shadow-sm">
@@ -95,17 +95,17 @@ function RouteComponent() {
 
 			{/* Current Session */}
 			{currentWorkout && (
-				<Card className="border-primary/20 shadow-sm">
+				<Card className="border-primary/25 shadow-sm">
 					<CardHeader className="pb-2">
 						<div className="flex items-center gap-2">
-							<div className="flex size-8 items-center justify-center rounded-lg bg-primary/10">
+							<div className="flex size-9 items-center justify-center rounded-lg bg-primary/10">
 								<Dumbbell className="size-4 text-primary" />
 							</div>
-							<CardTitle className="text-base font-semibold">
+							<CardTitle className="font-display text-base font-semibold tracking-tight">
 								Current Session
 							</CardTitle>
 							{currentWorkoutSets && currentWorkoutSets.length > 0 && (
-								<Badge variant="secondary" className="ml-auto">
+								<Badge variant="secondary" className="ml-auto font-display">
 									{currentWorkoutSets.length}{" "}
 									{currentWorkoutSets.length === 1 ? "set" : "sets"}
 								</Badge>
@@ -130,14 +130,14 @@ function RouteComponent() {
 			<Card className="shadow-sm">
 				<CardHeader className="pb-2">
 					<div className="flex items-center gap-2">
-						<div className="flex size-8 items-center justify-center rounded-lg bg-muted">
+						<div className="flex size-9 items-center justify-center rounded-lg bg-muted">
 							<Clock className="size-4 text-muted-foreground" />
 						</div>
-						<CardTitle className="text-base font-semibold">
+						<CardTitle className="font-display text-base font-semibold tracking-tight">
 							Previous Session
 						</CardTitle>
 						{lastWorkoutSets && lastWorkoutSets.length > 0 && (
-							<Badge variant="outline" className="ml-auto">
+							<Badge variant="outline" className="ml-auto font-display">
 								{lastWorkoutSets.length}{" "}
 								{lastWorkoutSets.length === 1 ? "set" : "sets"}
 							</Badge>
@@ -157,7 +157,7 @@ function RouteComponent() {
 			{exercise && relatedExercises && relatedExercises.length > 1 && (
 				<Card className="shadow-sm">
 					<CardHeader className="pb-2">
-						<CardTitle className="text-base font-semibold">
+						<CardTitle className="font-display text-base font-semibold tracking-tight">
 							Related Exercises
 						</CardTitle>
 					</CardHeader>
@@ -173,7 +173,7 @@ function RouteComponent() {
 										to="/exercises/$exerciseId"
 										params={{ exerciseId: relatedExercise._id }}
 										className={cn(
-											"group flex items-center justify-between rounded-md border bg-background p-3 transition-all hover:border-primary/50 hover:bg-accent",
+											"group flex items-center justify-between rounded-lg border bg-background/60 p-3 transition-all duration-200 hover:border-primary/30 hover:bg-accent/50",
 											relatedExercise.isFinished &&
 												"border-success/20 bg-success/5 hover:border-success/40 hover:bg-success/10",
 										)}
@@ -190,7 +190,7 @@ function RouteComponent() {
 										{relatedExercise.isFinished ? (
 											<CheckCircle2 className="size-5 text-success" />
 										) : (
-											<ChevronRight className="size-4 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+											<ChevronRight className="size-4 text-muted-foreground transition-transform duration-200 group-hover:translate-x-0.5" />
 										)}
 									</Link>
 								))}

@@ -20,21 +20,23 @@ export function WorkoutProgressDrawer() {
 	return (
 		<Drawer>
 			<DrawerTrigger asChild>
-				<Button variant="outline">
-					<ListChecks />
+				<Button variant="outline" size="sm" className="font-display">
+					<ListChecks className="size-4" />
 					Progress
 				</Button>
 			</DrawerTrigger>
 
 			<DrawerContent>
 				<DrawerHeader>
-					<DrawerTitle>Progress</DrawerTitle>
+					<DrawerTitle className="font-display tracking-tight">
+						Progress
+					</DrawerTitle>
 				</DrawerHeader>
 
 				<div className="min-h-60 space-y-6 px-4 pb-6">
-					<div className="space-y-1">
+					<div className="space-y-1 text-sm">
 						{currentWorkoutExercises?.startedAt && (
-							<div className="text-muted-foreground ">
+							<div className="text-muted-foreground">
 								Started at{" "}
 								{new Date(currentWorkoutExercises.startedAt).toLocaleString()}
 							</div>
@@ -50,16 +52,18 @@ export function WorkoutProgressDrawer() {
 							({ groupName, id, exercises }) => (
 								<div
 									key={id}
-									className="space-y-2 not-last:border-b-1 not-last:border-accent-foreground/30 not-last:pb-3"
+									className="space-y-2 not-last:border-b not-last:border-border/60 not-last:pb-3"
 								>
-									<div className="flex items-center gap-1">
-										<h3 className="font-bold">{groupName}</h3>{" "}
-										<span className="text-muted-foreground">
+									<div className="flex items-center gap-1.5">
+										<h3 className="font-display font-bold tracking-tight">
+											{groupName}
+										</h3>
+										<span className="text-muted-foreground text-sm">
 											({exercises.length})
 										</span>
 									</div>
 
-									<div className="space-y-1 pl-4 border-l-2">
+									<div className="space-y-1 pl-4 border-l-2 border-border/60">
 										{exercises.map((exercise) => (
 											<div
 												key={exercise.id}
@@ -76,7 +80,7 @@ export function WorkoutProgressDrawer() {
 
 												<span
 													className={clsx(
-														"flex items-center gap-1",
+														"flex items-center gap-1 font-display text-sm tabular-nums",
 														exercise.isFinished
 															? "text-success"
 															: "text-muted-foreground",

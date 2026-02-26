@@ -37,11 +37,21 @@ export function WorkoutInfo() {
 				<div className="flex items-center justify-between w-full">
 					<WorkoutProgressDrawer />
 
-					<div className="flex items-center gap-2">
-						<div className="text-muted-foreground">{formattedTime}</div>
+					<div className="flex items-center gap-3">
+						<div className="flex items-center gap-2">
+							<div className="size-2 rounded-full bg-primary animate-pulse-glow" />
+							<span className="font-display text-sm font-semibold tabular-nums text-foreground tracking-wide">
+								{formattedTime}
+							</span>
+						</div>
 
-						<Button variant="destructive" onClick={handleEndWorkout}>
-							End Workout
+						<Button
+							variant="destructive"
+							size="sm"
+							onClick={handleEndWorkout}
+							className="font-display font-semibold tracking-wide"
+						>
+							End
 						</Button>
 					</div>
 				</div>
@@ -49,7 +59,7 @@ export function WorkoutInfo() {
 				<Button
 					onClick={handleStartWorkout}
 					isLoading={isLoading}
-					className="min-w-28 ml-auto"
+					className="min-w-28 ml-auto font-display font-semibold tracking-wide"
 				>
 					Start Workout
 				</Button>

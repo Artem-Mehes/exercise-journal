@@ -88,7 +88,7 @@ export function ExerciseAddSetForm() {
 	]);
 
 	return (
-		<Card className="border-primary/20 bg-gradient-to-br from-card to-primary/5 shadow-sm">
+		<Card className="border-primary/20 bg-gradient-to-br from-card via-card to-primary/5 shadow-md">
 			<form
 				onSubmit={(e) => {
 					e.preventDefault();
@@ -98,10 +98,12 @@ export function ExerciseAddSetForm() {
 			>
 				<CardHeader className="flex justify-between items-center pb-2">
 					<div className="flex items-center gap-2">
-						<div className="flex size-8 items-center justify-center rounded-lg bg-primary/10">
+						<div className="flex size-9 items-center justify-center rounded-lg bg-primary/10">
 							<PlusCircle className="size-4 text-primary" />
 						</div>
-						<CardTitle className="text-base font-semibold">Add Set</CardTitle>
+						<CardTitle className="font-display text-base font-semibold tracking-tight">
+							Add Set
+						</CardTitle>
 					</div>
 
 					<form.AppField name="unit">

@@ -100,19 +100,14 @@ export const getAllWithExercises = query({
 					.withIndex("groupId", (q) => q.eq("groupId", group._id))
 					.collect();
 
-				let resultExercises: (Doc<"exercises"> & { isFinished?: boolean })[] =
-					[];
+				let resultExercises: (Doc<"exercises"> & {
+					isFinished?: boolean;
+					currentSetsCount?: number;
+				})[] = [];
 
 				if (currentActiveWorkout) {
 					resultExercises = await Promise.all(
 						exercises.map(async (exercise) => {
-							if (!exercise.setsGoal) {
-								return {
-									...exercise,
-									isFinished: false,
-								};
-							}
-
 							const sets = await ctx.db
 								.query("sets")
 								.withIndex("workoutId_exerciseId", (q) =>
@@ -124,6 +119,7 @@ export const getAllWithExercises = query({
 
 							return {
 								...exercise,
+								currentSetsCount: sets.length,
 								isFinished: exercise.setsGoal
 									? sets.length >= exercise.setsGoal
 									: false,

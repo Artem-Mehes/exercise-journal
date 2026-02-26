@@ -7,7 +7,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { api } from "convex/_generated/api";
 import type { Id } from "convex/_generated/dataModel";
 import { useMutation, useQuery } from "convex/react";
-import { Plus } from "lucide-react";
+import { LayoutTemplate, Plus } from "lucide-react";
 
 export const Route = createFileRoute("/templates")({
 	component: RouteComponent,
@@ -37,13 +37,13 @@ function RouteComponent() {
 	}
 
 	return (
-		<div className="space-y-3">
+		<div className="space-y-4">
 			<div className="flex items-center justify-between">
-				<h1 className="text-2xl font-bold">Templates</h1>
+				<h1 className="text-2xl font-bold tracking-tight">Templates</h1>
 				<TemplateFormDrawer
 					mode="create"
 					trigger={
-						<Button variant="outline" size="sm">
+						<Button variant="outline" size="sm" className="font-display">
 							<Plus className="size-4" />
 							Create
 						</Button>
@@ -52,8 +52,11 @@ function RouteComponent() {
 			</div>
 
 			{templates.length === 0 ? (
-				<div className="py-12 text-center text-muted-foreground">
-					No templates yet. Create one to get started.
+				<div className="py-16 text-center">
+					<LayoutTemplate className="size-10 mx-auto text-muted-foreground/40 mb-3" />
+					<p className="text-muted-foreground">
+						No templates yet. Create one to get started.
+					</p>
 				</div>
 			) : (
 				<div className="space-y-3">

@@ -36,7 +36,7 @@ function ExerciseStats({ exerciseId }: { exerciseId: Id<"exercises"> }) {
 		<div className="flex items-center gap-3 text-xs text-muted-foreground">
 			<span className="flex items-center gap-1">
 				<Medal className="size-3 text-primary" />
-				{bestSet.count} × {bestSet.weight} {bestSet.unit}
+				{bestSet.count} x {bestSet.weight} {bestSet.unit}
 			</span>
 			<span className="flex items-center gap-1">
 				<Trophy className="size-3 text-success" />
@@ -52,10 +52,13 @@ export function TemplateCard({ template, onDelete }: TemplateCardProps) {
 			<CardHeader className="pb-2">
 				<CardTitle className="flex items-center justify-between">
 					<div className="flex items-center gap-2">
-						<span className="text-base font-semibold">
+						<span className="font-display text-base font-semibold tracking-tight">
 							{template.name || "Untitled"}
 						</span>
-						<Badge variant="secondary" className="tabular-nums">
+						<Badge
+							variant="secondary"
+							className="tabular-nums font-display text-xs"
+						>
 							{template.exerciseDetails.length}
 						</Badge>
 					</div>
@@ -72,7 +75,7 @@ export function TemplateCard({ template, onDelete }: TemplateCardProps) {
 						<Button
 							variant="ghost"
 							size="icon"
-							className="size-8 text-destructive"
+							className="size-8 text-destructive hover:text-destructive"
 							onClick={() => onDelete(template._id)}
 						>
 							<Trash2 className="size-4" />
@@ -84,14 +87,14 @@ export function TemplateCard({ template, onDelete }: TemplateCardProps) {
 				{template.exerciseDetails.length === 0 ? (
 					<p className="text-sm text-muted-foreground">No exercises added.</p>
 				) : (
-					<div className="space-y-2">
+					<div className="space-y-1.5">
 						{template.exerciseDetails.map((exercise, index) => (
 							<div
 								key={exercise._id}
-								className="flex items-center justify-between rounded-md border bg-background p-2"
+								className="flex items-center justify-between rounded-lg border border-border/60 bg-background/60 p-2.5"
 							>
-								<div className="flex items-center gap-2">
-									<span className="flex size-5 items-center justify-center rounded bg-muted text-xs font-medium text-muted-foreground">
+								<div className="flex items-center gap-2.5">
+									<span className="flex size-6 items-center justify-center rounded-md bg-primary/10 font-display text-xs font-semibold text-primary">
 										{index + 1}
 									</span>
 									<div>

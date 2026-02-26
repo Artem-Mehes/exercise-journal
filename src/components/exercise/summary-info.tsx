@@ -33,62 +33,66 @@ export function ExerciseSummaryInfo() {
 	const volumeBestSet = summary.bestSet.byVolume;
 
 	return (
-		<Card className="shadow-sm">
+		<Card className="shadow-sm overflow-hidden">
 			<CardHeader className="pb-2">
 				<div className="flex items-center gap-2">
-					<div className="flex size-8 items-center justify-center rounded-lg bg-amber-500/10">
+					<div className="flex size-9 items-center justify-center rounded-lg bg-amber-500/10">
 						<Trophy className="size-4 text-amber-500" />
 					</div>
-					<CardTitle className="text-base font-semibold">
+					<CardTitle className="font-display text-base font-semibold tracking-tight">
 						Personal Records
 					</CardTitle>
 				</div>
 			</CardHeader>
 			<CardContent>
 				<div className="grid grid-cols-2 gap-3">
-					<div className="rounded-lg border bg-gradient-to-br from-primary/5 to-primary/10 p-4 text-center">
-						<div className="mb-1 flex items-center justify-center gap-1.5">
-							<Medal className="size-4 text-primary" />
-							<span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-								Best Set
-							</span>
-						</div>
-						<div className="text-xl font-bold text-primary">
-							{volumeBestSet.count} × {volumeBestSet.weight}{" "}
-							<span className="text-base font-medium">
-								{volumeBestSet.unit}
-							</span>
-						</div>
-						<div className="mt-1 text-xs text-muted-foreground">
-							{Math.round(
-								volumeBestSet.unit === "kg"
-									? kgToLbs(volumeBestSet.weight)
-									: lbsToKg(volumeBestSet.weight),
-							)}{" "}
-							{volumeBestSet.unit === "kg" ? "lbs" : "kg"}
+					<div className="relative rounded-lg border border-primary/20 bg-gradient-to-br from-primary/5 via-primary/8 to-primary/15 p-4 text-center overflow-hidden">
+						<div className="relative">
+							<div className="mb-2 flex items-center justify-center gap-1.5">
+								<Medal className="size-4 text-primary" />
+								<span className="font-display text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+									Best Set
+								</span>
+							</div>
+							<div className="font-display text-2xl font-bold text-primary">
+								{volumeBestSet.count} x {volumeBestSet.weight}{" "}
+								<span className="text-sm font-semibold">
+									{volumeBestSet.unit}
+								</span>
+							</div>
+							<div className="mt-1.5 text-xs text-muted-foreground">
+								{Math.round(
+									volumeBestSet.unit === "kg"
+										? kgToLbs(volumeBestSet.weight)
+										: lbsToKg(volumeBestSet.weight),
+								)}{" "}
+								{volumeBestSet.unit === "kg" ? "lbs" : "kg"}
+							</div>
 						</div>
 					</div>
 
-					<div className="rounded-lg border bg-gradient-to-br from-success/5 to-success/10 p-4 text-center">
-						<div className="mb-1 flex items-center justify-center gap-1.5">
-							<Trophy className="size-4 text-success" />
-							<span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-								Max Weight
-							</span>
-						</div>
-						<div className="text-xl font-bold text-success">
-							{summary.maxWeight.value}{" "}
-							<span className="text-base font-medium">
-								{summary.maxWeight.unit}
-							</span>
-						</div>
-						<div className="mt-1 text-xs text-muted-foreground">
-							{Math.round(
-								summary.maxWeight.unit === "kg"
-									? kgToLbs(summary.maxWeight.value)
-									: lbsToKg(summary.maxWeight.value),
-							)}{" "}
-							{summary.maxWeight.unit === "kg" ? "lbs" : "kg"}
+					<div className="relative rounded-lg border border-success/20 bg-gradient-to-br from-success/5 via-success/8 to-success/15 p-4 text-center overflow-hidden">
+						<div className="relative">
+							<div className="mb-2 flex items-center justify-center gap-1.5">
+								<Trophy className="size-4 text-success" />
+								<span className="font-display text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+									Max Weight
+								</span>
+							</div>
+							<div className="font-display text-2xl font-bold text-success">
+								{summary.maxWeight.value}{" "}
+								<span className="text-sm font-semibold">
+									{summary.maxWeight.unit}
+								</span>
+							</div>
+							<div className="mt-1.5 text-xs text-muted-foreground">
+								{Math.round(
+									summary.maxWeight.unit === "kg"
+										? kgToLbs(summary.maxWeight.value)
+										: lbsToKg(summary.maxWeight.value),
+								)}{" "}
+								{summary.maxWeight.unit === "kg" ? "lbs" : "kg"}
+							</div>
 						</div>
 					</div>
 				</div>

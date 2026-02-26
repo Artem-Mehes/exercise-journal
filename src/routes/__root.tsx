@@ -57,13 +57,13 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 
 				<ConvexProvider>
 					<SidebarProvider>
-						<div className="flex flex-col  flex-1">
-							<header className="bg-background border-b flex items-center justify-between p-2 min-h-14 w-full">
+						<div className="flex flex-col flex-1">
+							<header className="bg-card/60 backdrop-blur-md border-b border-border/60 flex items-center justify-between px-4 py-2 min-h-14 w-full sticky top-0 z-40">
 								<WorkoutInfo />
 							</header>
 
 							<main className="flex-1 flex w-full flex-col h-full overflow-auto">
-								<div className="flex-1 overflow-auto p-3 space-y-4">
+								<div className="flex-1 overflow-auto px-4 py-4 space-y-5">
 									{children}
 								</div>
 							</main>
