@@ -44,6 +44,7 @@ export default defineSchema({
 		incline: v.number(),
 		speed: v.number(),
 		createdAt: v.number(),
+		doneAt: v.optional(v.number()),
 	}).index("createdAt", ["createdAt"]),
 	finishedExercises: defineTable({
 		workoutId: v.id("workouts"),

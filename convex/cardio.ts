@@ -46,6 +46,31 @@ export const update = mutation({
 	},
 });
 
+export const toggleDone = mutation({
+	args: {
+		cardioId: v.id("cardio"),
+	},
+	handler: async (ctx, args) => {
+		const cardio = await ctx.db.get(args.cardioId);
+		if (!cardio) {
+			throw new Error("Cardio entry not found");
+		}
+
+		const now = Date.now();
+		const todayStart = new Date(now);
+		todayStart.setHours(0, 0, 0, 0);
+
+		const isDoneToday =
+			cardio.doneAt !== undefined && cardio.doneAt >= todayStart.getTime();
+
+		await ctx.db.patch(args.cardioId, {
+			doneAt: isDoneToday ? undefined : now,
+		});
+
+		return args.cardioId;
+	},
+});
+
 export const remove = mutation({
 	args: {
 		cardioId: v.id("cardio"),

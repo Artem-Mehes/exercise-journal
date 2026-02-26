@@ -267,6 +267,19 @@ body {
 	animation: pulse-glow 2s ease-in-out infinite;
 }
 
+/* Week page – active day row glow */
+.week-row-glow {
+	box-shadow:
+		0 0 12px oklch(0.78 0.155 60 / 0.08),
+		0 1px 3px oklch(0 0 0 / 0.25);
+}
+.week-row-glow-both {
+	box-shadow:
+		0 0 20px oklch(0.78 0.155 60 / 0.12),
+		0 0 6px oklch(0.7 0.18 20 / 0.06),
+		0 2px 6px oklch(0 0 0 / 0.3);
+}
+
 /* Subtle grain overlay for depth */
 .bg-grain {
 	position: relative;

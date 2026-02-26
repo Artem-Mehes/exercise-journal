@@ -1,8 +1,15 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { Id } from "convex/_generated/dataModel";
-import { Clock, Mountain, Pencil, Trash2, Zap } from "lucide-react";
+import { Check, Clock, Mountain, Pencil, Trash2, Zap } from "lucide-react";
 import { CardioFormDrawer } from "./cardio-form-drawer";
+
+function isDoneToday(doneAt?: number): boolean {
+	if (doneAt === undefined) return false;
+	const todayStart = new Date();
+	todayStart.setHours(0, 0, 0, 0);
+	return doneAt >= todayStart.getTime();
+}
 
 interface CardioCardProps {
 	cardio: {
@@ -11,18 +18,35 @@ interface CardioCardProps {
 		time: number;
 		incline: number;
 		speed: number;
+		doneAt?: number;
 	};
 	onDelete: (cardioId: Id<"cardio">) => void;
+	onToggleDone: (cardioId: Id<"cardio">) => void;
 }
 
-export function CardioCard({ cardio, onDelete }: CardioCardProps) {
+export function CardioCard({ cardio, onDelete, onToggleDone }: CardioCardProps) {
+	const done = isDoneToday(cardio.doneAt);
+
 	return (
-		<Card className="shadow-sm">
+		<Card className={`shadow-sm transition-colors ${done ? "border-success/40 bg-success/5" : ""}`}>
 			<CardHeader className="pb-2">
 				<CardTitle className="flex items-center justify-between">
-					<span className="font-display text-base font-semibold tracking-tight">
-						{cardio.title}
-					</span>
+					<div className="flex items-center gap-2.5">
+						<button
+							type="button"
+							onClick={() => onToggleDone(cardio._id)}
+							className={`flex size-7 shrink-0 items-center justify-center rounded-lg border-2 transition-all ${
+								done
+									? "border-success bg-success text-white"
+									: "border-muted-foreground/30 hover:border-muted-foreground/50"
+							}`}
+						>
+							{done && <Check className="size-4" strokeWidth={3} />}
+						</button>
+						<span className={`font-display text-base font-semibold tracking-tight ${done ? "text-success" : ""}`}>
+							{cardio.title}
+						</span>
+					</div>
 					<div className="flex items-center gap-1">
 						<CardioFormDrawer
 							mode="edit"

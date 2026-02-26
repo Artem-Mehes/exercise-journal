@@ -7,7 +7,9 @@
       "Bash(npx tsc:*)",
       "Bash(xxd:*)",
       "Bash(pnpm build:*)",
-      "Bash(sed:*)"
+      "Bash(sed:*)",
+      "Bash(pnpm tsr:*)",
+      "Bash(npx:*)"
     ]
   }
 }

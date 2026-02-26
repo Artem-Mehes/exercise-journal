@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import {
 	BicepsFlexed,
+	CalendarDays,
 	Dumbbell,
 	HeartPulse,
 	LayoutTemplate,
@@ -21,6 +22,11 @@ const items = [
 		title: "Cardio",
 		url: "/cardio",
 		icon: HeartPulse,
+	},
+	{
+		title: "Week",
+		url: "/week",
+		icon: CalendarDays,
 	},
 	{
 		title: "Workouts",

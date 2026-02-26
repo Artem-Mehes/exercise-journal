@@ -16,10 +16,15 @@ export const Route = createFileRoute("/cardio")({
 function RouteComponent() {
 	const cardioEntries = useQuery(api.cardio.get);
 	const removeCardio = useMutation(api.cardio.remove);
+	const toggleDone = useMutation(api.cardio.toggleDone);
 
 	async function handleDelete(cardioId: Id<"cardio">) {
 		await removeCardio({ cardioId });
 		toast.success("Cardio deleted");
+	}
+
+	async function handleToggleDone(cardioId: Id<"cardio">) {
+		await toggleDone({ cardioId });
 	}
 
 	if (cardioEntries === undefined) {
@@ -65,6 +70,7 @@ function RouteComponent() {
 							key={entry._id}
 							cardio={entry}
 							onDelete={handleDelete}
+							onToggleDone={handleToggleDone}
 						/>
 					))}
 				</div>
