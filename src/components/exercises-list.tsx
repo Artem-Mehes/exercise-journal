@@ -10,8 +10,8 @@ import { Link } from "@tanstack/react-router";
 import { Store, useStore } from "@tanstack/react-store";
 import { api } from "convex/_generated/api";
 import { useQuery } from "convex/react";
-import { CheckCircle, ChevronRight, Dumbbell } from "lucide-react";
-import { useEffect } from "react";
+import { CheckCircle, ChevronRight, Dumbbell, SearchX } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 
 const store = new Store<{
 	openedGroups: string[] | undefined;
@@ -31,10 +31,60 @@ const updateOpenedGroups = (openedGroups: string[]) => {
 	});
 };
 
-export function ExercisesList() {
+export function ExercisesList({ searchQuery = "" }: { searchQuery?: string }) {
 	const muscleGroups = useQuery(api.exerciseGroups.getAllWithExercises);
 
 	const openedGroups = useStore(store, (state) => state.openedGroups);
+	const [selectedGroupIds, setSelectedGroupIds] = useState<Set<string>>(
+		new Set(),
+	);
+
+	const toggleGroup = (id: string) => {
+		setSelectedGroupIds((prev) => {
+			const next = new Set(prev);
+			if (next.has(id)) {
+				next.delete(id);
+			} else {
+				next.add(id);
+			}
+			return next;
+		});
+	};
+
+	const query = searchQuery.trim().toLowerCase();
+	const isSearching = query.length > 0;
+	const isFiltering = selectedGroupIds.size > 0;
+
+	const filteredGroups = useMemo(() => {
+		if (!muscleGroups) return undefined;
+
+		let groups = muscleGroups;
+
+		if (isFiltering) {
+			groups = groups.filter((g) => selectedGroupIds.has(g._id));
+		}
+
+		if (isSearching) {
+			groups = groups
+				.map((group) => {
+					const groupNameMatches = group.name.toLowerCase().includes(query);
+					if (groupNameMatches) return group;
+
+					const matchingExercises = group.exercises.filter((e) =>
+						e.name.toLowerCase().includes(query),
+					);
+					if (matchingExercises.length === 0) return null;
+					return { ...group, exercises: matchingExercises };
+				})
+				.filter((g): g is NonNullable<typeof g> => g !== null);
+		}
+
+		return groups;
+	}, [muscleGroups, query, isSearching, isFiltering, selectedGroupIds]);
+
+	const accordionValue = isSearching
+		? (filteredGroups?.map((g) => g._id) ?? [])
+		: openedGroups;
 
 	useEffect(() => {
 		if (muscleGroups && !openedGroups) {
@@ -60,110 +110,179 @@ export function ExercisesList() {
 		);
 	}
 
+	const hasNoResults =
+		(isSearching || isFiltering) && filteredGroups?.length === 0;
+
+	if (hasNoResults) {
+		return (
+			<>
+				{muscleGroups && (
+					<GroupChips
+						groups={muscleGroups}
+						selectedIds={selectedGroupIds}
+						onToggle={toggleGroup}
+					/>
+				)}
+				<div className="flex flex-col items-center justify-center gap-3 py-12 text-muted-foreground">
+					<SearchX className="size-10 opacity-40" />
+					<p className="text-sm">
+						No exercises matching "{searchQuery.trim()}"
+					</p>
+				</div>
+			</>
+		);
+	}
+
 	return (
-		<Accordion
-			type="multiple"
-			className="w-full space-y-3"
-			value={openedGroups}
-			onValueChange={(value) => {
-				updateOpenedGroups(value);
-			}}
-		>
-			{muscleGroups.map((muscleGroup) => {
-				const totalCount = muscleGroup.exercises.length;
-				const activeCount = muscleGroup.exercises.filter(
-					(e) =>
-						("currentSetsCount" in e &&
-							(e.currentSetsCount as number) > 0) ||
-						("isFinished" in e && e.isFinished),
-				).length;
-				const hasActiveWorkout = muscleGroup.exercises.some(
-					(e) => "currentSetsCount" in e,
-				);
-				const progressPercent =
-					totalCount > 0 ? (activeCount / totalCount) * 100 : 0;
+		<div className="space-y-3">
+			{muscleGroups && (
+				<GroupChips
+					groups={muscleGroups}
+					selectedIds={selectedGroupIds}
+					onToggle={toggleGroup}
+				/>
+			)}
+			<Accordion
+				type="multiple"
+				className="w-full space-y-3"
+				value={accordionValue}
+				onValueChange={(value) => {
+					if (!isSearching) {
+						updateOpenedGroups(value);
+					}
+				}}
+			>
+				{(filteredGroups ?? []).map((muscleGroup) => {
+					const totalCount = muscleGroup.exercises.length;
+					const activeCount = muscleGroup.exercises.filter(
+						(e) =>
+							("currentSetsCount" in e && (e.currentSetsCount as number) > 0) ||
+							("isFinished" in e && e.isFinished),
+					).length;
+					const hasActiveWorkout = muscleGroup.exercises.some(
+						(e) => "currentSetsCount" in e,
+					);
+					const progressPercent =
+						totalCount > 0 ? (activeCount / totalCount) * 100 : 0;
 
-				return (
-					<AccordionItem
-						key={muscleGroup._id}
-						value={muscleGroup._id}
-						className="rounded-xl border border-border/60 bg-card px-4 shadow-sm transition-all duration-200 hover:shadow-md overflow-hidden"
-					>
-						<AccordionTrigger className="py-4 hover:no-underline">
-							<div className="flex w-full flex-col gap-2 pr-2">
-								<div className="flex w-full items-center justify-between">
-									<div className="flex items-center gap-3">
-										<div className="flex size-9 items-center justify-center rounded-lg bg-primary/10 text-primary transition-colors">
-											<Dumbbell className="size-4" />
+					return (
+						<AccordionItem
+							key={muscleGroup._id}
+							value={muscleGroup._id}
+							className="rounded-xl border border-border/60 bg-card px-4 shadow-sm transition-all duration-200 hover:shadow-md overflow-hidden"
+						>
+							<AccordionTrigger className="py-4 hover:no-underline">
+								<div className="flex w-full flex-col gap-2 pr-2">
+									<div className="flex w-full items-center justify-between">
+										<div className="flex items-center gap-3">
+											<div className="flex size-9 items-center justify-center rounded-lg bg-primary/10 text-primary transition-colors">
+												<Dumbbell className="size-4" />
+											</div>
+											<span className="font-display text-base font-semibold tracking-tight">
+												{muscleGroup.name}
+											</span>
 										</div>
-										<span className="font-display text-base font-semibold tracking-tight">
-											{muscleGroup.name}
-										</span>
-									</div>
-									<Badge
-										variant="secondary"
-										className="ml-auto mr-2 tabular-nums font-display text-xs"
-									>
-										{activeCount}/{totalCount}
-									</Badge>
-								</div>
-								{hasActiveWorkout && totalCount > 0 && (
-									<div className="ml-12 mr-2 h-1 overflow-hidden rounded-full bg-muted">
-										<div
-											className="h-full rounded-full transition-all duration-500 ease-out bg-primary"
-											style={{ width: `${progressPercent}%` }}
-										/>
-									</div>
-								)}
-							</div>
-						</AccordionTrigger>
-						<AccordionContent className="pb-4">
-							<div className="grid gap-2 sm:grid-cols-2">
-								{muscleGroup.exercises.map((exercise) => {
-									const currentSets =
-										"currentSetsCount" in exercise
-											? (exercise.currentSetsCount as number)
-											: 0;
-									const isActive = currentSets > 0;
-									const isFinished =
-										"isFinished" in exercise && exercise.isFinished;
-
-									return (
-										<Link
-											key={exercise._id}
-											to="/exercises/$exerciseId"
-											params={{ exerciseId: exercise._id }}
-											className={`group flex items-center justify-between rounded-lg border bg-background/60 px-3.5 py-3 transition-all duration-200 hover:bg-accent/50 hover:border-primary/30 hover:shadow-sm min-h-14 ${isFinished ? "border-success/30 bg-success/5" : ""}`}
+										<Badge
+											variant="secondary"
+											className="ml-auto mr-2 tabular-nums font-display text-xs"
 										>
-											<div className="flex flex-col gap-1 min-w-0">
-												<span
-													className={`font-medium transition-colors truncate ${isFinished ? "text-success line-through" : "text-foreground group-hover:text-primary"}`}
-												>
-													{exercise.name}
-												</span>
-												{isActive && (
+											{activeCount}/{totalCount}
+										</Badge>
+									</div>
+									{hasActiveWorkout && totalCount > 0 && (
+										<div className="ml-12 mr-2 h-1 overflow-hidden rounded-full bg-muted">
+											<div
+												className="h-full rounded-full transition-all duration-500 ease-out bg-primary"
+												style={{
+													width: `${progressPercent}%`,
+												}}
+											/>
+										</div>
+									)}
+								</div>
+							</AccordionTrigger>
+							<AccordionContent className="pb-4">
+								<div className="grid gap-2 sm:grid-cols-2">
+									{muscleGroup.exercises.map((exercise) => {
+										const currentSets =
+											"currentSetsCount" in exercise
+												? (exercise.currentSetsCount as number)
+												: 0;
+										const isActive = currentSets > 0;
+										const isFinished =
+											"isFinished" in exercise && exercise.isFinished;
+
+										return (
+											<Link
+												key={exercise._id}
+												to="/exercises/$exerciseId"
+												params={{
+													exerciseId: exercise._id,
+												}}
+												className={`group flex items-center justify-between rounded-lg border bg-background/60 px-3.5 py-3 transition-all duration-200 hover:bg-accent/50 hover:border-primary/30 hover:shadow-sm min-h-14 ${isFinished ? "border-success/30 bg-success/5" : ""}`}
+											>
+												<div className="flex flex-col gap-1 min-w-0">
 													<span
-														className={`text-xs tabular-nums ${isFinished ? "text-success/70" : "text-muted-foreground"}`}
+														className={`font-medium transition-colors truncate ${isFinished ? "text-success line-through" : "text-foreground group-hover:text-primary"}`}
 													>
-														{currentSets} {currentSets === 1 ? "set" : "sets"}
+														{exercise.name}
 													</span>
-												)}
-											</div>
-											<div className="flex items-center gap-2 ml-2 shrink-0">
-												{isFinished ? (
-													<CheckCircle className="size-4 text-success" />
-												) : (
-													<ChevronRight className="size-4 text-muted-foreground transition-transform duration-200 group-hover:translate-x-0.5 group-hover:text-primary" />
-												)}
-											</div>
-										</Link>
-									);
-								})}
-							</div>
-						</AccordionContent>
-					</AccordionItem>
+													{isActive && (
+														<span
+															className={`text-xs tabular-nums ${isFinished ? "text-success/70" : "text-muted-foreground"}`}
+														>
+															{currentSets} {currentSets === 1 ? "set" : "sets"}
+														</span>
+													)}
+												</div>
+												<div className="flex items-center gap-2 ml-2 shrink-0">
+													{isFinished ? (
+														<CheckCircle className="size-4 text-success" />
+													) : (
+														<ChevronRight className="size-4 text-muted-foreground transition-transform duration-200 group-hover:translate-x-0.5 group-hover:text-primary" />
+													)}
+												</div>
+											</Link>
+										);
+									})}
+								</div>
+							</AccordionContent>
+						</AccordionItem>
+					);
+				})}
+			</Accordion>
+		</div>
+	);
+}
+
+function GroupChips({
+	groups,
+	selectedIds,
+	onToggle,
+}: {
+	groups: Array<{ _id: string; name: string }>;
+	selectedIds: Set<string>;
+	onToggle: (id: string) => void;
+}) {
+	return (
+		<div className="flex gap-2 flex-wrap [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none]">
+			{groups.map((group) => {
+				const isActive = selectedIds.has(group._id);
+				return (
+					<button
+						key={group._id}
+						type="button"
+						onClick={() => onToggle(group._id)}
+						className={`shrink-0 rounded-lg px-3 py-1.5 text-xs font-medium border transition-all duration-150 active:scale-95 ${
+							isActive
+								? "bg-primary text-primary-foreground border-primary shadow-sm"
+								: "bg-card border-border/60 text-muted-foreground hover:text-foreground hover:border-border"
+						}`}
+					>
+						{group.name}
+					</button>
 				);
 			})}
-		</Accordion>
+		</div>
 	);
 }
