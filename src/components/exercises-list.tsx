@@ -221,7 +221,7 @@ export function ExercisesList({ searchQuery = "" }: { searchQuery?: string }) {
 								</div>
 							</AccordionTrigger>
 							<AccordionContent className="px-4 pb-2">
-								<div >
+								<div>
 									{muscleGroup.exercises.map((exercise) => {
 										const currentSets =
 											"currentSetsCount" in exercise
@@ -262,12 +262,8 @@ export function ExercisesList({ searchQuery = "" }: { searchQuery?: string }) {
 												<div
 													className="grid transition-all duration-300 ease-out"
 													style={{
-														gridTemplateColumns: hasWorkout
-															? "24px"
-															: "0px",
-														marginRight: hasWorkout
-															? "12px"
-															: "0px",
+														gridTemplateColumns: hasWorkout ? "24px" : "0px",
+														marginRight: hasWorkout ? "12px" : "0px",
 													}}
 												>
 													<div className="overflow-hidden flex">
@@ -303,9 +299,9 @@ export function ExercisesList({ searchQuery = "" }: { searchQuery?: string }) {
 												<div className="min-w-0 flex-1">
 													<span
 														className={cn(
-															"block truncate text-sm font-medium transition-colors",
+															"block truncate text-base",
 															isFinished
-																? "text-muted-foreground line-through decoration-muted-foreground/30"
+																? "text-muted-foreground line-through"
 																: "text-foreground group-hover:text-primary",
 														)}
 													>
