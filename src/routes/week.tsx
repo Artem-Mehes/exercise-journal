@@ -77,22 +77,16 @@ function hasCardioDoneOnDay(
 
 function hasWorkoutOnDay(
 	workouts: { startTime: number }[],
-	activeWorkout: { startTime: number } | null | undefined,
 	date: Date,
 ): boolean {
 	const { start, end } = getDayRange(date);
-	const inRange = (t: number) => t >= start && t <= end;
-
-	if (workouts.some((w) => inRange(w.startTime))) return true;
-	if (activeWorkout && inRange(activeWorkout.startTime)) return true;
-	return false;
+	return workouts.some((w) => w.startTime >= start && w.startTime <= end);
 }
 
 function RouteComponent() {
 	const weekDays = getWeekDays();
 	const cardioEntries = useQuery(api.cardio.get);
 	const workouts = useQuery(api.workouts.getAll);
-	const activeWorkout = useQuery(api.workouts.getCurrentWorkout);
 
 	if (cardioEntries === undefined || workouts === undefined) {
 		return (
@@ -109,7 +103,7 @@ function RouteComponent() {
 
 	const activeDays = weekDays.filter((day) => {
 		const c = hasCardioDoneOnDay(cardioEntries, day.date);
-		const s = hasWorkoutOnDay(workouts, activeWorkout, day.date);
+		const s = hasWorkoutOnDay(workouts, day.date);
 		return c || s;
 	}).length;
 
@@ -127,7 +121,7 @@ function RouteComponent() {
 			<div className="space-y-2">
 				{weekDays.map((day, i) => {
 					const cardio = hasCardioDoneOnDay(cardioEntries, day.date);
-					const strength = hasWorkoutOnDay(workouts, activeWorkout, day.date);
+					const strength = hasWorkoutOnDay(workouts, day.date);
 					const hasActivity = strength || cardio;
 					const hasBoth = strength && cardio;
 

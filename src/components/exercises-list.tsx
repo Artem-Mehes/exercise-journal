@@ -11,24 +11,40 @@ import { Store, useStore } from "@tanstack/react-store";
 import { api } from "convex/_generated/api";
 import { useMutation, useQuery } from "convex/react";
 import { Check, Dumbbell, SearchX } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 
 const store = new Store<{
 	openedGroups: string[] | undefined;
+	selectedGroupIds: string[];
 }>({
 	openedGroups: localStorage.getItem("openedGroups")
 		? JSON.parse(localStorage.getItem("openedGroups") as string)
 		: undefined,
+	selectedGroupIds: localStorage.getItem("selectedGroupIds")
+		? JSON.parse(localStorage.getItem("selectedGroupIds") as string)
+		: [],
 });
 
 const updateOpenedGroups = (openedGroups: string[]) => {
 	localStorage.setItem("openedGroups", JSON.stringify(openedGroups));
 
-	store.setState(() => {
-		return {
-			openedGroups,
-		};
-	});
+	store.setState((prev) => ({
+		...prev,
+		openedGroups,
+	}));
+};
+
+const updateSelectedGroupIds = (ids: string[]) => {
+	if (ids.length > 0) {
+		localStorage.setItem("selectedGroupIds", JSON.stringify(ids));
+	} else {
+		localStorage.removeItem("selectedGroupIds");
+	}
+
+	store.setState((prev) => ({
+		...prev,
+		selectedGroupIds: ids,
+	}));
 };
 
 export function ExercisesList({ searchQuery = "" }: { searchQuery?: string }) {
@@ -36,20 +52,23 @@ export function ExercisesList({ searchQuery = "" }: { searchQuery?: string }) {
 	const toggleFinished = useMutation(api.exercises.toggleFinished);
 
 	const openedGroups = useStore(store, (state) => state.openedGroups);
-	const [selectedGroupIds, setSelectedGroupIds] = useState<Set<string>>(
-		new Set(),
+	const selectedGroupIdsList = useStore(
+		store,
+		(state) => state.selectedGroupIds,
+	);
+	const selectedGroupIds = useMemo(
+		() => new Set(selectedGroupIdsList),
+		[selectedGroupIdsList],
 	);
 
 	const toggleGroup = (id: string) => {
-		setSelectedGroupIds((prev) => {
-			const next = new Set(prev);
-			if (next.has(id)) {
-				next.delete(id);
-			} else {
-				next.add(id);
-			}
-			return next;
-		});
+		const next = new Set(selectedGroupIds);
+		if (next.has(id)) {
+			next.delete(id);
+		} else {
+			next.add(id);
+		}
+		updateSelectedGroupIds([...next]);
 	};
 
 	const query = searchQuery.trim().toLowerCase();
@@ -250,7 +269,7 @@ function GroupChips({
 	onToggle: (id: string) => void;
 }) {
 	return (
-		<div className="flex flex-wrap gap-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none]">
+		<div className="flex flex-wrap gap-2.5 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none]">
 			{groups.map((group) => {
 				const isActive = selectedIds.has(group._id);
 				return (
@@ -259,7 +278,7 @@ function GroupChips({
 						type="button"
 						onClick={() => onToggle(group._id)}
 						className={cn(
-							"shrink-0 rounded-full px-3.5 py-1.5 text-xs font-medium transition-all duration-200 active:scale-95",
+							"shrink-0 rounded-full px-4 py-2 text-[13px] font-medium transition-all duration-200 active:scale-[0.97]",
 							isActive
 								? "bg-primary text-primary-foreground shadow-sm shadow-primary/25"
 								: "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground",

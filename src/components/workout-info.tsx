@@ -2,7 +2,7 @@ import { useMutation, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { useWorkoutTimer } from "../hooks/use-workout-timer";
 import { Button } from "./ui/button";
-import { WorkoutProgressDrawer } from "./workout-progress-drawer";
+
 
 export function WorkoutInfo() {
 	const currentWorkout = useQuery(api.workouts.getCurrentWorkout);
@@ -34,9 +34,7 @@ export function WorkoutInfo() {
 	return (
 		<div className="flex items-center gap-4 w-full">
 			{isWorkoutActive ? (
-				<div className="flex items-center justify-between w-full">
-					<WorkoutProgressDrawer />
-
+				<div className="flex items-center justify-end w-full">
 					<div className="flex items-center gap-3">
 						<div className="flex items-center gap-2">
 							<div className="size-2 rounded-full bg-primary animate-pulse-glow" />
