@@ -8,7 +8,13 @@ export const Route = createFileRoute("/week")({
 	component: RouteComponent,
 });
 
-function getWeekDays(): { name: string; shortName: string; date: Date; isToday: boolean; isPast: boolean }[] {
+function getWeekDays(): {
+	name: string;
+	shortName: string;
+	date: Date;
+	isToday: boolean;
+	isPast: boolean;
+}[] {
 	const now = new Date();
 	const dayOfWeek = now.getDay();
 	// Monday = 0, Sunday = 6
@@ -19,7 +25,15 @@ function getWeekDays(): { name: string; shortName: string; date: Date; isToday: 
 
 	const days = [];
 	const dayNames = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-	const fullNames = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+	const fullNames = [
+		"Monday",
+		"Tuesday",
+		"Wednesday",
+		"Thursday",
+		"Friday",
+		"Saturday",
+		"Sunday",
+	];
 
 	for (let i = 0; i < 7; i++) {
 		const date = new Date(monday);
@@ -126,13 +140,16 @@ function RouteComponent() {
 							<div
 								className={`
 									relative overflow-hidden rounded-xl border transition-all duration-300
-									${hasActivity
-										? hasBoth
-											? "border-primary/50 bg-gradient-to-r from-primary/10 via-card to-card shadow-md week-row-glow-both"
-											: "border-primary/30 bg-gradient-to-r from-primary/8 via-card to-card shadow-sm week-row-glow"
-										: day.isToday
-											? "border-border/60 bg-card/60"
-											: "border-border/30 bg-card/20"
+									${
+										hasActivity
+											? hasBoth
+												? "border-primary/50 bg-gradient-to-r from-primary/10 via-card to-card shadow-md week-row-glow-both"
+												: "border-primary/30 bg-gradient-to-r from-primary/8 via-card to-card shadow-sm week-row-glow"
+											: day.isToday
+												? "border-border bg-card shadow-sm"
+												: day.isPast
+													? "border-border/70 bg-card/70"
+													: "border-border/60 bg-card/60"
 									}
 								`}
 							>
@@ -144,51 +161,69 @@ function RouteComponent() {
 											: hasActivity
 												? "bg-primary/80"
 												: day.isToday
-													? "bg-border/40"
-													: "bg-transparent"
+													? "bg-muted-foreground/40"
+													: day.isPast
+														? "bg-border"
+														: "bg-border/70"
 									}`}
 								/>
 
 								<div className="flex items-center gap-3 pl-4.5 pr-4 py-3">
 									{/* Date column */}
-									<div className={`flex flex-col items-center w-10 shrink-0 transition-all duration-300 ${
-										hasActivity ? "scale-105" : ""
-									}`}>
-										<span className={`text-[10px] font-semibold uppercase tracking-widest ${
-											hasActivity
-												? "text-primary"
-												: day.isToday
-													? "text-muted-foreground"
-													: "text-muted-foreground/40"
-										}`}>
+									<div
+										className={`flex flex-col items-center w-10 shrink-0 transition-all duration-300 ${
+											hasActivity ? "scale-105" : ""
+										}`}
+									>
+										<span
+											className={`text-[10px] font-semibold uppercase tracking-widest ${
+												hasActivity
+													? "text-primary"
+													: day.isToday
+														? "text-muted-foreground"
+														: "text-muted-foreground"
+											}`}
+										>
 											{day.shortName}
 										</span>
-										<span className={`text-xl font-extrabold font-display leading-tight ${
-											hasActivity
-												? "text-foreground"
-												: day.isToday
-													? "text-muted-foreground/80"
-													: "text-muted-foreground/30"
-										}`}>
+										<span
+											className={`text-xl font-extrabold font-display leading-tight ${
+												hasActivity
+													? "text-foreground"
+													: day.isToday
+														? "text-foreground/80"
+														: day.isPast
+															? "text-muted-foreground"
+															: "text-muted-foreground/80"
+											}`}
+										>
 											{day.date.getDate()}
 										</span>
 									</div>
 
 									{/* Divider */}
-									<div className={`h-9 w-px shrink-0 transition-colors duration-300 ${
-										hasActivity ? "bg-primary/20" : "bg-border/30"
-									}`} />
+									<div
+										className={`h-9 w-px shrink-0 transition-colors duration-300 ${
+											hasActivity ? "bg-primary/20" : "bg-border/70"
+										}`}
+									/>
 
 									{/* Content */}
 									<div className="flex items-center gap-2 flex-1 min-w-0">
 										{!hasActivity && (
-											<span className={`text-sm italic ${
-												day.isToday ? "text-muted-foreground/50" : "text-muted-foreground/25"
-											}`}>
-												{day.isToday
+											<span
+												className={`text-sm ${
+													day.isToday
+														? "text-muted-foreground"
+														: day.isPast
+															? "text-muted-foreground/70 italic"
+															: "text-muted-foreground/60"
+												}`}
+											>
+												{day.isPast
 													? "Rest day"
-													: day.isPast
-														? "Rest"
+													: day.isToday
+														? "No workout yet"
 														: "\u2014"}
 											</span>
 										)}
@@ -218,10 +253,13 @@ function RouteComponent() {
 											</div>
 										) : hasActivity ? (
 											<div className="flex size-7 items-center justify-center rounded-full bg-primary/15 border border-primary/20">
-												<Check className="size-3.5 text-primary" strokeWidth={2.5} />
+												<Check
+													className="size-3.5 text-primary"
+													strokeWidth={2.5}
+												/>
 											</div>
 										) : day.isToday ? (
-											<div className="size-2 rounded-full bg-muted-foreground/30 animate-pulse-glow shrink-0" />
+											<div className="size-2.5 rounded-full bg-primary/50 animate-pulse-glow shrink-0" />
 										) : null}
 									</div>
 								</div>
