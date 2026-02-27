@@ -9,7 +9,8 @@
       "Bash(pnpm build:*)",
       "Bash(sed:*)",
       "Bash(pnpm tsr:*)",
-      "Bash(npx:*)"
+      "Bash(npx:*)",
+      "Bash(git checkout:*)"
     ]
   }
 }

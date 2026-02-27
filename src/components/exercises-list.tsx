@@ -221,7 +221,7 @@ export function ExercisesList({ searchQuery = "" }: { searchQuery?: string }) {
 								</div>
 							</AccordionTrigger>
 							<AccordionContent className="px-4 pb-2">
-								<div className="space-y-0.5">
+								<div >
 									{muscleGroup.exercises.map((exercise) => {
 										const currentSets =
 											"currentSetsCount" in exercise
@@ -239,6 +239,16 @@ export function ExercisesList({ searchQuery = "" }: { searchQuery?: string }) {
 												params={{
 													exerciseId: exercise._id,
 												}}
+												onClick={
+													hasWorkout
+														? (e) => {
+																e.preventDefault();
+																toggleFinished({
+																	exerciseId: exercise._id,
+																});
+															}
+														: undefined
+												}
 												className={cn(
 													"group flex items-center rounded-lg px-3 py-3 transition-all duration-200",
 													"hover:bg-accent/40 active:scale-[0.99]",
@@ -260,7 +270,7 @@ export function ExercisesList({ searchQuery = "" }: { searchQuery?: string }) {
 															: "0px",
 													}}
 												>
-													<div className="overflow-hidden">
+													<div className="overflow-hidden flex">
 														<button
 															type="button"
 															className="shrink-0 -my-0.5 rounded-full p-0.5 transition-transform active:scale-90"
@@ -316,14 +326,31 @@ export function ExercisesList({ searchQuery = "" }: { searchQuery?: string }) {
 															{currentSets}
 														</span>
 													)}
-													<ChevronRight
-														className={cn(
-															"size-4 transition-all duration-200",
-															isFinished
-																? "text-muted-foreground/20"
-																: "text-muted-foreground/40 group-hover:translate-x-0.5 group-hover:text-primary",
-														)}
-													/>
+													{hasWorkout ? (
+														<Link
+															to="/exercises/$exerciseId"
+															params={{
+																exerciseId: exercise._id,
+															}}
+															onClick={(e) => e.stopPropagation()}
+														>
+															<ChevronRight
+																className={cn(
+																	"size-4 transition-all duration-200",
+																	isFinished
+																		? "text-muted-foreground/20"
+																		: "text-muted-foreground/40 group-hover:translate-x-0.5 group-hover:text-primary",
+																)}
+															/>
+														</Link>
+													) : (
+														<ChevronRight
+															className={cn(
+																"size-4 transition-all duration-200",
+																"text-muted-foreground/40 group-hover:translate-x-0.5 group-hover:text-primary",
+															)}
+														/>
+													)}
 												</div>
 											</Link>
 										);
