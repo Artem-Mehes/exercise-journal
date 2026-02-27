@@ -20,7 +20,6 @@ import type * as exercises from "../exercises.js";
 import type * as migrations from "../migrations.js";
 import type * as plates from "../plates.js";
 import type * as sets from "../sets.js";
-import type * as templates from "../templates.js";
 import type * as workouts from "../workouts.js";
 
 /**
@@ -39,7 +38,6 @@ declare const fullApi: ApiFromModules<{
   migrations: typeof migrations;
   plates: typeof plates;
   sets: typeof sets;
-  templates: typeof templates;
   workouts: typeof workouts;
 }>;
 export declare const api: FilterApi<

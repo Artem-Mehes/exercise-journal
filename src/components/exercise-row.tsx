@@ -21,7 +21,7 @@ export function ExerciseRow({ exercise, onToggleFinished }: ExerciseRowProps) {
 	const hasWorkout = "isFinished" in exercise;
 
 	const rowClassName = cn(
-		"group flex items-center rounded-lg px-3 py-3 transition-all duration-200",
+		"group flex items-center rounded-lg px-3 py-2 transition-all duration-200",
 		"hover:bg-accent/40 active:scale-[0.99]",
 		isFinished ? "opacity-55" : isActive ? "bg-primary/[0.04]" : "",
 	);
@@ -66,11 +66,17 @@ export function ExerciseRow({ exercise, onToggleFinished }: ExerciseRowProps) {
 		</span>
 	);
 
-	const chevronClassName = cn(
-		"size-4 transition-all duration-200",
-		isFinished
-			? "text-muted-foreground/20"
-			: "text-muted-foreground/40 group-hover:translate-x-0.5 group-hover:text-primary",
+	const navIndicator = (
+		<div
+			className={cn(
+				"flex size-7 items-center justify-center rounded-lg transition-all duration-200",
+				isFinished
+					? "bg-muted/30 text-muted-foreground/30"
+					: "bg-muted/90 text-muted-foreground/90 group-hover:bg-primary/15 group-hover:text-primary",
+			)}
+		>
+			<ChevronRight className="size-3.5" />
+		</div>
 	);
 
 	if (hasWorkout) {
@@ -102,7 +108,7 @@ export function ExerciseRow({ exercise, onToggleFinished }: ExerciseRowProps) {
 						to="/exercises/$exerciseId"
 						params={{ exerciseId: exercise._id }}
 					>
-						<ChevronRight className={chevronClassName} />
+						{navIndicator}
 					</Link>
 				</div>
 			</div>
@@ -118,7 +124,7 @@ export function ExerciseRow({ exercise, onToggleFinished }: ExerciseRowProps) {
 			{exerciseName}
 			<div className="ml-3 flex shrink-0 items-center gap-2">
 				{setsCount}
-				<ChevronRight className={chevronClassName} />
+				{navIndicator}
 			</div>
 		</Link>
 	);

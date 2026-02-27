@@ -4,7 +4,6 @@ import {
 	CalendarDays,
 	Dumbbell,
 	HeartPulse,
-	LayoutTemplate,
 } from "lucide-react";
 
 const items = [
@@ -12,11 +11,6 @@ const items = [
 		title: "Exercises",
 		url: "/",
 		icon: Dumbbell,
-	},
-	{
-		title: "Templates",
-		url: "/templates",
-		icon: LayoutTemplate,
 	},
 	{
 		title: "Cardio",

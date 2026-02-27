@@ -25,11 +25,7 @@ export default defineSchema({
 		startTime: v.number(),
 		endTime: v.optional(v.number()),
 	}).index("startTime", ["startTime"]),
-	templates: defineTable({
-		name: v.optional(v.string()),
-		exercises: v.array(v.id("exercises")),
-	}),
-	barbells: defineTable({
+barbells: defineTable({
 		name: v.string(),
 		weight: v.number(),
 		unit: v.union(v.literal("kg"), v.literal("lbs")),
