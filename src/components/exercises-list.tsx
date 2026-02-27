@@ -5,12 +5,12 @@ import {
 	AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ExerciseRow } from "@/components/exercise-row";
 import { cn } from "@/lib/utils";
-import { Link } from "@tanstack/react-router";
 import { Store, useStore } from "@tanstack/react-store";
 import { api } from "convex/_generated/api";
 import { useMutation, useQuery } from "convex/react";
-import { Check, ChevronRight, Dumbbell, Flame, SearchX } from "lucide-react";
+import { Check, Dumbbell, SearchX } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 const store = new Store<{
@@ -221,136 +221,15 @@ export function ExercisesList({ searchQuery = "" }: { searchQuery?: string }) {
 								</div>
 							</AccordionTrigger>
 							<AccordionContent className="px-4 pb-2">
+								<div className="mb-2 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
 								<div>
-									{muscleGroup.exercises.map((exercise) => {
-										const currentSets =
-											"currentSetsCount" in exercise
-												? (exercise.currentSetsCount as number)
-												: 0;
-										const isActive = currentSets > 0;
-										const isFinished =
-											"isFinished" in exercise && exercise.isFinished;
-										const hasWorkout = "isFinished" in exercise;
-
-										return (
-											<Link
-												key={exercise._id}
-												to="/exercises/$exerciseId"
-												params={{
-													exerciseId: exercise._id,
-												}}
-												onClick={
-													hasWorkout
-														? (e) => {
-																e.preventDefault();
-																toggleFinished({
-																	exerciseId: exercise._id,
-																});
-															}
-														: undefined
-												}
-												className={cn(
-													"group flex items-center rounded-lg px-3 py-3 transition-all duration-200",
-													"hover:bg-accent/40 active:scale-[0.99]",
-													isFinished
-														? "opacity-55"
-														: isActive
-															? "bg-primary/[0.04]"
-															: "",
-												)}
-											>
-												<div
-													className="grid transition-all duration-300 ease-out"
-													style={{
-														gridTemplateColumns: hasWorkout ? "24px" : "0px",
-														marginRight: hasWorkout ? "12px" : "0px",
-													}}
-												>
-													<div className="overflow-hidden flex">
-														<button
-															type="button"
-															className="shrink-0 -my-0.5 rounded-full p-0.5 transition-transform active:scale-90"
-															onClick={(e) => {
-																e.preventDefault();
-																e.stopPropagation();
-																toggleFinished({
-																	exerciseId: exercise._id,
-																});
-															}}
-														>
-															{isFinished ? (
-																<div className="flex size-5 items-center justify-center rounded-full bg-emerald-500/20">
-																	<Check
-																		className="size-3 text-emerald-400"
-																		strokeWidth={3}
-																	/>
-																</div>
-															) : isActive ? (
-																<div className="flex size-5 items-center justify-center rounded-full bg-amber-400/20">
-																	<Flame className="size-3 text-amber-400" />
-																</div>
-															) : (
-																<div className="size-5 rounded-full border-2 border-border/60 transition-colors group-hover:border-primary/40" />
-															)}
-														</button>
-													</div>
-												</div>
-
-												<div className="min-w-0 flex-1">
-													<span
-														className={cn(
-															"block truncate text-base",
-															isFinished
-																? "text-muted-foreground line-through"
-																: "text-foreground group-hover:text-primary",
-														)}
-													>
-														{exercise.name}
-													</span>
-												</div>
-
-												<div className="ml-3 flex shrink-0 items-center gap-2">
-													{isActive && (
-														<span
-															className={cn(
-																"rounded-full px-2 py-0.5 text-xs font-medium tabular-nums",
-																isFinished
-																	? "bg-emerald-500/10 text-emerald-400/60"
-																	: "bg-primary/10 text-primary",
-															)}
-														>
-															{currentSets}
-														</span>
-													)}
-													{hasWorkout ? (
-														<Link
-															to="/exercises/$exerciseId"
-															params={{
-																exerciseId: exercise._id,
-															}}
-															onClick={(e) => e.stopPropagation()}
-														>
-															<ChevronRight
-																className={cn(
-																	"size-4 transition-all duration-200",
-																	isFinished
-																		? "text-muted-foreground/20"
-																		: "text-muted-foreground/40 group-hover:translate-x-0.5 group-hover:text-primary",
-																)}
-															/>
-														</Link>
-													) : (
-														<ChevronRight
-															className={cn(
-																"size-4 transition-all duration-200",
-																"text-muted-foreground/40 group-hover:translate-x-0.5 group-hover:text-primary",
-															)}
-														/>
-													)}
-												</div>
-											</Link>
-										);
-									})}
+									{muscleGroup.exercises.map((exercise) => (
+										<ExerciseRow
+											key={exercise._id}
+											exercise={exercise}
+											onToggleFinished={toggleFinished}
+										/>
+									))}
 								</div>
 							</AccordionContent>
 						</AccordionItem>
