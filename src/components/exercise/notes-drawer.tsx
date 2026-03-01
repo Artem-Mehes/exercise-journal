@@ -60,9 +60,12 @@ export function NotesDrawer() {
 
 	return (
 		<Drawer>
-			<DrawerTrigger className="flex items-center gap-1">
+			<DrawerTrigger className="relative flex items-center gap-1">
 				<span className="text-sm">Notes</span>
 				<Notebook className="size-4" />
+				{exercise?.notes && (
+					<span className="absolute -top-1 -right-1 size-2 rounded-full bg-primary" />
+				)}
 			</DrawerTrigger>
 
 			<DrawerContent>
