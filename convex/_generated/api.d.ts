@@ -15,9 +15,11 @@ import type {
 } from "convex/server";
 import type * as barbells from "../barbells.js";
 import type * as cardio from "../cardio.js";
+import type * as crons from "../crons.js";
 import type * as exerciseGroups from "../exerciseGroups.js";
 import type * as exercises from "../exercises.js";
 import type * as migrations from "../migrations.js";
+import type * as plannedExercises from "../plannedExercises.js";
 import type * as plates from "../plates.js";
 import type * as sets from "../sets.js";
 import type * as workouts from "../workouts.js";
@@ -33,9 +35,11 @@ import type * as workouts from "../workouts.js";
 declare const fullApi: ApiFromModules<{
   barbells: typeof barbells;
   cardio: typeof cardio;
+  crons: typeof crons;
   exerciseGroups: typeof exerciseGroups;
   exercises: typeof exercises;
   migrations: typeof migrations;
+  plannedExercises: typeof plannedExercises;
   plates: typeof plates;
   sets: typeof sets;
   workouts: typeof workouts;

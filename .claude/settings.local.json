@@ -10,7 +10,8 @@
       "Bash(sed:*)",
       "Bash(pnpm tsr:*)",
       "Bash(npx:*)",
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "Bash(ls -la /d/Desktop/exercise-journal/src/components/ui/ | grep -E \"\\\\.tsx$\")"
     ]
   }
 }

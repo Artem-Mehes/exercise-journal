@@ -39,13 +39,25 @@ export function WorkoutSummaryTable({
 						<TableCell className="font-medium max-w-[100px] truncate">
 							{data.name}
 						</TableCell>
-						<TableCell>{data.setsCount}</TableCell>
-						<TableCell>
-							{data.bestSet.count} x {data.bestSet.weight} {data.bestSet.unit}
-						</TableCell>
-						<TableCell>
-							{data.maxWeight.value} {data.maxWeight.unit}
-						</TableCell>
+						{data.setsCount > 0 ? (
+							<>
+								<TableCell>{data.setsCount}</TableCell>
+								<TableCell>
+									{data.bestSet.count} x {data.bestSet.weight}{" "}
+									{data.bestSet.unit}
+								</TableCell>
+								<TableCell>
+									{data.maxWeight.value} {data.maxWeight.unit}
+								</TableCell>
+							</>
+						) : (
+							<TableCell
+								colSpan={3}
+								className="text-muted-foreground text-center"
+							>
+								Same as previous
+							</TableCell>
+						)}
 					</TableRow>
 				))}
 			</TableBody>

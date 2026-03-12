@@ -49,4 +49,12 @@ barbells: defineTable({
 		.index("workoutId", ["workoutId"])
 		.index("exerciseId", ["exerciseId"])
 		.index("workoutId_exerciseId", ["workoutId", "exerciseId"]),
+	plannedExercises: defineTable({
+		exerciseId: v.id("exercises"),
+		date: v.string(),
+		completedAt: v.optional(v.number()),
+	})
+		.index("date", ["date"])
+		.index("date_exerciseId", ["date", "exerciseId"])
+		.index("exerciseId", ["exerciseId"]),
 });

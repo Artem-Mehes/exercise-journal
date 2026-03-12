@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 import { useQuery } from "convex/react";
-import { Activity, Target, TrendingUp } from "lucide-react";
+import { Activity, Target } from "lucide-react";
 import { api } from "../../convex/_generated/api";
 
 export function WorkoutSummary() {
@@ -37,12 +37,6 @@ export function WorkoutSummary() {
 						accent={
 							progress >= 1 ? "emerald" : completedCount > 0 ? "amber" : "muted"
 						}
-					/>
-					<StatCell
-						icon={<TrendingUp className="size-3.5" />}
-						value={String(data.groups.length)}
-						label={data.groups.length === 1 ? "group" : "groups"}
-						accent={data.groups.length > 1 ? "primary" : "muted"}
 					/>
 				</div>
 

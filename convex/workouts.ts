@@ -17,10 +17,31 @@ export const getAll = query({
 					.withIndex("workoutId", (q) => q.eq("workoutId", workout._id))
 					.collect();
 
+				const finishedRows = await ctx.db
+					.query("finishedExercises")
+					.withIndex("workoutId", (q) => q.eq("workoutId", workout._id))
+					.collect();
+
 				const workoutGroups = new Set<string>();
 
 				for (const set of sets) {
 					const exercise = await ctx.db.get(set.exerciseId);
+
+					if (!exercise) {
+						continue;
+					}
+
+					const group = await ctx.db.get(exercise.groupId);
+
+					if (!group) {
+						continue;
+					}
+
+					workoutGroups.add(group.name);
+				}
+
+				for (const row of finishedRows) {
+					const exercise = await ctx.db.get(row.exerciseId);
 
 					if (!exercise) {
 						continue;
@@ -100,16 +121,12 @@ export const endCurrentWorkout = mutation({
 			.withIndex("workoutId", (q) => q.eq("workoutId", activeWorkout._id))
 			.collect();
 
-		if (sets.length === 0) {
-			const finishedRows = await ctx.db
-				.query("finishedExercises")
-				.withIndex("workoutId", (q) => q.eq("workoutId", activeWorkout._id))
-				.collect();
+		const finishedRows = await ctx.db
+			.query("finishedExercises")
+			.withIndex("workoutId", (q) => q.eq("workoutId", activeWorkout._id))
+			.collect();
 
-			for (const row of finishedRows) {
-				await ctx.db.delete(row._id);
-			}
-
+		if (sets.length === 0 && finishedRows.length === 0) {
 			await ctx.db.delete(activeWorkout._id);
 		} else {
 			await ctx.db.patch(activeWorkout._id, {
@@ -401,6 +418,32 @@ export const getSummary = query({
 				name: exercise.name,
 				setsCount: exerciseSets.length,
 				...records,
+			});
+		}
+
+		// Include finished exercises that have no sets in this workout
+		const finishedRows = await ctx.db
+			.query("finishedExercises")
+			.withIndex("workoutId", (q) => q.eq("workoutId", args.workoutId))
+			.collect();
+
+		for (const row of finishedRows) {
+			if (exerciseMap.has(row.exerciseId)) {
+				continue;
+			}
+
+			const exercise = await ctx.db.get(row.exerciseId);
+
+			if (!exercise) {
+				continue;
+			}
+
+			result.push({
+				id: row.exerciseId,
+				name: exercise.name,
+				setsCount: 0,
+				bestSet: { count: 0, weight: 0, unit: "kg" },
+				maxWeight: { value: 0, unit: "kg" },
 			});
 		}
 

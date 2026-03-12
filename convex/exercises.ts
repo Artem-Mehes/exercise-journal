@@ -221,6 +221,15 @@ export const deleteExercise = mutation({
 			await ctx.db.delete(row._id);
 		}
 
+		const plannedRows = await ctx.db
+			.query("plannedExercises")
+			.withIndex("exerciseId", (q) => q.eq("exerciseId", args.exerciseId))
+			.collect();
+
+		for (const row of plannedRows) {
+			await ctx.db.delete(row._id);
+		}
+
 		await ctx.db.delete(args.exerciseId);
 
 		return args.exerciseId;

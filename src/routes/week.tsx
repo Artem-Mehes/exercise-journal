@@ -1,17 +1,34 @@
+import { DayPlanDrawer } from "@/components/planner/day-plan-drawer";
 import { Skeleton } from "@/components/ui/skeleton";
 import { createFileRoute } from "@tanstack/react-router";
 import { api } from "convex/_generated/api";
 import { useQuery } from "convex/react";
-import { Check, Dumbbell, Flame, HeartPulse } from "lucide-react";
+import {
+	Check,
+	ClipboardList,
+	Dumbbell,
+	Flame,
+	HeartPulse,
+	Plus,
+} from "lucide-react";
+import { useMemo, useState } from "react";
 
 export const Route = createFileRoute("/week")({
 	component: RouteComponent,
 });
 
+function formatDateStr(date: Date): string {
+	const y = date.getFullYear();
+	const m = String(date.getMonth() + 1).padStart(2, "0");
+	const d = String(date.getDate()).padStart(2, "0");
+	return `${y}-${m}-${d}`;
+}
+
 function getWeekDays(): {
 	name: string;
 	shortName: string;
 	date: Date;
+	dateStr: string;
 	isToday: boolean;
 	isPast: boolean;
 }[] {
@@ -46,6 +63,7 @@ function getWeekDays(): {
 			name: fullNames[i],
 			shortName: dayNames[i],
 			date,
+			dateStr: formatDateStr(date),
 			isToday: date.getTime() === today.getTime(),
 			isPast: date.getTime() < today.getTime(),
 		});
@@ -88,6 +106,19 @@ function RouteComponent() {
 	const cardioEntries = useQuery(api.cardio.get);
 	const workouts = useQuery(api.workouts.getAll);
 
+	const weekDateStrs = useMemo(
+		() => weekDays.map((d) => d.dateStr),
+		[weekDays],
+	);
+	const planCounts = useQuery(api.plannedExercises.getCountsByDates, {
+		dates: weekDateStrs,
+	});
+
+	const [selectedDay, setSelectedDay] = useState<{
+		date: Date;
+		dateStr: string;
+	} | null>(null);
+
 	if (cardioEntries === undefined || workouts === undefined) {
 		return (
 			<div className="space-y-4">
@@ -124,12 +155,26 @@ function RouteComponent() {
 					const strength = hasWorkoutOnDay(workouts, day.date);
 					const hasActivity = strength || cardio;
 					const hasBoth = strength && cardio;
+					const hasPlan = planCounts && planCounts[day.dateStr] !== undefined;
+					const canPlan = !day.isPast;
+
+					const Wrapper = canPlan ? "button" : "div";
 
 					return (
-						<div
+						<Wrapper
+							type={canPlan ? "button" : undefined}
 							key={day.shortName}
-							className="relative"
+							className={`relative w-full text-left ${canPlan ? "cursor-pointer" : ""}`}
 							style={{ animationDelay: `${i * 40}ms` }}
+							onClick={
+								canPlan
+									? () =>
+											setSelectedDay({
+												date: day.date,
+												dateStr: day.dateStr,
+											})
+									: undefined
+							}
 						>
 							<div
 								className={`
@@ -204,7 +249,7 @@ function RouteComponent() {
 
 									{/* Content */}
 									<div className="flex items-center gap-2 flex-1 min-w-0">
-										{!hasActivity && (
+										{!hasActivity && !hasPlan && (
 											<span
 												className={`text-sm ${
 													day.isToday
@@ -237,9 +282,17 @@ function RouteComponent() {
 												</span>
 											</div>
 										)}
+										{hasPlan && (
+											<div className="flex items-center gap-1.5 rounded-lg bg-muted px-2.5 py-1.5 border border-border">
+												<ClipboardList className="size-3.5 text-muted-foreground" />
+												<span className="text-xs font-semibold text-muted-foreground font-display tracking-wide">
+													{planCounts[day.dateStr]} planned
+												</span>
+											</div>
+										)}
 									</div>
 
-									{/* Status indicator */}
+									{/* Status indicator / Plan affordance */}
 									<div className="shrink-0">
 										{hasBoth ? (
 											<div className="flex size-7 items-center justify-center rounded-full bg-primary/20 border border-primary/30">
@@ -252,16 +305,29 @@ function RouteComponent() {
 													strokeWidth={2.5}
 												/>
 											</div>
-										) : day.isToday ? (
-											<div className="size-2.5 rounded-full bg-primary/50 animate-pulse-glow shrink-0" />
+										) : canPlan ? (
+											<div className="flex size-7 items-center justify-center rounded-full border border-dashed border-muted-foreground/30 text-muted-foreground/40 transition-colors hover:border-primary/40 hover:text-primary/60">
+												<Plus className="size-3.5" strokeWidth={2} />
+											</div>
 										) : null}
 									</div>
 								</div>
 							</div>
-						</div>
+						</Wrapper>
 					);
 				})}
 			</div>
+
+			{selectedDay && (
+				<DayPlanDrawer
+					date={selectedDay.date}
+					dateStr={selectedDay.dateStr}
+					open={!!selectedDay}
+					onOpenChange={(open) => {
+						if (!open) setSelectedDay(null);
+					}}
+				/>
+			)}
 		</div>
 	);
 }
