@@ -52,7 +52,6 @@ barbells: defineTable({
 	plannedExercises: defineTable({
 		exerciseId: v.id("exercises"),
 		date: v.string(),
-		completedAt: v.optional(v.number()),
 	})
 		.index("date", ["date"])
 		.index("date_exerciseId", ["date", "exerciseId"])

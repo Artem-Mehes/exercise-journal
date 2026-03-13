@@ -7,7 +7,7 @@ import {
 import { api } from "convex/_generated/api";
 import type { Id } from "convex/_generated/dataModel";
 import { useMutation, useQuery } from "convex/react";
-import { Check, Circle, Plus, X } from "lucide-react";
+import { Check, Circle, Minus, Plus, X } from "lucide-react";
 import { useState } from "react";
 import { ExercisePicker } from "./exercise-picker";
 
@@ -32,7 +32,9 @@ export function DayPlanDrawer({
 }) {
 	const [showPicker, setShowPicker] = useState(false);
 	const planned = useQuery(api.plannedExercises.getByDate, { date: dateStr });
-	const toggleCompleted = useMutation(api.plannedExercises.toggleCompleted);
+	const currentWorkout = useQuery(api.workouts.getCurrentWorkout);
+	const hasActiveWorkout = !!currentWorkout;
+	const toggleFinished = useMutation(api.exercises.toggleFinished);
 	const removePlanned = useMutation(api.plannedExercises.remove);
 
 	const plannedExerciseIds = new Set(
@@ -59,30 +61,33 @@ export function DayPlanDrawer({
 						>
 							<button
 								type="button"
+								disabled={!hasActiveWorkout}
 								onClick={() =>
-									toggleCompleted({
-										plannedExerciseId: item._id as Id<"plannedExercises">,
+									toggleFinished({
+										exerciseId: item.exerciseId as Id<"exercises">,
 									})
 								}
 								className="shrink-0"
 							>
-								{item.completedAt ? (
+								{item.isFinished ? (
 									<div className="flex size-6 items-center justify-center rounded-full bg-primary/20 border border-primary/30">
 										<Check
 											className="size-3.5 text-primary"
 											strokeWidth={2.5}
 										/>
 									</div>
-								) : (
+								) : hasActiveWorkout ? (
 									<Circle className="size-6 text-muted-foreground/50" />
+								) : (
+									<Minus className="size-6 text-muted-foreground/25" />
 								)}
 							</button>
 
 							<div
-								className={`flex-1 min-w-0 ${item.completedAt ? "opacity-50" : ""}`}
+								className={`flex-1 min-w-0 ${item.isFinished ? "opacity-50" : ""}`}
 							>
 								<div
-									className={`text-sm font-medium truncate ${item.completedAt ? "line-through" : ""}`}
+									className={`text-sm font-medium truncate ${item.isFinished ? "line-through" : ""}`}
 								>
 									{item.exerciseName}
 								</div>

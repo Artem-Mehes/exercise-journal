@@ -11,6 +11,24 @@ export const getByDate = query({
 			.withIndex("date", (q) => q.eq("date", args.date))
 			.collect();
 
+		const activeWorkout = await ctx.db
+			.query("workouts")
+			.filter((q) => q.eq(q.field("endTime"), undefined))
+			.first();
+
+		const finishedExerciseIds = new Set<string>();
+		if (activeWorkout) {
+			const finishedRows = await ctx.db
+				.query("finishedExercises")
+				.withIndex("workoutId", (q) =>
+					q.eq("workoutId", activeWorkout._id),
+				)
+				.collect();
+			for (const row of finishedRows) {
+				finishedExerciseIds.add(row.exerciseId);
+			}
+		}
+
 		const results = await Promise.all(
 			planned.map(async (p) => {
 				const exercise = await ctx.db.get(p.exerciseId);
@@ -22,6 +40,7 @@ export const getByDate = query({
 					...p,
 					exerciseName: exercise.name,
 					groupName: group?.name ?? "",
+					isFinished: finishedExerciseIds.has(p.exerciseId),
 				};
 			}),
 		);
@@ -82,21 +101,6 @@ export const remove = mutation({
 	},
 });
 
-export const toggleCompleted = mutation({
-	args: {
-		plannedExerciseId: v.id("plannedExercises"),
-	},
-	handler: async (ctx, args) => {
-		const planned = await ctx.db.get(args.plannedExerciseId);
-		if (!planned) {
-			throw new Error("Planned exercise not found");
-		}
-
-		await ctx.db.patch(args.plannedExerciseId, {
-			completedAt: planned.completedAt ? undefined : Date.now(),
-		});
-	},
-});
 
 export const cleanupPastPlans = internalMutation({
 	handler: async (ctx) => {
