@@ -47,7 +47,7 @@ export function ExercisePicker({
 				/>
 			</div>
 
-			<div className="max-h-64 overflow-y-auto space-y-1">
+			<div className="max-h-96 overflow-y-auto space-y-1">
 				{filtered.map((exercise) => {
 					const isPlanned = plannedExerciseIds.has(exercise.id);
 

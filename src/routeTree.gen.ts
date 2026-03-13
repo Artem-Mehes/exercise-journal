@@ -14,6 +14,7 @@ import { Route as WeekRouteImport } from './routes/week'
 import { Route as ConverterRouteImport } from './routes/converter'
 import { Route as CardioRouteImport } from './routes/cardio'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PlannerDateRouteImport } from './routes/planner.$date'
 import { Route as ExercisesExerciseIdRouteImport } from './routes/exercises_.$exerciseId'
 
 const WorkoutsRoute = WorkoutsRouteImport.update({
@@ -41,6 +42,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PlannerDateRoute = PlannerDateRouteImport.update({
+  id: '/planner/$date',
+  path: '/planner/$date',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ExercisesExerciseIdRoute = ExercisesExerciseIdRouteImport.update({
   id: '/exercises_/$exerciseId',
   path: '/exercises/$exerciseId',
@@ -54,6 +60,7 @@ export interface FileRoutesByFullPath {
   '/week': typeof WeekRoute
   '/workouts': typeof WorkoutsRoute
   '/exercises/$exerciseId': typeof ExercisesExerciseIdRoute
+  '/planner/$date': typeof PlannerDateRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -62,6 +69,7 @@ export interface FileRoutesByTo {
   '/week': typeof WeekRoute
   '/workouts': typeof WorkoutsRoute
   '/exercises/$exerciseId': typeof ExercisesExerciseIdRoute
+  '/planner/$date': typeof PlannerDateRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -71,6 +79,7 @@ export interface FileRoutesById {
   '/week': typeof WeekRoute
   '/workouts': typeof WorkoutsRoute
   '/exercises_/$exerciseId': typeof ExercisesExerciseIdRoute
+  '/planner/$date': typeof PlannerDateRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -81,6 +90,7 @@ export interface FileRouteTypes {
     | '/week'
     | '/workouts'
     | '/exercises/$exerciseId'
+    | '/planner/$date'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -89,6 +99,7 @@ export interface FileRouteTypes {
     | '/week'
     | '/workouts'
     | '/exercises/$exerciseId'
+    | '/planner/$date'
   id:
     | '__root__'
     | '/'
@@ -97,6 +108,7 @@ export interface FileRouteTypes {
     | '/week'
     | '/workouts'
     | '/exercises_/$exerciseId'
+    | '/planner/$date'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -106,6 +118,7 @@ export interface RootRouteChildren {
   WeekRoute: typeof WeekRoute
   WorkoutsRoute: typeof WorkoutsRoute
   ExercisesExerciseIdRoute: typeof ExercisesExerciseIdRoute
+  PlannerDateRoute: typeof PlannerDateRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -145,6 +158,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/planner/$date': {
+      id: '/planner/$date'
+      path: '/planner/$date'
+      fullPath: '/planner/$date'
+      preLoaderRoute: typeof PlannerDateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/exercises_/$exerciseId': {
       id: '/exercises_/$exerciseId'
       path: '/exercises/$exerciseId'
@@ -162,6 +182,7 @@ const rootRouteChildren: RootRouteChildren = {
   WeekRoute: WeekRoute,
   WorkoutsRoute: WorkoutsRoute,
   ExercisesExerciseIdRoute: ExercisesExerciseIdRoute,
+  PlannerDateRoute: PlannerDateRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
