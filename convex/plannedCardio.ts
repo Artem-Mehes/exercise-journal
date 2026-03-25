@@ -7,40 +7,21 @@ export const getByDate = query({
 	},
 	handler: async (ctx, args) => {
 		const planned = await ctx.db
-			.query("plannedExercises")
+			.query("plannedCardio")
 			.withIndex("date", (q) => q.eq("date", args.date))
 			.collect();
 
-		const activeWorkout = await ctx.db
-			.query("workouts")
-			.filter((q) => q.eq(q.field("endTime"), undefined))
-			.first();
-
-		const finishedExerciseIds = new Set<string>();
-		if (activeWorkout) {
-			const finishedRows = await ctx.db
-				.query("finishedExercises")
-				.withIndex("workoutId", (q) =>
-					q.eq("workoutId", activeWorkout._id),
-				)
-				.collect();
-			for (const row of finishedRows) {
-				finishedExerciseIds.add(row.exerciseId);
-			}
-		}
-
 		const results = await Promise.all(
 			planned.map(async (p) => {
-				const exercise = await ctx.db.get(p.exerciseId);
-				if (!exercise) return null;
-
-				const group = await ctx.db.get(exercise.groupId);
+				const cardio = await ctx.db.get(p.cardioId);
+				if (!cardio) return null;
 
 				return {
 					...p,
-					exerciseName: exercise.name,
-					groupName: group?.name ?? "",
-					isFinished: finishedExerciseIds.has(p.exerciseId),
+					title: cardio.title,
+					time: cardio.time,
+					incline: cardio.incline,
+					speed: cardio.speed,
 				};
 			}),
 		);
@@ -58,7 +39,7 @@ export const getCountsByDates = query({
 
 		for (const date of args.dates) {
 			const planned = await ctx.db
-				.query("plannedExercises")
+				.query("plannedCardio")
 				.withIndex("date", (q) => q.eq("date", date))
 				.collect();
 			if (planned.length > 0) {
@@ -72,21 +53,21 @@ export const getCountsByDates = query({
 
 export const add = mutation({
 	args: {
-		exerciseId: v.id("exercises"),
+		cardioId: v.id("cardio"),
 		date: v.string(),
 	},
 	handler: async (ctx, args) => {
 		const existing = await ctx.db
-			.query("plannedExercises")
-			.withIndex("date_exerciseId", (q) =>
-				q.eq("date", args.date).eq("exerciseId", args.exerciseId),
+			.query("plannedCardio")
+			.withIndex("date_cardioId", (q) =>
+				q.eq("date", args.date).eq("cardioId", args.cardioId),
 			)
 			.first();
 
 		if (existing) return existing._id;
 
-		return await ctx.db.insert("plannedExercises", {
-			exerciseId: args.exerciseId,
+		return await ctx.db.insert("plannedCardio", {
+			cardioId: args.cardioId,
 			date: args.date,
 		});
 	},
@@ -94,9 +75,9 @@ export const add = mutation({
 
 export const remove = mutation({
 	args: {
-		plannedExerciseId: v.id("plannedExercises"),
+		plannedCardioId: v.id("plannedCardio"),
 	},
 	handler: async (ctx, args) => {
-		await ctx.db.delete(args.plannedExerciseId);
+		await ctx.db.delete(args.plannedCardioId);
 	},
 });

@@ -112,6 +112,9 @@ function RouteComponent() {
 	const planCounts = useQuery(api.plannedExercises.getCountsByDates, {
 		dates: weekDateStrs,
 	});
+	const cardioPlanCounts = useQuery(api.plannedCardio.getCountsByDates, {
+		dates: weekDateStrs,
+	});
 
 	if (cardioEntries === undefined || workouts === undefined) {
 		return (
@@ -150,6 +153,9 @@ function RouteComponent() {
 					const hasActivity = strength || cardio;
 					const hasBoth = strength && cardio;
 					const hasPlan = planCounts && planCounts[day.dateStr] !== undefined;
+					const hasCardioPlan =
+						cardioPlanCounts &&
+						cardioPlanCounts[day.dateStr] !== undefined;
 					const canPlan = !day.isPast;
 
 					const cardContent = (
@@ -222,7 +228,7 @@ function RouteComponent() {
 
 								{/* Content */}
 								<div className="flex items-center gap-2 flex-1 min-w-0">
-									{!hasActivity && !hasPlan && (
+									{!hasActivity && !hasPlan && !hasCardioPlan && (
 										<span
 											className={`text-sm ${
 												day.isToday
@@ -260,6 +266,14 @@ function RouteComponent() {
 											<ClipboardList className="size-3.5 text-muted-foreground" />
 											<span className="text-xs font-semibold text-muted-foreground font-display tracking-wide">
 												{planCounts[day.dateStr]} planned
+											</span>
+										</div>
+									)}
+									{hasCardioPlan && (
+										<div className="flex items-center gap-1.5 rounded-lg bg-[oklch(0.7_0.18_20_/_0.08)] px-2.5 py-1.5 border border-[oklch(0.7_0.18_20_/_0.15)]">
+											<HeartPulse className="size-3.5 text-[oklch(0.75_0.16_20_/_0.7)]" />
+											<span className="text-xs font-semibold text-[oklch(0.75_0.16_20_/_0.7)] font-display tracking-wide">
+												{cardioPlanCounts[day.dateStr]} cardio
 											</span>
 										</div>
 									)}

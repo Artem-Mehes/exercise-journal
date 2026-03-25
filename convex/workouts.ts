@@ -132,6 +132,27 @@ export const endCurrentWorkout = mutation({
 			await ctx.db.patch(activeWorkout._id, {
 				endTime: Date.now(),
 			});
+
+			// Delete planned exercises and cardio for today
+			const today = new Date().toISOString().slice(0, 10);
+
+			const plannedExercises = await ctx.db
+				.query("plannedExercises")
+				.withIndex("date", (q) => q.eq("date", today))
+				.collect();
+
+			for (const p of plannedExercises) {
+				await ctx.db.delete(p._id);
+			}
+
+			const plannedCardio = await ctx.db
+				.query("plannedCardio")
+				.withIndex("date", (q) => q.eq("date", today))
+				.collect();
+
+			for (const p of plannedCardio) {
+				await ctx.db.delete(p._id);
+			}
 		}
 
 		return activeWorkout._id;

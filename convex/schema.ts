@@ -56,4 +56,11 @@ barbells: defineTable({
 		.index("date", ["date"])
 		.index("date_exerciseId", ["date", "exerciseId"])
 		.index("exerciseId", ["exerciseId"]),
+	plannedCardio: defineTable({
+		cardioId: v.id("cardio"),
+		date: v.string(),
+	})
+		.index("date", ["date"])
+		.index("date_cardioId", ["date", "cardioId"])
+		.index("cardioId", ["cardioId"]),
 });

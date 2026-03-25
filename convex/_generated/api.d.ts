@@ -19,6 +19,7 @@ import type * as crons from "../crons.js";
 import type * as exerciseGroups from "../exerciseGroups.js";
 import type * as exercises from "../exercises.js";
 import type * as migrations from "../migrations.js";
+import type * as plannedCardio from "../plannedCardio.js";
 import type * as plannedExercises from "../plannedExercises.js";
 import type * as plates from "../plates.js";
 import type * as sets from "../sets.js";
@@ -39,6 +40,7 @@ declare const fullApi: ApiFromModules<{
   exerciseGroups: typeof exerciseGroups;
   exercises: typeof exercises;
   migrations: typeof migrations;
+  plannedCardio: typeof plannedCardio;
   plannedExercises: typeof plannedExercises;
   plates: typeof plates;
   sets: typeof sets;
