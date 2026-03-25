@@ -107,10 +107,59 @@ export const cleanupPastPlans = internalMutation({
 		const today = new Date().toISOString().slice(0, 10);
 
 		const allPlanned = await ctx.db.query("plannedExercises").collect();
+		const pastPlanned = allPlanned.filter((p) => p.date < today);
 
-		for (const p of allPlanned) {
-			if (p.date < today) {
-				await ctx.db.delete(p._id);
+		if (pastPlanned.length === 0) return;
+
+		// Group past plans by date
+		const plansByDate = new Map<string, typeof pastPlanned>();
+		for (const p of pastPlanned) {
+			const existing = plansByDate.get(p.date);
+			if (existing) {
+				existing.push(p);
+			} else {
+				plansByDate.set(p.date, [p]);
+			}
+		}
+
+		// Get all completed workouts to check which dates had workouts
+		const completedWorkouts = await ctx.db
+			.query("workouts")
+			.filter((q) => q.neq(q.field("endTime"), undefined))
+			.collect();
+
+		// Build a set of dates that had completed workouts
+		const datesWithWorkouts = new Set<string>();
+		for (const w of completedWorkouts) {
+			const workoutDate = new Date(w.startTime).toISOString().slice(0, 10);
+			datesWithWorkouts.add(workoutDate);
+		}
+
+		for (const [date, plans] of plansByDate) {
+			if (datesWithWorkouts.has(date)) {
+				// Workout was done on this day — delete the plans
+				for (const p of plans) {
+					await ctx.db.delete(p._id);
+				}
+			} else {
+				// No workout on this day — move plans to today
+				for (const p of plans) {
+					// Check if this exercise is already planned for today
+					const alreadyPlanned = await ctx.db
+						.query("plannedExercises")
+						.withIndex("date_exerciseId", (q) =>
+							q.eq("date", today).eq("exerciseId", p.exerciseId),
+						)
+						.first();
+
+					if (alreadyPlanned) {
+						// Already planned for today, just delete the old one
+						await ctx.db.delete(p._id);
+					} else {
+						// Move to today by updating the date
+						await ctx.db.patch(p._id, { date: today });
+					}
+				}
 			}
 		}
 	},
