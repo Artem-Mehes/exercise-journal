@@ -32,39 +32,35 @@ function getWeekDays(): {
 	isPast: boolean;
 }[] {
 	const now = new Date();
-	const dayOfWeek = now.getDay();
-	// Monday = 0, Sunday = 6
-	const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
-	const monday = new Date(now);
-	monday.setDate(now.getDate() + mondayOffset);
-	monday.setHours(0, 0, 0, 0);
+	now.setHours(0, 0, 0, 0);
 
-	const days = [];
-	const dayNames = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+	const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 	const fullNames = [
+		"Sunday",
 		"Monday",
 		"Tuesday",
 		"Wednesday",
 		"Thursday",
 		"Friday",
 		"Saturday",
-		"Sunday",
 	];
 
-	for (let i = 0; i < 7; i++) {
-		const date = new Date(monday);
-		date.setDate(monday.getDate() + i);
+	const days = [];
 
-		const today = new Date();
-		today.setHours(0, 0, 0, 0);
+	// Show 2 days before today, today, and 4 days after
+	for (let i = -2; i <= 4; i++) {
+		const date = new Date(now);
+		date.setDate(now.getDate() + i);
+
+		const dow = date.getDay();
 
 		days.push({
-			name: fullNames[i],
-			shortName: dayNames[i],
+			name: fullNames[dow],
+			shortName: dayNames[dow],
 			date,
 			dateStr: formatDateStr(date),
-			isToday: date.getTime() === today.getTime(),
-			isPast: date.getTime() < today.getTime(),
+			isToday: i === 0,
+			isPast: i < 0,
 		});
 	}
 
@@ -152,10 +148,13 @@ function RouteComponent() {
 					const strength = hasWorkoutOnDay(workouts, day.date);
 					const hasActivity = strength || cardio;
 					const hasBoth = strength && cardio;
-					const hasPlan = planCounts && planCounts[day.dateStr] !== undefined;
+					const planData = planCounts?.[day.dateStr];
+					const hasPlan = planData !== undefined;
+					const planFinished = planData?.finished ?? 0;
+					const planTotal = planData?.total ?? 0;
+					const allPlansDone = hasPlan && planFinished === planTotal;
 					const hasCardioPlan =
-						cardioPlanCounts &&
-						cardioPlanCounts[day.dateStr] !== undefined;
+						cardioPlanCounts && cardioPlanCounts[day.dateStr] !== undefined;
 					const canPlan = !day.isPast;
 
 					const cardContent = (
@@ -262,10 +261,36 @@ function RouteComponent() {
 										</div>
 									)}
 									{hasPlan && (
-										<div className="flex items-center gap-1.5 rounded-lg bg-muted px-2.5 py-1.5 border border-border">
-											<ClipboardList className="size-3.5 text-muted-foreground" />
-											<span className="text-xs font-semibold text-muted-foreground font-display tracking-wide">
-												{planCounts[day.dateStr]} planned
+										<div
+											className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 border ${
+												allPlansDone
+													? "bg-primary/15 border-primary/20"
+													: planFinished > 0
+														? "bg-primary/8 border-primary/15"
+														: "bg-muted border-border"
+											}`}
+										>
+											<ClipboardList
+												className={`size-3.5 ${
+													allPlansDone
+														? "text-primary"
+														: planFinished > 0
+															? "text-primary/70"
+															: "text-muted-foreground"
+												}`}
+											/>
+											<span
+												className={`text-xs font-semibold font-display tracking-wide ${
+													allPlansDone
+														? "text-primary"
+														: planFinished > 0
+															? "text-primary/70"
+															: "text-muted-foreground"
+												}`}
+											>
+												{planFinished > 0
+													? `${planFinished}/${planTotal} planned`
+													: `${planTotal} planned`}
 											</span>
 										</div>
 									)}

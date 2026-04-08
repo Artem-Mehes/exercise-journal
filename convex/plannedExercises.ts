@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { mutation, query } from "./_generated/server";
+import { internalMutation, mutation, query } from "./_generated/server";
 
 export const getByDate = query({
 	args: {
@@ -54,16 +54,42 @@ export const getCountsByDates = query({
 		dates: v.array(v.string()),
 	},
 	handler: async (ctx, args) => {
-		const counts: Record<string, number> = {};
+		const counts: Record<string, { total: number; finished: number }> = {};
+
+		// Get all workouts to map dates to workout IDs
+		const allWorkouts = await ctx.db.query("workouts").collect();
 
 		for (const date of args.dates) {
 			const planned = await ctx.db
 				.query("plannedExercises")
 				.withIndex("date", (q) => q.eq("date", date))
 				.collect();
-			if (planned.length > 0) {
-				counts[date] = planned.length;
+			if (planned.length === 0) continue;
+
+			// Find workouts that started on this date
+			const dayStart = new Date(`${date}T00:00:00`).getTime();
+			const dayEnd = new Date(`${date}T23:59:59.999`).getTime();
+			const dayWorkouts = allWorkouts.filter(
+				(w) => w.startTime >= dayStart && w.startTime <= dayEnd,
+			);
+
+			// Collect all finished exercise IDs across workouts on this date
+			const finishedExerciseIds = new Set<string>();
+			for (const w of dayWorkouts) {
+				const finishedRows = await ctx.db
+					.query("finishedExercises")
+					.withIndex("workoutId", (q) => q.eq("workoutId", w._id))
+					.collect();
+				for (const row of finishedRows) {
+					finishedExerciseIds.add(row.exerciseId);
+				}
 			}
+
+			const finishedCount = planned.filter((p) =>
+				finishedExerciseIds.has(p.exerciseId),
+			).length;
+
+			counts[date] = { total: planned.length, finished: finishedCount };
 		}
 
 		return counts;
@@ -98,5 +124,68 @@ export const remove = mutation({
 	},
 	handler: async (ctx, args) => {
 		await ctx.db.delete(args.plannedExerciseId);
+	},
+});
+
+export const cleanupPastPlans = internalMutation({
+	handler: async (ctx) => {
+		const today = new Date().toISOString().slice(0, 10);
+
+		const allPlanned = await ctx.db.query("plannedExercises").collect();
+		const pastPlanned = allPlanned.filter((p) => p.date < today);
+
+		if (pastPlanned.length === 0) return;
+
+		// Group past plans by date
+		const plansByDate = new Map<string, typeof pastPlanned>();
+		for (const p of pastPlanned) {
+			const existing = plansByDate.get(p.date);
+			if (existing) {
+				existing.push(p);
+			} else {
+				plansByDate.set(p.date, [p]);
+			}
+		}
+
+		// Get all completed workouts to check which dates had workouts
+		const completedWorkouts = await ctx.db
+			.query("workouts")
+			.filter((q) => q.neq(q.field("endTime"), undefined))
+			.collect();
+
+		// Build a set of dates that had completed workouts
+		const datesWithWorkouts = new Set<string>();
+		for (const w of completedWorkouts) {
+			const workoutDate = new Date(w.startTime).toISOString().slice(0, 10);
+			datesWithWorkouts.add(workoutDate);
+		}
+
+		for (const [date, plans] of plansByDate) {
+			if (datesWithWorkouts.has(date)) {
+				// Workout was done on this day — delete the plans
+				for (const p of plans) {
+					await ctx.db.delete(p._id);
+				}
+			} else {
+				// No workout on this day — move plans to today
+				for (const p of plans) {
+					// Check if this exercise is already planned for today
+					const alreadyPlanned = await ctx.db
+						.query("plannedExercises")
+						.withIndex("date_exerciseId", (q) =>
+							q.eq("date", today).eq("exerciseId", p.exerciseId),
+						)
+						.first();
+
+					if (alreadyPlanned) {
+						// Already planned for today, just delete the old one
+						await ctx.db.delete(p._id);
+					} else {
+						// Move to today by updating the date
+						await ctx.db.patch(p._id, { date: today });
+					}
+				}
+			}
+		}
 	},
 });
